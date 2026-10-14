@@ -1,5 +1,6 @@
 local jogo = require("jogo")
 local jogador = require("jogador")
+local cores = require("cores")
 
 local pocoes = {}
 
@@ -15,20 +16,27 @@ end
 
 function pocoes.acao(a)
     if a == "cancelar" then
+        savegame.gravar()
         jogo.fechar()
         return
     end
 
     local n = #lista
-    if n == 0 then return end
+    if n == 0 then
+        return
+    end
 
     if a == "cima" then
         indice = indice - 1
-        if indice < 1 then indice = n end
+        if indice < 1 then
+            indice = n
+        end
         aviso = ""
     elseif a == "baixo" then
         indice = indice + 1
-        if indice > n then indice = 1 end
+        if indice > n then
+            indice = 1
+        end
         aviso = ""
     elseif a == "confirmar" then
         local p = lista[indice]
@@ -54,9 +62,9 @@ function pocoes.desenhar()
     else
         for i, p in ipairs(lista) do
             local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. p.nome .. " x" .. jogador.quantas(p.id) ..
-                " (+" .. p.cura .. " vida -> " .. jogador.vidaApos(p) .. "/" .. jogador.vida_max .. ")",
-                20, 140 + (i - 1) * 32)
+            love.graphics.print(cores.nome(p, prefixo,
+                " x" .. jogador.quantas(p.id) .. " (+" .. p.cura .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
+                    jogador.vida_max .. ")"), 20, 140 + (i - 1) * 32)
         end
     end
 

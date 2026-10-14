@@ -1,10 +1,11 @@
 local pocoes = {}
+local cores = require("cores")
 
 -- Aqui uso uma LISTA (e nao uma tabela com nomes como chaves)
 -- porque a ordem importa: e a ordem em que aparecem no menu.
 pocoes.lista = {
-  { id = "pequena", nome = "Pocao Pequena", cura = 10, peso = 75 },
-  { id = "grande",  nome = "Pocao Grande",  cura = 25, peso = 25 },
+  { id = "pequena", nome = "Pocao Pequena", cura = 10, peso = 75, preco = 12, cor = { 1, 0.45, 0.45 } },
+  { id = "grande",  nome = "Pocao Grande",  cura = 25, peso = 25, preco = 30, cor = { 1, 0.15, 0.15 } },
 }
 
 -- Sorteio por pesos, igual ao das raridades do loot

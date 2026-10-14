@@ -1,4 +1,5 @@
 local jogo = {}
+local cores = require("cores")
 
 jogo.estados = {}
 jogo.atual = nil

@@ -1,5 +1,7 @@
 local jogador = {}
 local pocoes = require("pocoes")
+local cores = require("cores")
+local loot = require("loot")
 
 jogador.MAX_ITENS = 8 -- tamanho da mochila
 
@@ -12,6 +14,15 @@ function jogador.reiniciar()
     jogador.armadura = nil
     jogador.inventario = {}
     jogador.pocoes = {}
+    jogador.stats = {
+        inimigos = 0,
+        chefes = 0,
+        dano_causado = 0,
+        dano_sofrido = 0,
+        pocoes = 0
+    }
+    jogador.inimigo = nil -- inimigo da sala atual (o savegame precisa dele)
+    jogador.moedas = 0
 end
 
 function jogador.ataqueTotal()
@@ -73,12 +84,17 @@ end
 
 -- Gasta uma poção e devolve quanta vida recuperaste (ou nil se nao tens).
 function jogador.usarPocao(id)
-    if jogador.quantas(id) <= 0 then return nil end
+    if jogador.quantas(id) <= 0 then
+        return nil
+    end
     local def
     for _, p in ipairs(pocoes.lista) do
-        if p.id == id then def = p end
+        if p.id == id then
+            def = p
+        end
     end
     jogador.pocoes[id] = jogador.pocoes[id] - 1
+    jogador.stats.pocoes = jogador.stats.pocoes + 1
     local antes = jogador.vida
     jogador.vida = jogador.vidaApos(def)
     return jogador.vida - antes
@@ -98,6 +114,18 @@ end
 -- Vida que ficarias a ter se bebesses a poção p (sem passar do máximo)
 function jogador.vidaApos(p)
     return math.min(jogador.vida_max, jogador.vida + p.cura)
+end
+
+function jogador.ganharMoedas(n)
+    jogador.moedas = jogador.moedas + n
+end
+
+-- Vende o item da mochila. Devolve o item e as moedas ganhas.
+function jogador.vender(indice)
+    local item = table.remove(jogador.inventario, indice)
+    local ganho = loot.precoVenda(item)
+    jogador.ganharMoedas(ganho)
+    return item, ganho
 end
 
 jogador.reiniciar()
