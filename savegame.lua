@@ -2,6 +2,8 @@ local jogador = require("jogador")
 local loot = require("loot")
 local pocoes = require("pocoes")
 local inimigos = require("inimigos")
+local salas = require("salas")
+local eventos = require("eventos")
 
 local savegame = {}
 
@@ -15,6 +17,12 @@ local numericas = {
     ataque_base = true,
     sala = true,
     moedas = true
+}
+
+local especiais = {
+    fogueira = true,
+    tesouro = true,
+    evento = true
 }
 
 -- ---------- item <-> texto ("Nome|tipo|bonus|raridade") ----------
@@ -81,9 +89,19 @@ function savegame.gravar()
         add("stat", nome .. "|" .. valor)
     end
 
-    local e = jogador.inimigo
-    if e then
-        add("inimigo", e.nome .. "|" .. e.vida .. "|" .. e.vida_max .. "|" .. e.ataque)
+    if jogador.portas then
+        for _, tipo in ipairs(jogador.portas) do
+            add("porta", tipo)
+        end
+    elseif jogador.especial then
+        add("especial", jogador.especial)
+        if jogador.eventoId then
+            add("evento_id", jogador.eventoId)
+        end
+    elseif jogador.inimigo then
+        local e = jogador.inimigo
+        add("inimigo",
+            (e.base or e.nome) .. "|" .. e.vida .. "|" .. e.vida_max .. "|" .. e.ataque .. "|" .. (e.elite and 1 or 0))
     else
         add("loja", "1")
     end
@@ -107,6 +125,7 @@ end
 -- Devolve o inimigo da sala (para o explorar usar) ou nil se a gravacao
 -- for invalida. So altera o jogador se TUDO estiver correcto.
 function savegame.carregar()
+
     if not savegame.existe() then
         return nil
     end
@@ -119,7 +138,8 @@ function savegame.carregar()
     local d = {
         inventario = {},
         pocoes = {},
-        stats = {}
+        stats = {},
+        portas = {}
     }
     local versaoOk = false
 
@@ -167,7 +187,7 @@ function savegame.carregar()
             d.stats[nome] = tonumber(qtd)
 
         elseif chave == "inimigo" then
-            local nome, vida, vmax, atq = valor:match("^([^|]+)|(%d+)|(%d+)|(%d+)$")
+            local nome, vida, vmax, atq, elite = valor:match("^([^|]+)|(%d+)|(%d+)|(%d+)|?(%d*)$")
             local modelo = nome and modeloPorNome(nome)
             if not modelo then
                 return nil
@@ -177,25 +197,62 @@ function savegame.carregar()
                 e[k] = v
             end
             e.vida, e.vida_max, e.ataque = tonumber(vida), tonumber(vmax), tonumber(atq)
+            if elite == "1" then
+                e.elite = true
+                e.base = modelo.nome
+                e.nome = "Elite " .. modelo.nome
+            end
             d.inimigo = e
         elseif chave == "loja" then
             d.loja = true
+        elseif chave == "porta" then
+            if not salas.valido(valor) then
+                return nil
+            end
+            table.insert(d.portas, valor)
+        elseif chave == "especial" then
+            if not especiais[valor] then
+                return nil
+            end
+            d.especial = valor
+        elseif chave == "evento_id" then
+            if not eventos.existe(valor) then
+                return nil
+            end
+            d.eventoId = valor
         end
         -- chaves desconhecidas sao ignoradas
     end
 
     -- campos obrigatorios e intervalos sensatos
-    if not (versaoOk and d.vida_max and d.vida and d.ataque_base and d.sala and (d.inimigo or d.loja)) then
-        return nil
+    local temPortas = #d.portas > 0
+    local motivo
+    if not versaoOk then
+        motivo = "versao"
+    elseif not d.vida_max then
+        motivo = "falta vida_max"
+    elseif not d.vida then
+        motivo = "falta vida"
+    elseif not d.ataque_base then
+        motivo = "falta ataque_base"
+    elseif not d.sala then
+        motivo = "falta sala"
+    elseif not (d.inimigo or d.loja or temPortas) then
+        motivo = "falta inimigo/loja/portas"
+    elseif d.vida < 1 or d.vida > d.vida_max then
+        motivo = "vida fora do intervalo"
+    elseif #d.inventario > jogador.MAX_ITENS then
+        motivo = "mochila demasiado cheia"
+    elseif #d.portas > salas.MAX_PORTAS then
+        motivo = "portas a mais"
+    elseif d.moedas and d.moedas < 0 then
+        motivo = "moedas negativas"
+    elseif not (d.inimigo or d.loja or temPortas or d.especial) then
+        motivo = "falta inimigo/loja/portas"
     end
-    if d.moedas and d.moedas < 0 then
-        return nil
-    end
-    if d.vida < 1 or d.vida > d.vida_max then
-        return nil
-    end
-    if #d.inventario > jogador.MAX_ITENS then
-        return nil
+    if motivo then
+        print("Gravacao invalida: " .. motivo)
+        return nil, motivo
     end
 
     -- tudo valido: agora sim, aplica ao jogador
@@ -209,12 +266,21 @@ function savegame.carregar()
     jogador.inventario = d.inventario
     jogador.pocoes = d.pocoes
     jogador.moedas = d.moedas or 0
+    jogador.portas = temPortas and d.portas or nil
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor
         end
     end
-    return d.inimigo or "loja"
+
+    if temPortas then
+        return "portas", d.portas
+    elseif d.especial then
+        return d.especial -- o nome do estado e igual ao id da sala
+    elseif d.inimigo then
+        return "explorar", (d.inimigo.boss and "boss" or "combate"), d.inimigo
+    end
+    return "explorar", "loja"
 end
 
 -- Devolve so a sala da gravacao (numero) ou nil. Nao toca no jogador.

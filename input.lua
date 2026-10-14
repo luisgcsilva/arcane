@@ -14,7 +14,7 @@ local teclas = {
 
 -- Número de botão da R36S -> acção
 local botoes = {
-  [15] = "cima", [16] = "baixo", [17] = "esquerda", [18] = "direita",
+  [16] = "cima", [15] = "baixo", [17] = "esquerda", [18] = "direita",
   [1] = "confirmar",   -- A
   [2] = "cancelar",    -- B
   [3] = "menu",        -- X

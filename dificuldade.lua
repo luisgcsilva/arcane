@@ -46,8 +46,8 @@ local function escolherModelo(sala)
     return lista[math.random(#lista)]
 end
 
-function dificuldade.criarInimigo(sala)
-    local modelo = escolherModelo(sala)
+function dificuldade.criarInimigo(sala, forcarBoss, elite)
+    local modelo = escolherModelo(sala, forcarBoss)
     local e = {}
     for chave, valor in pairs(modelo) do
         e[chave] = valor
@@ -55,6 +55,13 @@ function dificuldade.criarInimigo(sala)
     if not modelo.boss then
         e.vida = arredondar(modelo.vida * fator(sala, 0.20))
         e.ataque = arredondar(modelo.ataque * fator(sala, 0.12))
+        if elite then
+            e.vida = arredondar(e.vida * 1.6)
+            e.ataque = arredondar(e.ataque * 1.3)
+            e.elite = true
+            e.base = modelo.nome -- nome original (o savegame precisa dele)
+            e.nome = "Elite " .. modelo.nome
+        end
     end
     e.vida_max = e.vida
     return e

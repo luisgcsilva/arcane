@@ -16,24 +16,18 @@ for chave, _ in pairs(inimigos) do
     table.insert(chaves, chave)
 end
 
-function explorar.entrar(guardado)
-    if guardado == nil then
-        jogador.sala = jogador.sala + 1
-        if dificuldade.eLoja(jogador.sala) then
-            inimigo = nil
-        else
-            inimigo = dificuldade.criarInimigo(jogador.sala)
-        end
-    elseif guardado == "loja" then
+function explorar.entrar(tipo, guardado)
+    jogador.portas = nil
+    jogador.especial = nil
+    if tipo == "loja" then
         inimigo = nil
-    else
-        inimigo = guardado
-    end
-
-    jogador.inimigo = inimigo
-    if inimigo == nil then
         mercador.gerar(jogador.sala)
+    elseif guardado then
+        inimigo = guardado
+    else
+        inimigo = dificuldade.criarInimigo(jogador.sala, tipo == "boss", tipo == "elite")
     end
+    jogador.inimigo = inimigo
     savegame.gravar()
 end
 
@@ -42,12 +36,12 @@ function explorar.acao(a)
         if inimigo then
             jogo.mudar("combate", inimigo)
         else
-            jogo.mudar("explorar") -- sem argumento: avanca para a proxima sala
+            jogo.mudar("portas", "loja") -- sem argumento: avanca para a proxima sala
         end
-    elseif a == "extra" and not inimigo then
-        jogo.abrir("loja")
     elseif a == "cancelar" then
         jogo.mudar("menu")
+    elseif a == "extra" and not inimigo then
+        jogo.abrir("loja")
     elseif a == "inventario" then
         jogo.abrir("inventario")
     elseif a == "menu" then
@@ -82,6 +76,8 @@ function explorar.desenhar()
         love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 200)
     elseif inimigo.boss then
         love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 200)
+    elseif inimigo.elite then
+        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 200)
     else
         love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 200)
     end
@@ -90,7 +86,6 @@ function explorar.desenhar()
     else
         love.graphics.print("Y loja  A seguir  X pocoes  SELECT mochila", 20, 440)
     end
-    love.graphics.print("A - lutar    SELECT - inventário    B - menu", 20, 440)
 end
 
 return explorar

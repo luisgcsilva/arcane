@@ -105,7 +105,6 @@ function inventario.desenhar()
     end
 
     love.graphics.print(aviso, 20, 400)
-    love.graphics.print("A - equipar   X - largar   Y - pocoes  B - fechar", 20, 440)
 end
 
 return inventario

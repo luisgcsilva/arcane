@@ -49,9 +49,9 @@ function menu.acao(a)
         end
 
         if escolha == "continuar" then
-            local inimigo = savegame.carregar()
-            if inimigo then
-                jogo.mudar("explorar", inimigo)
+            local estado, a, b = savegame.carregar()
+            if estado then
+                jogo.mudar(estado, a, b)
             else
                 aviso = "Gravacao invalida. Escolhe Novo jogo."
             end
@@ -61,7 +61,7 @@ function menu.acao(a)
                 aviso = "Apaga a partida gravada? A outra vez confirma."
             else
                 jogador.reiniciar()
-                jogo.mudar("explorar")
+                jogo.mudar("portas")
             end
         else
             love.event.quit()

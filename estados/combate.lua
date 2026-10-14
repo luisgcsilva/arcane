@@ -32,7 +32,7 @@ end
 local function inimigoAtaca()
     local d = dano(inimigo.ataque - jogador.defesaTotal())
     jogador.vida = jogador.vida - d
-    table.insert(mensagens, cores.nome(inimigo, "O " .. inimigo.nome .. " causa-te " .. d .. " de dano.", "!"))
+    table.insert(mensagens, cores.nome(inimigo, "O ", " causa-te " .. d .. " de dano."))
     jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
     if jogador.vida <= 0 then
         jogador.vida = 0
@@ -62,8 +62,8 @@ local function guardarNaMochila(item)
 end
 
 local function largarLoot()
-    if inimigo.boss or math.random() < 0.7 then
-        local item = loot.sortear(jogador.sala + (inimigo.boss and 10 or 0))
+    if inimigo.boss or inimigo.elite or math.random() < 0.7 then
+        local item = loot.sortear(jogador.sala + (inimigo.boss and 10 or (inimigo.elite and 6 or 0)))
         local atributo = (item.tipo == "arma") and "ataque" or "defesa"
         table.insert(mensagens, {{1, 1, 1}, "Encontras: ", loot.cores[item.raridade], item.nome, {1, 1, 1},
                                  " (" .. item.raridade .. ", +" .. item.bonus .. " " .. atributo .. ")"})
@@ -92,13 +92,15 @@ local function largarMoedas()
     local n = math.random(3, 6) + 2 * jogador.sala
     if inimigo.boss then
         n = n * 3
+    elseif inimigo.elite then
+        n = n * 2
     end
     jogador.ganharMoedas(n)
     table.insert(mensagens, {{1, 0.85, 0.2}, "Encontras " .. n .. " moedas."})
 end
 
 local function largarPocao()
-    if inimigo.boss or math.random() < 0.4 then
+    if inimigo.boss or inimigo.elite or math.random() < 0.4 then
         local p = pocoes.sortear()
         jogador.darPocao(p.id)
         table.insert(mensagens,
@@ -124,8 +126,7 @@ function combate.entrar(inimigo_novo)
     fase = "escolha"
     turno = 1
     deslocamento = 0
-    mensagens = {cores.nome(inimigo, "Um " .. inimigo.nome .. " bloqueia o caminho!", "!"),
-                 "--- Turno " .. turno .. " ---"}
+    mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!", "!"), "--- Turno " .. turno .. " ---"}
 end
 
 function combate.acao(a)
@@ -180,8 +181,8 @@ function combate.acao(a)
             else
                 if inimigo.boss then
                     table.insert(mensagens, "Nao consegues fugir do chefe!")
-                elseif math.random() < 0.5 then
-                    jogo.mudar("explorar")
+                elseif math.random() < (inimigo.elite and 0.25 or 0.5) then
+                    jogo.mudar("portas")
                 else
                     table.insert(mensagens, "Nao consegues fugir do combate.")
                     fase = "pausa"
@@ -256,7 +257,7 @@ function combate.acao(a)
             novoTurno()
             fase = "escolha"
         elseif fase == "vitoria" then
-            jogo.mudar("explorar")
+            jogo.mudar("portas")
         else
             jogo.mudar("derrota")
         end

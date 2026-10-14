@@ -22,7 +22,10 @@ function jogador.reiniciar()
         pocoes = 0
     }
     jogador.inimigo = nil -- inimigo da sala atual (o savegame precisa dele)
+    jogador.portas = nil -- portas da sala atual (o savegame precisa delas)
     jogador.moedas = 0
+    jogador.especial = nil -- "fogueira" ou "tesouro" quando estas numa dessas salas
+    jogador.eventoId = nil -- evento sorteado da sala atual (o savegame precisa dele)
 end
 
 function jogador.ataqueTotal()

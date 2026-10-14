@@ -10,6 +10,18 @@ jogo.registar("inventario", require("estados.inventario"))
 jogo.registar("pocoes", require("estados.pocoes"))
 jogo.registar("derrota", require("estados.derrota"))
 jogo.registar("loja", require("estados.loja"))
+jogo.registar("portas", require("estados.portas"))
+jogo.registar("fogueira", require("estados.fogueira"))
+jogo.registar("tesouro", require("estados.tesouro"))
+jogo.registar("evento", require("estados.evento"))
+
+local DEBUG = true
+local registo = {}
+
+local function anotar(texto)
+    table.insert(registo, 1, string.format("%.2f %s", love.timer.getTime() % 100, texto))
+    registo[9] = nil
+end
 
 function love.load()
     love.graphics.setFont(love.graphics.newFont(20))
@@ -36,13 +48,22 @@ function love.keypressed(tecla)
             return
         end
     end
+    anotar("tecla " .. tecla)
     enviar(input.daTecla(tecla))
 end
 
 function love.joystickpressed(joystick, numero)
+    anotar("botao " .. numero)
     enviar(input.daBotao(numero))
 end
 
 function love.draw()
     jogo.atual.desenhar()
+    if DEBUG then
+        love.graphics.setColor(1, 1, 0.4)
+        for i, linha in ipairs(registo) do
+            love.graphics.print(linha, 440, 300 + (i - 1) * 20)
+        end
+        love.graphics.setColor(1, 1, 1)
+    end
 end
