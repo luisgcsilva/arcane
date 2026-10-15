@@ -5,6 +5,7 @@ local inimigos = require("inimigos")
 local salas = require("salas")
 local eventos = require("eventos")
 local armazem = require("armazem")
+local classes = require("classes")
 
 local savegame = {}
 
@@ -80,6 +81,9 @@ function savegame.gravar()
     add("nivel", jogador.nivel)
     add("xp", jogador.xp)
 
+    if jogador.classe then
+        add("classe", jogador.classe)
+    end
     if jogador.arma then
         add("arma", itemParaTexto(jogador.arma))
     end
@@ -230,6 +234,11 @@ function savegame.carregar()
                 return nil
             end
             d.eventoId = valor
+        elseif chave == "classe" then
+            if not classes.existe(valor) then
+                return nil
+            end
+            d.classe = valor
         end
         -- chaves desconhecidas sao ignoradas
     end
@@ -279,6 +288,7 @@ function savegame.carregar()
     jogador.portas = temPortas and d.portas or nil
     jogador.nivel = d.nivel or 1
     jogador.xp = d.xp or 0
+    jogador.classe = d.classe
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor

@@ -3,6 +3,7 @@ local jogador = require("jogador")
 local loot = require("loot")
 local salas = require("salas")
 local savegame = require("savegame")
+local registo = require("registo")
 
 local tesouro = {}
 
@@ -21,6 +22,7 @@ function tesouro.entrar()
     jogador.inimigo = nil
     mensagens = {}
     fase = "fechado"
+    registo.add("  [tesouro]")
     savegame.gravar()
 end
 

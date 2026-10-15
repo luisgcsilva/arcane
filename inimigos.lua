@@ -25,7 +25,11 @@ return {
         vida = 12,
         ataque = 3,
         minSala = 3,
-        cor = {0.5, 0.5, 0.5}
+        cor = {0.5, 0.5, 0.5},
+        efeito = {
+            id = "veneno",
+            chance = 0.25
+        }
     },
     esqueleto = {
         nome = "Esqueleto",
@@ -60,35 +64,55 @@ return {
         vida = 8,
         ataque = 3,
         minSala = 2,
-        cor = {0.6, 0.5, 0.7}
+        cor = {0.6, 0.5, 0.7},
+        efeito = {
+            id = "sangramento",
+            chance = 0.30
+        }
     },
     aranha = {
         nome = "Aranha Gigante",
         vida = 12,
         ataque = 5,
         minSala = 4,
-        cor = {0.7, 0.3, 0.3}
+        cor = {0.7, 0.3, 0.3},
+        efeito = {
+            id = "veneno",
+            chance = 0.40
+        }
     },
     bruxa = {
         nome = "Bruxa",
         vida = 16,
         ataque = 9,
         minSala = 8,
-        cor = {0.75, 0.4, 0.9}
+        cor = {0.75, 0.4, 0.9},
+        efeito = {
+            id = "veneno",
+            chance = 0.35
+        }
     },
     golem = {
         nome = "Golem de Pedra",
         vida = 40,
         ataque = 6,
         minSala = 9,
-        cor = {0.65, 0.6, 0.55}
+        cor = {0.65, 0.6, 0.55},
+        efeito = {
+            id = "atordoamento",
+            chance = 0.20
+        }
     },
     cavaleiro = {
         nome = "Cavaleiro Negro",
         vida = 30,
         ataque = 9,
         minSala = 12,
-        cor = {0.5, 0.5, 0.6}
+        cor = {0.5, 0.5, 0.6},
+        efeito = {
+            id = "sangramento",
+            chance = 0.30
+        }
     },
     demonio = {
         nome = "Demonio Menor",

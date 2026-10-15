@@ -4,6 +4,8 @@ local loot = require("loot")
 local pocoes = require("pocoes")
 local cores = require("cores")
 local savegame = require("savegame")
+local efeitos = require("efeitos")
+local registo = require("registo")
 
 local combate = {}
 
@@ -24,21 +26,73 @@ local disponiveis -- poções que tens (quantidade > 0), pela ordem do menu
 local indicePocao
 local mostradaInimigo -- fraccao de vida que a barra mostra (0 a 1)
 local mostradaJogador
+local opcoes = {"Atacar", "Defender", "Pocao", "Fugir"}
+local acoesMenu = {"atacar", "defender", "pocao", "fugir"} -- mesma ordem que "opcoes"
+local defendendo
 
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
 end
 
+local function morrer()
+    jogador.vida = 0
+    table.insert(mensagens, "Foste derrotado...")
+    fase = "derrota"
+    savegame.apagar()
+end
+
+local function aplicarEfeito(id)
+    local def = efeitos.lista[id]
+    jogador.efeitos[id] = math.max(jogador.efeitos[id] or 0, def.turnos)
+    table.insert(mensagens, {def.cor, def.frase})
+end
+
+-- Dano dos efeitos ativos. Devolve true se morreste.
+local function processarEfeitos()
+    for _, id in ipairs(efeitos.ordem) do
+        local def = efeitos.lista[id]
+        local turnos = jogador.efeitos[id]
+        if turnos and def.dano then
+            local d = efeitos.dano(id, jogador.sala)
+            jogador.vida = jogador.vida - d
+            jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
+            table.insert(mensagens, {def.cor, def.nome .. ": perdes " .. d .. " de vida."})
+            turnos = turnos - 1
+            jogador.efeitos[id] = (turnos > 0) and turnos or nil
+            if jogador.vida <= 0 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function inimigoAtaca()
     local d = dano(inimigo.ataque - jogador.defesaTotal())
+    local defendeu = defendendo
+    defendendo = false
+    if defendeu then
+        d = math.max(1, math.ceil(d / 2))
+    end
+
     jogador.vida = jogador.vida - d
-    table.insert(mensagens, cores.nome(inimigo, "O ", " causa-te " .. d .. " de dano."))
     jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
+    table.insert(mensagens, cores.nome(inimigo, "O ", " causa-te " .. d .. " de dano" ..
+        (defendeu and " (defendeste parte do golpe)." or ".")))
     if jogador.vida <= 0 then
-        jogador.vida = 0
-        table.insert(mensagens, "Foste derrotado...")
-        fase = "derrota"
-        savegame.apagar()
+        morrer()
+        return
+    end
+
+    -- primeiro os efeitos que ja tinhas; so depois o novo (que comeca no turno seguinte)
+    if processarEfeitos() then
+        morrer()
+        return
+    end
+
+    local ef = inimigo.efeito
+    if ef and math.random() < ef.chance * (defendeu and 0.5 or 1) then
+        aplicarEfeito(ef.id)
     end
 end
 
@@ -95,6 +149,7 @@ local function largarMoedas()
     elseif inimigo.elite then
         n = n * 2
     end
+    n = math.floor(n * jogador.defClasse().moedas + 0.5)
     jogador.ganharMoedas(n)
     table.insert(mensagens, {{1, 0.85, 0.2}, "Encontras " .. n .. " moedas."})
 end
@@ -104,7 +159,7 @@ local function largarPocao()
         local p = pocoes.sortear()
         jogador.darPocao(p.id)
         table.insert(mensagens,
-            cores.nome(p, "Encontras: ", " (+" .. p.cura .. " vida). Tens " .. jogador.quantas(p.id) .. "."))
+            cores.nome(p, "Encontras: ", " (+" .. jogador.curaDe(p) .. " vida). Tens " .. jogador.quantas(p.id) .. "."))
     end
 end
 
@@ -127,6 +182,8 @@ function combate.entrar(inimigo_novo)
     turno = 1
     deslocamento = 0
     mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!", "!"), "--- Turno " .. turno .. " ---"}
+    defendendo = false
+    jogador.efeitos = {}
 end
 
 function combate.acao(a)
@@ -152,7 +209,8 @@ function combate.acao(a)
                 indice = 1
             end
         elseif a == "confirmar" then
-            if indice == 1 then
+            local escolha = acoesMenu[indice]
+            if escolha == "atacar" then
                 -- atacar
                 local d = dano(jogador.ataqueTotal())
                 inimigo.vida = inimigo.vida - d
@@ -171,9 +229,10 @@ function combate.acao(a)
                     end
                     local subiu = jogador.ganharXp(inimigo.boss and 4 or (inimigo.elite and 2 or 1))
                     if subiu > 0 then
-                        table.insert(mensagens, {{1, 1, 0.2},
-                                                 "Subiste para o nivel " .. jogador.nivel ..
-                            "! Vida maxima +4, ataque +1."})
+                        local c = jogador.defClasse()
+                        table.insert(mensagens, {{1, 0.85, 0.2},
+                                                 "Subiste para o nivel " .. jogador.nivel .. "! Vida maxima +" ..
+                            (c.vidaNivel * subiu) .. ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
                     end
                     largarPocao()
                     largarLoot()
@@ -181,13 +240,20 @@ function combate.acao(a)
                 else
                     fase = "pausa"
                 end
-            elseif indice == 2 then
+            elseif escolha == "defender" then
+                defendendo = true
+                local cura = math.min(2, jogador.vida_max - jogador.vida)
+                jogador.vida = jogador.vida + cura
+                table.insert(mensagens,
+                    "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
+                fase = "pausa"
+            elseif escolha == "pocao" then
                 -- pocao
                 abrirPocoes()
             else
                 if inimigo.boss then
                     table.insert(mensagens, "Nao consegues fugir do chefe!")
-                elseif math.random() < (inimigo.elite and 0.25 or 0.5) then
+                elseif math.random() < jogador.defClasse().fuga * (inimigo.elite and 0.5 or 1) then
                     jogo.mudar("portas")
                 else
                     table.insert(mensagens, "Nao consegues fugir do combate.")
@@ -249,6 +315,9 @@ function combate.acao(a)
             else
                 local curado = jogador.usarPocao(p.id)
                 table.insert(mensagens, cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
+                if efeitos.curar(jogador.efeitos) > 0 then
+                    table.insert(mensagens, "A pocao cura o veneno e as hemorragias.")
+                end
                 fase = "pausa"
             end
         end
@@ -262,6 +331,11 @@ function combate.acao(a)
             -- leu a resposta do inimigo; novo turno
             novoTurno()
             fase = "escolha"
+            if jogador.efeitos.atordoamento then
+                jogador.efeitos.atordoamento = nil
+                table.insert(mensagens, {efeitos.lista.atordoamento.cor, "Estas atordoado! Perdes este turno."})
+                fase = "pausa" -- o inimigo ataca logo a seguir
+            end
         elseif fase == "vitoria" then
             jogo.mudar("portas")
         else
@@ -273,6 +347,21 @@ end
 function combate.desenhar()
     local fim = #mensagens - deslocamento
     local inicio = math.max(1, fim - MAX_LINHAS + 1)
+    local ativos = {}
+    for _, id in ipairs(efeitos.ordem) do
+        local t = jogador.efeitos[id]
+        if t then
+            table.insert(ativos, efeitos.lista[id].cor)
+            table.insert(ativos, efeitos.lista[id].nome .. "(" .. t .. ") ")
+        end
+    end
+    if defendendo then
+        table.insert(ativos, {0.6, 0.8, 1})
+        table.insert(ativos, "Guarda")
+    end
+    if #ativos > 0 then
+        love.graphics.print(ativos, 200, 50)
+    end
     local frInimigo = inimigo.vida / inimigo.vida_max
     love.graphics.print({inimigo.cor or {1, 1, 1}, inimigo.nome, {1, 1, 1}, "   Vida: ", cores.daVida(frInimigo),
                          inimigo.vida .. "/" .. inimigo.vida_max}, 20, 20)
@@ -309,7 +398,7 @@ function combate.desenhar()
         for i, p in ipairs(disponiveis) do
             local prefixo = (i == indicePocao) and "> " or "  "
             love.graphics.print(cores.nome(p, prefixo,
-                " x" .. jogador.quantas(p.id) .. " (+" .. p.cura .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
+                " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
                     jogador.vida_max .. ")"), 20, 340 + (i - 1) * 32)
         end
         love.graphics.print("A - beber   B - voltar", 20, 440)

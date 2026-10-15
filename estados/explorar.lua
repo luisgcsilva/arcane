@@ -7,6 +7,7 @@ local dificuldade = require("dificuldade")
 local cores = require("cores")
 local savegame = require("savegame")
 local mercador = require("mercador")
+local registo = require("registo")
 
 local explorar = {}
 local inimigo
@@ -28,6 +29,16 @@ function explorar.entrar(tipo, guardado)
         inimigo = dificuldade.criarInimigo(jogador.sala, tipo == "boss", tipo == "elite")
     end
     jogador.inimigo = inimigo
+    if inimigo then
+        registo.add(string.format("  [%s] %s: vida %d, ataque %d", tostring(tipo), inimigo.nome, inimigo.vida,
+            inimigo.ataque))
+    else
+        local nomes = {}
+        for _, e in ipairs(mercador.stock) do
+            table.insert(nomes, (e.tipo == "item") and e.item.nome or e.pocao.nome)
+        end
+        registo.add("  [loja] " .. table.concat(nomes, ", "))
+    end
     savegame.gravar()
 end
 
@@ -54,7 +65,8 @@ function explorar.desenhar()
     love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
                          jogador.vida .. "/" .. jogador.vida_max}, 20, 80)
     cores.barra(180, 83, 200, 16, jogador.vida / jogador.vida_max)
-    love.graphics.print("Nivel: " .. jogador.nivel .. "   Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " .. jogador.defesaTotal(), 20, 50)
+    love.graphics.print("Nivel: " .. jogador.nivel .. "   Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " ..
+                            jogador.defesaTotal(), 20, 50)
     love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     local arma, armadura = jogador.arma, jogador.armadura
     love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ") or "Arma: -", 20, 110)

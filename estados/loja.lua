@@ -4,6 +4,7 @@ local loot = require("loot")
 local cores = require("cores")
 local mercador = require("mercador")
 local savegame = require("savegame")
+local registo = require("registo")
 
 local loja = {}
 
@@ -90,7 +91,7 @@ function loja.desenhar()
             love.graphics.print(loot.nomeColorido(e.item, prefixo,
                 " +" .. e.item.bonus .. " " .. atributo .. " - " .. e.preco .. "m"), 20, y)
         else
-            love.graphics.print(cores.nome(e.pocao, prefixo, " (+" .. e.pocao.cura .. " vida) - " .. e.preco .. "m"),
+            love.graphics.print(cores.nome(e.pocao, prefixo, " (+" .. jogador.curaDe(e.pocao) .. " vida) - " .. e.preco .. "m"),
                 20, y)
         end
     end

@@ -2,6 +2,7 @@ local jogo = require("jogo")
 local jogador = require("jogador")
 local cores = require("cores")
 local savegame = require("savegame")
+local registo = require("registo")
 
 local pocoes = {}
 
@@ -64,7 +65,7 @@ function pocoes.desenhar()
         for i, p in ipairs(lista) do
             local prefixo = (i == indice) and "> " or "  "
             love.graphics.print(cores.nome(p, prefixo,
-                " x" .. jogador.quantas(p.id) .. " (+" .. p.cura .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
+                " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
                     jogador.vida_max .. ")"), 20, 140 + (i - 1) * 32)
         end
     end

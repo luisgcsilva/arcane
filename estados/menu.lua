@@ -2,6 +2,7 @@ local jogo = require("jogo")
 local jogador = require("jogador")
 local recordes = require("recordes")
 local savegame = require("savegame")
+local registo = require("registo")
 
 local menu = {}
 
@@ -51,6 +52,7 @@ function menu.acao(a)
         if escolha == "continuar" then
             local estado, a, b = savegame.carregar()
             if estado then
+                registo.add("=== Continuar ===")
                 jogo.mudar(estado, a, b)
             else
                 aviso = "Gravacao invalida. Escolhe Novo jogo."
@@ -60,8 +62,9 @@ function menu.acao(a)
                 confirmarNovo = true
                 aviso = "Apaga a partida gravada? A outra vez confirma."
             else
+                registo.add("=== Novo Jogo ===")
                 jogador.reiniciar()
-                jogo.mudar("portas")
+                jogo.mudar("classes")
             end
         else
             love.event.quit()

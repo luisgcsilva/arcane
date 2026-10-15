@@ -3,6 +3,7 @@ local jogador = require("jogador")
 local salas = require("salas")
 local savegame = require("savegame")
 local cores = require("cores")
+local registo = require("registo")
 
 local portas = {}
 
@@ -24,6 +25,8 @@ function portas.entrar(arg)
         lista = salas.gerarPortas(jogador.sala + 1, arg)
     end
     jogador.portas = lista
+    registo.add(string.format("Sala %d: portas [%s]%s", jogador.sala + 1, table.concat(lista, ", "),
+        type(arg) == "table" and " (retomadas)" or ""))
     jogador.inimigo = nil
     jogador.especial = nil
     jogador.eventoId = nil
@@ -45,6 +48,7 @@ function portas.acao(a)
         end
     elseif a == "confirmar" then
         local tipo = lista[indice]
+        registo.add("  Porta " .. indice .. " -> " .. tipo)
         jogador.portas = nil
         jogador.sala = jogador.sala + 1
         -- fogueira e tesouro tem estado proprio; o resto passa pelo explorar
@@ -67,7 +71,7 @@ function portas.desenhar()
     love.graphics.setColor(1, 1, 1)
     local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Proxima Sala " .. jogador.sala + 1)
     love.graphics.print(titulo, 20, 20)
-        love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
+    love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
                          jogador.vida .. "/" .. jogador.vida_max}, 20, 50)
     love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
 

@@ -2,6 +2,8 @@ local jogador = {}
 local pocoes = require("pocoes")
 local cores = require("cores")
 local loot = require("loot")
+local classes = require("classes")
+local registo = require("registo")
 
 jogador.MAX_ITENS = 8 -- tamanho da mochila
 
@@ -28,6 +30,7 @@ function jogador.reiniciar()
     jogador.eventoId = nil -- evento sorteado da sala atual (o savegame precisa dele)
     jogador.nivel = 1 -- nivel do jogador (para calcular a vida maxima)
     jogador.xp = 0 -- experiencia do jogador (para calcular a vida maxima)
+    jogador.classe = nil
 end
 
 function jogador.ataqueTotal()
@@ -35,7 +38,7 @@ function jogador.ataqueTotal()
 end
 
 function jogador.defesaTotal()
-    return jogador.armadura and jogador.armadura.bonus or 0
+    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0)
 end
 
 -- Guarda na mochila. Devolve false se estiver cheia.
@@ -118,7 +121,7 @@ end
 
 -- Vida que ficarias a ter se bebesses a poção p (sem passar do máximo)
 function jogador.vidaApos(p)
-    return math.min(jogador.vida_max, jogador.vida + p.cura)
+    return math.min(jogador.vida_max, jogador.vida + jogador.curaDe(p))
 end
 
 function jogador.ganharMoedas(n)
@@ -139,17 +142,36 @@ end
 
 -- Devolve quantos niveis subiste
 function jogador.ganharXp(n)
+    local c = jogador.defClasse()
     jogador.xp = jogador.xp + n
     local subiu = 0
     while jogador.xp >= jogador.xpNecessario() do
         jogador.xp = jogador.xp - jogador.xpNecessario()
         jogador.nivel = jogador.nivel + 1
-        jogador.vida_max = jogador.vida_max + 4
-        jogador.vida = jogador.vida + 4
-        jogador.ataque_base = jogador.ataque_base + 1
+        jogador.vida_max = jogador.vida_max + c.vidaNivel
+        jogador.vida = jogador.vida + c.vidaNivel
+        jogador.ataque_base = jogador.ataque_base + c.ataqueNivel
         subiu = subiu + 1
     end
     return subiu
+end
+
+function jogador.defClasse()
+    return classes.porId(jogador.classe) or classes.neutra
+end
+
+-- Chamada uma vez, depois do reiniciar, quando escolhes a classe
+function jogador.escolherClasse(id)
+    local c = classes.porId(id)
+    jogador.classe = id
+    jogador.vida_max = c.vida
+    jogador.vida = c.vida
+    jogador.ataque_base = c.ataque
+end
+
+-- Cura real de uma pocao (com o multiplicador da classe)
+function jogador.curaDe(p)
+    return math.floor(p.cura * jogador.defClasse().cura + 0.5)
 end
 
 jogador.reiniciar()

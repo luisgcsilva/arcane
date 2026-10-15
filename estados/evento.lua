@@ -3,6 +3,7 @@ local jogador = require("jogador")
 local eventos = require("eventos")
 local salas = require("salas")
 local savegame = require("savegame")
+local registo = require("registo")
 
 local evento = {}
 
@@ -25,6 +26,7 @@ function evento.entrar()
     indice = 1
     aviso = ""
     feito = false
+    registo.add("  [evento] " .. ev.id)
     savegame.gravar()
 end
 

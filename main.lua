@@ -2,6 +2,7 @@ local input = require("input")
 local jogo = require("jogo")
 local recordes = require("recordes")
 local cores = require("cores")
+local registo = require("registo")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -14,9 +15,9 @@ jogo.registar("portas", require("estados.portas"))
 jogo.registar("fogueira", require("estados.fogueira"))
 jogo.registar("tesouro", require("estados.tesouro"))
 jogo.registar("evento", require("estados.evento"))
+jogo.registar("classes", require("estados.classes"))
 
 local DEBUG = false
-local registo = {}
 
 local function anotar(texto)
     table.insert(registo, 1, string.format("%.2f %s", love.timer.getTime() % 100, texto))
@@ -26,13 +27,24 @@ end
 function love.load()
     love.graphics.setFont(love.graphics.newFont(20))
     recordes.carregar()
+    registo.carregar()
     jogo.mudar("menu")
 end
 
 local function enviar(a)
-    if a and jogo.atual.acao then
-        jogo.atual.acao(a)
+    if not a or not jogo.atual.acao then
+        return
     end
+
+    if a == "pausa" then
+        registo.alternar()
+        return
+    end
+    if registo.visivel then
+        return
+    end -- com o painel aberto, o jogo fica quieto
+
+    jogo.atual.acao(a)
 end
 
 function love.update(dt)
@@ -54,6 +66,7 @@ end
 
 function love.draw()
     jogo.atual.desenhar()
+    registo.desenhar()
     if DEBUG then
         love.graphics.setColor(1, 1, 0.4)
         for i, linha in ipairs(registo) do
