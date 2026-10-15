@@ -31,6 +31,7 @@ function jogador.reiniciar()
     jogador.nivel = 1 -- nivel do jogador (para calcular a vida maxima)
     jogador.xp = 0 -- experiencia do jogador (para calcular a vida maxima)
     jogador.classe = nil
+    jogador.matadoPor = nil -- guarda o inimigo que matou o player
 end
 
 function jogador.ataqueTotal()

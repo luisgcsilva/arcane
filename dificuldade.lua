@@ -21,7 +21,9 @@ end
 
 -- Sala 1 = x1.0. A vida cresce 20% por sala, o ataque 12%.
 local function fator(sala, passo)
-    return 1 + passo * (sala - 1)
+    local s = sala - 1
+    if s > 20 then s = 20 + (s - 20) * 0.5 end -- depois da sala 21 cresce a metade
+    return 1 + passo * s
 end
 
 local function escolherModelo(sala)
@@ -53,7 +55,7 @@ function dificuldade.criarInimigo(sala, forcarBoss, elite)
         e[chave] = valor
     end
     if not modelo.boss then
-        e.vida = arredondar(modelo.vida * fator(sala, 0.10))
+        e.vida = arredondar(modelo.vida * fator(sala, 0.05))
         e.ataque = arredondar(modelo.ataque * fator(sala, 0.05))
         if elite then
             e.vida = arredondar(e.vida * 1.4)

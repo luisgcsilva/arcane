@@ -66,11 +66,17 @@ function explorar.desenhar()
                          jogador.vida .. "/" .. jogador.vida_max}, 20, 80)
     cores.barra(180, 83, 200, 16, jogador.vida / jogador.vida_max)
     love.graphics.print("Nivel: " .. jogador.nivel .. "   Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " ..
-                            jogador.defesaTotal(), 20, 50)
+                            jogador.defesaTotal(), 130, 50)
     love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     local arma, armadura = jogador.arma, jogador.armadura
-    love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ") or "Arma: -", 20, 110)
-    love.graphics.print(armadura and loot.nomeColorido(armadura, "Armadura: ") or "Armadura: -", 20, 140)
+    love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ", " (+" .. arma.bonus .. ")") or "Arma: -", 20, 110)
+    love.graphics.print(armadura and loot.nomeColorido(armadura, "Armadura: ", " (+" .. armadura.bonus .. ")") or "Armadura: -", 20, 140)
+
+    local c = jogador.defClasse()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro",
+                         {1, 1, 1}}, 20, 50)
+
     local partes = {}
     for _, p in ipairs(pocoes.lista) do
         table.insert(partes, p.nome .. " x" .. jogador.quantas(p.id))

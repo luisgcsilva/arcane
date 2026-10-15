@@ -98,7 +98,7 @@ function loja.desenhar()
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(aviso, 20, 400)
-    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT vender  B sair", 20, 440)
+    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT inventario  B sair", 20, 440)
 end
 
 return loja

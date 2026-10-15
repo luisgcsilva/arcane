@@ -4,14 +4,22 @@ local pocoes = require("pocoes")
 
 local mercador = {}
 
+local SLOTS = { "arma", "arma", "armadura", "armadura" }
+
 mercador.stock = {}
 
 -- Chamada uma vez, ao entrar na sala da loja
 function mercador.gerar(sala)
   mercador.stock = {}
+  local nomes = {} -- nomes ja na loja, para nao repetir
 
-  for _ = 1, 2 do
-    local item = loot.sortear(sala)
+  for _, tipo in ipairs(SLOTS) do
+    local item
+    for _ = 1, 60 do -- tenta 30 vezes encontrar um que ainda nao exista
+        item = loot.sortear(sala)
+        if item.tipo == tipo and not nomes[item.nome] then break end
+    end
+    nomes[item.nome] = true 
     table.insert(mercador.stock, { tipo = "item", item = item, preco = loot.valor(item) })
   end
 

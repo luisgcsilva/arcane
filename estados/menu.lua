@@ -19,6 +19,8 @@ function menu.entrar()
     end
     table.insert(opcoes, "Novo jogo")
     table.insert(acoes, "novo")
+    table.insert(opcoes, "Historico")
+    table.insert(acoes, "historico")
     table.insert(opcoes, "Sair")
     table.insert(acoes, "sair")
     indice = 1
@@ -66,6 +68,8 @@ function menu.acao(a)
                 jogador.reiniciar()
                 jogo.mudar("classes")
             end
+        elseif escolha == "historico" then
+            jogo.mudar("historico")
         else
             love.event.quit()
         end

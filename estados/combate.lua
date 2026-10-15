@@ -36,6 +36,7 @@ end
 
 local function morrer()
     jogador.vida = 0
+    jogador.matadoPor = inimigo.nome
     table.insert(mensagens, "Foste derrotado...")
     fase = "derrota"
     savegame.apagar()
@@ -223,9 +224,10 @@ function combate.acao(a)
                     jogador.stats.inimigos = jogador.stats.inimigos + 1
                     if inimigo.boss then
                         jogador.stats.chefes = jogador.stats.chefes + 1
-                        jogador.vida_max = jogador.vida_max + 5
+                        jogador.vida_max = jogador.vida_max + 10
                         jogador.vida = jogador.vida_max
-                        table.insert(mensagens, "O chefe cai! Vida maxima +5 e recuperas toda a vida.")
+                        jogador.ataque_base = jogador.ataque_base + 2
+                        table.insert(mensagens, "O chefe cai! Ataque +2 e Vida maxima +10 e recuperas toda a vida.")
                     end
                     local subiu = jogador.ganharXp(inimigo.boss and 4 or (inimigo.elite and 2 or 1))
                     if subiu > 0 then

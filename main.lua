@@ -3,6 +3,7 @@ local jogo = require("jogo")
 local recordes = require("recordes")
 local cores = require("cores")
 local registo = require("registo")
+local historico = require("historico")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -16,6 +17,7 @@ jogo.registar("fogueira", require("estados.fogueira"))
 jogo.registar("tesouro", require("estados.tesouro"))
 jogo.registar("evento", require("estados.evento"))
 jogo.registar("classes", require("estados.classes"))
+jogo.registar("historico", require("estados.historico"))
 
 local DEBUG = false
 
@@ -28,6 +30,7 @@ function love.load()
     love.graphics.setFont(love.graphics.newFont(20))
     recordes.carregar()
     registo.carregar()
+    historico.carregar()
     jogo.mudar("menu")
 end
 
@@ -41,8 +44,9 @@ local function enviar(a)
         return
     end
     if registo.visivel then
+        registo.acao(a)
         return
-    end -- com o painel aberto, o jogo fica quieto
+    end
 
     jogo.atual.acao(a)
 end
