@@ -101,7 +101,7 @@ function portas.desenhar()
 
     love.graphics.setLineWidth(1)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Esq/Dir escolher  A abrir  X pocoes  SELECT mochila", 20, 440)
+    love.graphics.print("Esq/Dir escolher A abrir  L2 ajuda", 20, 440)
 end
 
 return portas

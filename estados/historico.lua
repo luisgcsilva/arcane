@@ -49,12 +49,12 @@ function estado.desenhar()
     if p then
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(string.format("Nivel %s   Vida max %s   Ataque %s   Defesa %s   Moedas %s", p.nivel,
-            p.vida_max, p.ataque, p.defesa, p.moedas), 20, 290)
-        love.graphics.print("Arma: " .. p.arma .. "   Armadura: " .. p.armadura, 20, 312)
-        love.graphics.print("Mochila: " .. p.mochila, 20, 334)
+            p.vida_max, p.ataque, p.defesa, p.moedas), 20, 270)
+        love.graphics.print(historico.itens(p.arma, "Arma: "), 20, 292)
+        love.graphics.print(historico.itens(p.armadura, "Armadura: "), 20, 314)
         love.graphics.print(string.format("Inimigos %s (chefes %s)   Dano causado %s   Dano sofrido %s   Pocoes %s",
-            p.inimigos, p.chefes, p.dano_causado, p.dano_sofrido, p.pocoes), 20, 356)
-        love.graphics.print("Morto por: " .. p.causa, 20, 378)
+            p.inimigos, p.chefes, p.dano_causado, p.dano_sofrido, p.pocoes), 20, 336)
+        love.graphics.print({{1, 1, 1}, "Morto por: ", historico.corInimigo(p.causa), p.causa}, 20, 358)
     end
 
     love.graphics.setFont(normal)

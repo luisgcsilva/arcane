@@ -164,6 +164,20 @@ for _, item in ipairs(itens) do
     table.insert(porRaridade[item.raridade], item)
 end
 
+-- Raridade de um item pelo nome (nil se o item ja nao existir)
+function loot.raridadeDe(nome)
+    for _, i in ipairs(itens) do
+        if i.nome == nome then
+            return i.raridade
+        end
+    end
+    for _, i in ipairs(loot.exclusivos) do
+        if i.nome == nome then
+            return i.raridade
+        end
+    end
+end
+
 local function sortearRaridade(bonus)
     bonus = bonus or 0
     local pesos = {

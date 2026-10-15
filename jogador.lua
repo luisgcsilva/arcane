@@ -4,6 +4,7 @@ local cores = require("cores")
 local loot = require("loot")
 local classes = require("classes")
 local registo = require("registo")
+local reliquias = require("reliquias")
 
 jogador.MAX_ITENS = 8 -- tamanho da mochila
 
@@ -32,14 +33,16 @@ function jogador.reiniciar()
     jogador.xp = 0 -- experiencia do jogador (para calcular a vida maxima)
     jogador.classe = nil
     jogador.matadoPor = nil -- guarda o inimigo que matou o player
+    jogador.reliquias = {} -- ids das reliquias que tens
+    jogador.ofertaReliquias = nil -- oferta de um chefe a espera de escolha
 end
 
 function jogador.ataqueTotal()
-    return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0)
+    return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.bonus("ataque")
 end
 
 function jogador.defesaTotal()
-    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0)
+    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) + jogador.bonus("defesa")
 end
 
 -- Guarda na mochila. Devolve false se estiver cheia.
@@ -173,6 +176,45 @@ end
 -- Cura real de uma pocao (com o multiplicador da classe)
 function jogador.curaDe(p)
     return math.floor(p.cura * jogador.defClasse().cura + 0.5)
+end
+
+function jogador.temReliquia(id)
+    for _, r in ipairs(jogador.reliquias) do
+        if r == id then
+            return true
+        end
+    end
+    return false
+end
+
+-- Soma o valor de "chave" em todas as reliquias que tens
+function jogador.bonus(chave)
+    local total = 0
+    for _, id in ipairs(jogador.reliquias) do
+        local r = reliquias.porId(id)
+        total = total + ((r.mods and r.mods[chave]) or 0)
+    end
+    return total
+end
+
+-- Reliquias que ainda nao tens
+function jogador.reliquiasDisponiveis()
+    local lista = {}
+    for _, r in ipairs(reliquias.lista) do
+        if not jogador.temReliquia(r.id) then
+            table.insert(lista, r)
+        end
+    end
+    return lista
+end
+
+function jogador.darReliquia(id)
+    local r = reliquias.porId(id)
+    table.insert(jogador.reliquias, id)
+    if r.aoObter then
+        r.aoObter(jogador)
+    end
+    return r
 end
 
 jogador.reiniciar()

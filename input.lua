@@ -19,7 +19,8 @@ local teclas = {
     tab = "inventario",
     space = "pausa",
     q = "ombro_esq",
-    e = "ombro_dir"
+    e = "ombro_dir",
+    h = "gatilho_esq"
 }
 
 -- Número de botão da R36S -> acção

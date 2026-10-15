@@ -83,7 +83,7 @@ function menu.desenhar()
         local prefixo = (i == indice) and "> " or "  "
         love.graphics.print(prefixo .. texto, 250, 160 + i * 36)
     end
-    love.graphics.print("Melhor sala: " .. recordes.dados.melhor_sala, 230, 300)
+    love.graphics.print("Melhor sala: " .. recordes.dados.melhor_sala, 230, 340)
     love.graphics.print(aviso, 20, 400)
 end
 

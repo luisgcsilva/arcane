@@ -6,6 +6,7 @@ local salas = require("salas")
 local eventos = require("eventos")
 local armazem = require("armazem")
 local classes = require("classes")
+local reliquias = require("reliquias")
 
 local savegame = {}
 
@@ -26,7 +27,8 @@ local numericas = {
 local especiais = {
     fogueira = true,
     tesouro = true,
-    evento = true
+    evento = true,
+    reliquia = true
 }
 
 savegame.ultimoErro = nil
@@ -99,6 +101,14 @@ function savegame.gravar()
     for nome, valor in pairs(jogador.stats) do
         add("stat", nome .. "|" .. valor)
     end
+    for _, id in ipairs(jogador.reliquias) do
+        add("reliquia", id)
+    end
+    if jogador.ofertaReliquias then
+        for _, id in ipairs(jogador.ofertaReliquias) do
+            add("oferta", id)
+        end
+    end
 
     if jogador.portas then
         for _, tipo in ipairs(jogador.portas) do
@@ -153,7 +163,9 @@ function savegame.carregar()
         inventario = {},
         pocoes = {},
         stats = {},
-        portas = {}
+        portas = {},
+        reliquias = {},
+        oferta = {}
     }
     local versaoOk = false
 
@@ -239,6 +251,17 @@ function savegame.carregar()
                 return nil
             end
             d.classe = valor
+        elseif chave == "reliquia" then
+            if not reliquias.existe(valor) then
+                return nil
+            end
+            table.insert(d.reliquias, valor)
+
+        elseif chave == "oferta" then
+            if not reliquias.existe(valor) then
+                return nil
+            end
+            table.insert(d.oferta, valor)
         end
         -- chaves desconhecidas sao ignoradas
     end
@@ -269,6 +292,9 @@ function savegame.carregar()
     elseif not (d.inimigo or d.loja or temPortas or d.especial) then
         motivo = "falta inimigo/loja/portas"
     end
+    if not motivo and d.especial == "reliquia" and #d.oferta == 0 then
+        motivo = "oferta de reliquia vazia"
+    end
     if motivo then
         print("Gravacao invalida: " .. motivo)
         return nil, motivo
@@ -289,6 +315,8 @@ function savegame.carregar()
     jogador.nivel = d.nivel or 1
     jogador.xp = d.xp or 0
     jogador.classe = d.classe
+    jogador.reliquias = d.reliquias
+    jogador.ofertaReliquias = (#d.oferta > 0) and d.oferta or nil
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor

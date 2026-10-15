@@ -1,5 +1,7 @@
 local armazem = require("armazem")
 local jogador = require("jogador")
+local loot = require("loot")
+local inimigos = require("inimigos")
 
 local historico = {}
 
@@ -9,8 +11,7 @@ local MAX = 10 -- quantas partidas se guardam
 -- Campos guardados, por ordem. Para guardar mais um dado, acrescenta aqui
 -- e preenche-o na funcao registar().
 local CAMPOS = {"numero", "data", "classe", "nivel", "sala", "vida_max", "ataque", "defesa", "moedas", "arma",
-                "armadura", "mochila", "inimigos", "chefes", "dano_causado", "dano_sofrido", "pocoes", "causa",
-                "recorde"}
+                "armadura", "inimigos", "chefes", "dano_causado", "dano_sofrido", "pocoes", "causa", "recorde"}
 
 historico.partidas = {} -- a mais recente primeiro
 
@@ -21,6 +22,56 @@ local function analisar(linha)
         p[chave] = valor
     end
     return p
+end
+
+local BRANCO = {1, 1, 1}
+
+-- Guardamos so "Nome +bonus"; a cor vem da raridade, procurada pelo nome
+local function itemParaTexto(i)
+    return i.nome .. " +" .. i.bonus
+end
+
+-- "Nome +3" -> o texto a mostrar e a cor da raridade
+local function parteItem(texto)
+    texto = texto:gsub("@%a+$", "") -- aceita entradas com o formato anterior (@raridade)
+    local nome, bonus = texto:match("^(.-) %+(%d+)$")
+    if nome then
+        local raridade = loot.raridadeDe(nome)
+        return nome .. " +" .. bonus, raridade and loot.cores[raridade] or BRANCO
+    end
+    return texto, BRANCO
+end
+-- Texto colorido para o ecra: prefixo + um ou mais itens separados por ", "
+function historico.itens(texto, prefixo)
+    local t = {BRANCO, prefixo}
+    if texto == "-" or texto == "" then
+        table.insert(t, BRANCO)
+        table.insert(t, "-")
+        return t
+    end
+    local primeiro = true
+    for parte in (texto .. ", "):gmatch("(.-), ") do
+        if not primeiro then
+            table.insert(t, BRANCO)
+            table.insert(t, ", ")
+        end
+        local nome, cor = parteItem(parte)
+        table.insert(t, cor)
+        table.insert(t, nome)
+        primeiro = false
+    end
+    return t
+end
+
+-- Cor do inimigo pelo nome ("Elite Goblin" usa a cor do Goblin)
+function historico.corInimigo(nome)
+    local base = nome:gsub("^Elite ", "")
+    for _, m in pairs(inimigos) do
+        if m.nome == base then
+            return m.cor or BRANCO
+        end
+    end
+    return BRANCO
 end
 
 local function gravar()
@@ -66,9 +117,8 @@ function historico.registar(novoRecorde, numero)
         ataque = jogador.ataqueTotal(),
         defesa = jogador.defesaTotal(),
         moedas = jogador.moedas,
-        arma = jogador.arma and (jogador.arma.nome .. " +" .. jogador.arma.bonus) or "-",
-        armadura = jogador.armadura and (jogador.armadura.nome .. " +" .. jogador.armadura.bonus) or "-",
-        mochila = (#nomes > 0) and table.concat(nomes, ", ") or "-",
+        arma = jogador.arma and itemParaTexto(jogador.arma) or "-",
+        armadura = jogador.armadura and itemParaTexto(jogador.armadura) or "-",
         inimigos = s.inimigos,
         chefes = s.chefes,
         dano_causado = s.dano_causado,

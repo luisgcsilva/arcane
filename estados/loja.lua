@@ -61,7 +61,7 @@ function loja.acao(a)
         elseif pendente ~= indice then
             -- primeiro A: pede confirmacao
             pendente = indice
-            local nome = (e.tipo == "item") and e.item.nome or e.pocao.nome
+            local nome = mercador.nomeDe(e)
             aviso = "Comprar " .. nome .. " por " .. e.preco .. " moedas? A para confirmar."
         else
             -- segundo A no mesmo item: compra
@@ -85,20 +85,28 @@ function loja.desenhar()
         local y = 80 + (i - 1) * 32
 
         if e.vendido then
-            love.graphics.print({CINZA, prefixo .. e.item.nome .. " (esgotado)"}, 20, y)
+            love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (esgotado)"}, 20, y)
         elseif e.tipo == "item" then
             local atributo = (e.item.tipo == "arma") and "ataque" or "defesa"
             love.graphics.print(loot.nomeColorido(e.item, prefixo,
                 " +" .. e.item.bonus .. " " .. atributo .. " - " .. e.preco .. "m"), 20, y)
+        elseif e.tipo == "reliquia" then
+            love.graphics.print(cores.nome(e.reliquia, prefixo, " (reliquia) - " .. e.preco .. "m"), 20, y)
         else
-            love.graphics.print(cores.nome(e.pocao, prefixo, " (+" .. jogador.curaDe(e.pocao) .. " vida) - " .. e.preco .. "m"),
-                20, y)
+            love.graphics.print(cores.nome(e.pocao, prefixo,
+                " (+" .. jogador.curaDe(e.pocao) .. " vida) - " .. e.preco .. "m"), 20, y)
         end
+    end
+    local sel = mercador.stock[indice]
+    if sel and sel.tipo == "reliquia" and not sel.vendido then
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf(sel.reliquia.descricao, 20, 370, 600)
     end
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(aviso, 20, 400)
-    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT inventario  B sair", 20, 440)
+    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT inventario  B sair", 20,
+        440)
 end
 
 return loja

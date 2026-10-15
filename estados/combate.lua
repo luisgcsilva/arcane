@@ -6,6 +6,7 @@ local cores = require("cores")
 local savegame = require("savegame")
 local efeitos = require("efeitos")
 local registo = require("registo")
+local reliquias = require("reliquias")
 
 local combate = {}
 
@@ -29,6 +30,7 @@ local mostradaJogador
 local opcoes = {"Atacar", "Defender", "Pocao", "Fugir"}
 local acoesMenu = {"atacar", "defender", "pocao", "fugir"} -- mesma ordem que "opcoes"
 local defendendo
+local pocaoGratis -- o Frasco Infinito ainda nao foi usado neste combate
 
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
@@ -83,6 +85,16 @@ local function inimigoAtaca()
     if jogador.vida <= 0 then
         morrer()
         return
+    end
+
+    local esp = jogador.bonus("espinhos")
+    if esp > 0 then
+        local causado = math.min(esp, inimigo.vida - 1) -- os espinhos nunca matam
+        if causado > 0 then
+            inimigo.vida = inimigo.vida - causado
+            jogador.stats.dano_causado = jogador.stats.dano_causado + causado
+            table.insert(mensagens, cores.nome(inimigo, "Os espinhos ferem o ", " (-" .. causado .. ")."))
+        end
     end
 
     -- primeiro os efeitos que ja tinhas; so depois o novo (que comeca no turno seguinte)
@@ -150,7 +162,7 @@ local function largarMoedas()
     elseif inimigo.elite then
         n = n * 2
     end
-    n = math.floor(n * jogador.defClasse().moedas + 0.5)
+    n = math.floor(n * (jogador.defClasse().moedas + jogador.bonus("moedas")) + 0.5)
     jogador.ganharMoedas(n)
     table.insert(mensagens, {{1, 0.85, 0.2}, "Encontras " .. n .. " moedas."})
 end
@@ -159,8 +171,8 @@ local function largarPocao()
     if inimigo.boss or inimigo.elite or math.random() < 0.4 then
         local p = pocoes.sortear()
         jogador.darPocao(p.id)
-        table.insert(mensagens,
-            cores.nome(p, "Encontras: ", " (+" .. jogador.curaDe(p) .. " vida). Tens " .. jogador.quantas(p.id) .. "."))
+        table.insert(mensagens, cores.nome(p, "Encontras: ", " (+" .. jogador.curaDe(p) .. " vida). Tens " ..
+            jogador.quantas(p.id) .. "."))
     end
 end
 
@@ -185,6 +197,7 @@ function combate.entrar(inimigo_novo)
     mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!", "!"), "--- Turno " .. turno .. " ---"}
     defendendo = false
     jogador.efeitos = {}
+    pocaoGratis = jogador.temReliquia("frasco")
 end
 
 function combate.acao(a)
@@ -236,6 +249,15 @@ function combate.acao(a)
                                                  "Subiste para o nivel " .. jogador.nivel .. "! Vida maxima +" ..
                             (c.vidaNivel * subiu) .. ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
                     end
+                    for _, id in ipairs(jogador.reliquias) do
+                        local r = reliquias.porId(id)
+                        if r.aoVencer then
+                            local msg = r.aoVencer(jogador)
+                            if msg then
+                                table.insert(mensagens, {r.cor, msg})
+                            end
+                        end
+                    end
                     largarPocao()
                     largarLoot()
                     largarMoedas()
@@ -255,7 +277,8 @@ function combate.acao(a)
             else
                 if inimigo.boss then
                     table.insert(mensagens, "Nao consegues fugir do chefe!")
-                elseif math.random() < jogador.defClasse().fuga * (inimigo.elite and 0.5 or 1) then
+                elseif math.random() < math.min(0.95, jogador.defClasse().fuga + jogador.bonus("fuga")) *
+                    (inimigo.elite and 0.5 or 1) then
                     jogo.mudar("portas")
                 else
                     table.insert(mensagens, "Nao consegues fugir do combate.")
@@ -317,6 +340,13 @@ function combate.acao(a)
             else
                 local curado = jogador.usarPocao(p.id)
                 table.insert(mensagens, cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
+                if pocaoGratis then
+                    pocaoGratis = false
+                    jogador.darPocao(p.id)
+                    jogador.stats.pocoes = jogador.stats.pocoes - 1
+                    table.insert(mensagens,
+                        {{0.4, 0.9, 1}, "O Frasco Infinito volta a encher-se: a pocao nao se gastou."})
+                end
                 if efeitos.curar(jogador.efeitos) > 0 then
                     table.insert(mensagens, "A pocao cura o veneno e as hemorragias.")
                 end
@@ -339,7 +369,11 @@ function combate.acao(a)
                 fase = "pausa" -- o inimigo ataca logo a seguir
             end
         elseif fase == "vitoria" then
-            jogo.mudar("portas")
+            if inimigo.boss and #jogador.reliquiasDisponiveis() > 0 then
+                jogo.mudar("reliquia")
+            else
+                jogo.mudar("portas")
+            end
         else
             jogo.mudar("derrota")
         end

@@ -4,6 +4,7 @@ local recordes = require("recordes")
 local cores = require("cores")
 local registo = require("registo")
 local historico = require("historico")
+local reliquias = require("reliquias")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -18,6 +19,8 @@ jogo.registar("tesouro", require("estados.tesouro"))
 jogo.registar("evento", require("estados.evento"))
 jogo.registar("classes", require("estados.classes"))
 jogo.registar("historico", require("estados.historico"))
+jogo.registar("reliquia", require("estados.reliquia"))
+jogo.registar("ajuda", require("estados.ajuda"))
 
 local DEBUG = false
 
@@ -45,6 +48,15 @@ local function enviar(a)
     end
     if registo.visivel then
         registo.acao(a)
+        return
+    end
+
+    if a == "gatilho_esq" then
+        if jogo.atual == jogo.estados.ajuda then
+            jogo.fechar()
+        else
+            jogo.abrir("ajuda")
+        end
         return
     end
 

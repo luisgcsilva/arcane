@@ -8,6 +8,7 @@ local cores = require("cores")
 local savegame = require("savegame")
 local mercador = require("mercador")
 local registo = require("registo")
+local reliquias = require("reliquias")
 
 local explorar = {}
 local inimigo
@@ -35,7 +36,7 @@ function explorar.entrar(tipo, guardado)
     else
         local nomes = {}
         for _, e in ipairs(mercador.stock) do
-            table.insert(nomes, (e.tipo == "item") and e.item.nome or e.pocao.nome)
+            table.insert(nomes, mercador.nomeDe(e))
         end
         registo.add("  [loja] " .. table.concat(nomes, ", "))
     end
@@ -70,12 +71,12 @@ function explorar.desenhar()
     love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     local arma, armadura = jogador.arma, jogador.armadura
     love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ", " (+" .. arma.bonus .. ")") or "Arma: -", 20, 110)
-    love.graphics.print(armadura and loot.nomeColorido(armadura, "Armadura: ", " (+" .. armadura.bonus .. ")") or "Armadura: -", 20, 140)
+    love.graphics.print(armadura and loot.nomeColorido(armadura, "Armadura: ", " (+" .. armadura.bonus .. ")") or
+                            "Armadura: -", 20, 140)
 
     local c = jogador.defClasse()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro",
-                         {1, 1, 1}}, 20, 50)
+    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro", {1, 1, 1}}, 20, 50)
 
     local partes = {}
     for _, p in ipairs(pocoes.lista) do
@@ -90,19 +91,20 @@ function explorar.desenhar()
         table.insert(texto, p.cor)
         table.insert(texto, p.nome .. " x" .. jogador.quantas(p.id))
     end
+    
     if not inimigo then
-        love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 180)
+        love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 240)
     elseif inimigo.boss then
-        love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 180)
+        love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 240)
     elseif inimigo.elite then
-        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 180)
+        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 240)
     else
-        love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 180)
+        love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 240)
     end
     if inimigo then
         love.graphics.print("A lutar  X pocoes  SELECT mochila  B menu", 20, 440)
     else
-        love.graphics.print("Y loja  A seguir  X pocoes  SELECT mochila", 20, 440)
+        love.graphics.print("A continuar   L2 ajuda", 20, 440)
     end
 end
 
