@@ -21,6 +21,7 @@ jogo.registar("classes", require("estados.classes"))
 jogo.registar("historico", require("estados.historico"))
 jogo.registar("reliquia", require("estados.reliquia"))
 jogo.registar("ajuda", require("estados.ajuda"))
+jogo.registar("habilidade", require("estados.habilidade"))
 
 local DEBUG = false
 

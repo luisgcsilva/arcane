@@ -5,8 +5,9 @@ local loot = require("loot")
 local classes = require("classes")
 local registo = require("registo")
 local reliquias = require("reliquias")
+local habilidades = require("habilidades")
 
-jogador.MAX_ITENS = 8 -- tamanho da mochila
+jogador.MAX_ITENS = 10 -- tamanho da mochila
 
 function jogador.reiniciar()
     jogador.vida_max = 30
@@ -35,6 +36,8 @@ function jogador.reiniciar()
     jogador.matadoPor = nil -- guarda o inimigo que matou o player
     jogador.reliquias = {} -- ids das reliquias que tens
     jogador.ofertaReliquias = nil -- oferta de um chefe a espera de escolha
+    jogador.habilidades = {} -- ids das habilidades que aprendeste
+    jogador.habPendentes = 0 -- escolhas por fazer (so em memoria)
 end
 
 function jogador.ataqueTotal()
@@ -157,6 +160,9 @@ function jogador.ganharXp(n)
         jogador.ataque_base = jogador.ataque_base + c.ataqueNivel
         subiu = subiu + 1
     end
+    -- uma habilidade por cada 2 niveis; assim, gravacoes antigas tambem recuperam o atraso
+    jogador.habPendentes = math.max(0, math.min(math.floor(jogador.nivel / 2) - #jogador.habilidades,
+        #jogador.habilidadesDisponiveis()))
     return subiu
 end
 
@@ -215,6 +221,39 @@ function jogador.darReliquia(id)
         r.aoObter(jogador)
     end
     return r
+end
+
+function jogador.temHabilidade(id)
+    for _, h in ipairs(jogador.habilidades) do
+        if h == id then
+            return true
+        end
+    end
+    return false
+end
+
+-- Habilidades da tua classe que ainda nao aprendeste
+function jogador.habilidadesDisponiveis()
+    local lista = {}
+    for _, h in ipairs(habilidades.lista) do
+        if h.classe == jogador.classe and not jogador.temHabilidade(h.id) then
+            table.insert(lista, h)
+        end
+    end
+    return lista
+end
+
+-- As que ja aprendeste, pela ordem em que as aprendeste
+function jogador.habilidadesConhecidas()
+    local lista = {}
+    for _, id in ipairs(jogador.habilidades) do
+        table.insert(lista, habilidades.porId(id))
+    end
+    return lista
+end
+
+function jogador.aprenderHabilidade(id)
+    table.insert(jogador.habilidades, id)
 end
 
 jogador.reiniciar()

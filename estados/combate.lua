@@ -7,6 +7,7 @@ local savegame = require("savegame")
 local efeitos = require("efeitos")
 local registo = require("registo")
 local reliquias = require("reliquias")
+local habilidades = require("habilidades")
 
 local combate = {}
 
@@ -27,10 +28,15 @@ local disponiveis -- poções que tens (quantidade > 0), pela ordem do menu
 local indicePocao
 local mostradaInimigo -- fraccao de vida que a barra mostra (0 a 1)
 local mostradaJogador
-local opcoes = {"Atacar", "Defender", "Pocao", "Fugir"}
-local acoesMenu = {"atacar", "defender", "pocao", "fugir"} -- mesma ordem que "opcoes"
+local opcoes = {"Atacar", "Habilidade", "Defender", "Pocao", "Fugir"}
+local acoesMenu = {"atacar", "habilidade", "defender", "pocao", "fugir"}
 local defendendo
 local pocaoGratis -- o Frasco Infinito ainda nao foi usado neste combate
+local cooldowns -- id da habilidade -> turnos que faltam
+local disponiveisHab -- habilidades que conheces
+local indiceHab
+local inimigoAtordoado
+local protecao -- fracao do proximo golpe que e absorvida (0 a 1)
 
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
@@ -78,6 +84,12 @@ local function inimigoAtaca()
         d = math.max(1, math.ceil(d / 2))
     end
 
+    local prot = protecao
+    protecao = 0
+    if prot > 0 then
+        d = math.max(0, math.floor(d * (1 - prot) + 0.5))
+    end
+
     jogador.vida = jogador.vida - d
     jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
     table.insert(mensagens, cores.nome(inimigo, "O ", " causa-te " .. d .. " de dano" ..
@@ -115,6 +127,11 @@ end
 
 local function novoTurno()
     turno = turno + 1
+    for id, v in pairs(cooldowns) do
+        if v > 0 then
+            cooldowns[id] = v - 1
+        end
+    end
     table.insert(mensagens, "--- Turno " .. turno .. " ---")
 end
 
@@ -198,6 +215,107 @@ function combate.entrar(inimigo_novo)
     defendendo = false
     jogador.efeitos = {}
     pocaoGratis = jogador.temReliquia("frasco")
+    cooldowns = {}
+    inimigoAtordoado = false
+    protecao = 0
+end
+
+local function vencer()
+    inimigo.vida = 0
+    table.insert(mensagens, cores.nome(inimigo, "O ", " foi derrotado!"))
+    fase = "vitoria"
+    jogador.stats.inimigos = jogador.stats.inimigos + 1
+    if inimigo.boss then
+        jogador.stats.chefes = jogador.stats.chefes + 1
+        jogador.vida_max = jogador.vida_max + 10
+        jogador.vida = jogador.vida_max
+        jogador.ataque_base = jogador.ataque_base + 2
+        table.insert(mensagens, "O chefe cai! Ataque +2 e Vida maxima +10 e recuperas toda a vida.")
+    end
+    local subiu = jogador.ganharXp(inimigo.boss and 4 or (inimigo.elite and 2 or 1))
+    if subiu > 0 then
+        local c = jogador.defClasse()
+        table.insert(mensagens, {{1, 0.85, 0.2},
+                                 "Subiste para o nivel " .. jogador.nivel .. "! Vida maxima +" .. (c.vidaNivel * subiu) ..
+            ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
+    end
+    for _, id in ipairs(jogador.reliquias) do
+        local r = reliquias.porId(id)
+        if r.aoVencer then
+            local msg = r.aoVencer(jogador)
+            if msg then
+                table.insert(mensagens, {r.cor, msg})
+            end
+        end
+    end
+    largarPocao()
+    largarLoot()
+    largarMoedas()
+
+    if jogador.habPendentes > 0 then
+        table.insert(mensagens, {{0.5, 1, 0.6}, "Podes aprender uma habilidade nova!"})
+    end
+end
+
+local function criarCtx()
+    local c = {
+        sala = jogador.sala
+    }
+
+    function c.msg(t)
+        table.insert(mensagens, t)
+    end
+    function c.vivo()
+        return inimigo.vida > 0
+    end
+
+    function c.atacar(mult)
+        local d = dano(math.floor(jogador.ataqueTotal() * mult + 0.5))
+        inimigo.vida = math.max(0, inimigo.vida - d)
+        jogador.stats.dano_causado = jogador.stats.dano_causado + d
+        return d
+    end
+
+    function c.curar(n)
+        local real = math.max(0, math.min(n, jogador.vida_max - jogador.vida))
+        jogador.vida = jogador.vida + real
+        return real
+    end
+
+    function c.curarPct(f)
+        return c.curar(math.ceil(jogador.vida_max * f))
+    end
+
+    function c.limparEfeitos()
+        return efeitos.curar(jogador.efeitos)
+    end
+    function c.moedas(n)
+        jogador.ganharMoedas(n)
+    end
+    function c.proteger(f)
+        protecao = math.max(protecao, f)
+    end
+
+    function c.atordoar()
+        if inimigo.boss and math.random() < 0.5 then
+            c.msg("O chefe resiste ao atordoamento.")
+            return
+        end
+        inimigoAtordoado = true
+        c.msg(cores.nome(inimigo, "O ", " fica atordoado!"))
+    end
+
+    return c
+end
+
+local function abrirHabilidades()
+    disponiveisHab = jogador.habilidadesConhecidas()
+    if #disponiveisHab == 0 then
+        table.insert(mensagens, "Ainda nao aprendeste nenhuma habilidade (nivel 2).")
+        return
+    end
+    indiceHab = 1
+    fase = "habilidade"
 end
 
 function combate.acao(a)
@@ -231,36 +349,7 @@ function combate.acao(a)
                 table.insert(mensagens, "Atacas e causas " .. d .. " de dano.")
                 jogador.stats.dano_causado = jogador.stats.dano_causado + d
                 if inimigo.vida <= 0 then
-                    inimigo.vida = 0
-                    table.insert(mensagens, cores.nome(inimigo, "O ", " foi derrotado!"))
-                    fase = "vitoria"
-                    jogador.stats.inimigos = jogador.stats.inimigos + 1
-                    if inimigo.boss then
-                        jogador.stats.chefes = jogador.stats.chefes + 1
-                        jogador.vida_max = jogador.vida_max + 10
-                        jogador.vida = jogador.vida_max
-                        jogador.ataque_base = jogador.ataque_base + 2
-                        table.insert(mensagens, "O chefe cai! Ataque +2 e Vida maxima +10 e recuperas toda a vida.")
-                    end
-                    local subiu = jogador.ganharXp(inimigo.boss and 4 or (inimigo.elite and 2 or 1))
-                    if subiu > 0 then
-                        local c = jogador.defClasse()
-                        table.insert(mensagens, {{1, 0.85, 0.2},
-                                                 "Subiste para o nivel " .. jogador.nivel .. "! Vida maxima +" ..
-                            (c.vidaNivel * subiu) .. ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
-                    end
-                    for _, id in ipairs(jogador.reliquias) do
-                        local r = reliquias.porId(id)
-                        if r.aoVencer then
-                            local msg = r.aoVencer(jogador)
-                            if msg then
-                                table.insert(mensagens, {r.cor, msg})
-                            end
-                        end
-                    end
-                    largarPocao()
-                    largarLoot()
-                    largarMoedas()
+                    vencer()
                 else
                     fase = "pausa"
                 end
@@ -274,6 +363,8 @@ function combate.acao(a)
             elseif escolha == "pocao" then
                 -- pocao
                 abrirPocoes()
+            elseif escolha == "habilidade" then
+                abrirHabilidades()
             else
                 if inimigo.boss then
                     table.insert(mensagens, "Nao consegues fugir do chefe!")
@@ -353,11 +444,48 @@ function combate.acao(a)
                 fase = "pausa"
             end
         end
+    elseif fase == "habilidade" then
+        if a == "cima" then
+            indiceHab = indiceHab - 1
+            if indiceHab < 1 then
+                indiceHab = #disponiveisHab
+            end
+        elseif a == "baixo" then
+            indiceHab = indiceHab + 1
+            if indiceHab > #disponiveisHab then
+                indiceHab = 1
+            end
+        elseif a == "cancelar" then
+            fase = "escolha"
+        elseif a == "confirmar" then
+            local h = disponiveisHab[indiceHab]
+            if (cooldowns[h.id] or 0) > 0 then
+                table.insert(mensagens, h.nome .. " ainda nao esta pronta.")
+            else
+                h.usar(criarCtx())
+                cooldowns[h.id] = h.cooldown
+                if inimigo.vida <= 0 then
+                    vencer()
+                else
+                    fase = "pausa"
+                end
+            end
+        end
     elseif a == "confirmar" then
         if fase == "pausa" then
-            inimigoAtaca()
-            if fase ~= "derrota" then
-                fase = "turno_inimigo"
+            if inimigoAtordoado then
+                inimigoAtordoado = false
+                table.insert(mensagens, cores.nome(inimigo, "O ", " esta atordoado e perde o turno."))
+                if processarEfeitos() then
+                    morrer()
+                else
+                    fase = "turno_inimigo"
+                end
+            else
+                inimigoAtaca()
+                if fase ~= "derrota" then
+                    fase = "turno_inimigo"
+                end
             end
         elseif fase == "turno_inimigo" then
             -- leu a resposta do inimigo; novo turno
@@ -369,7 +497,10 @@ function combate.acao(a)
                 fase = "pausa" -- o inimigo ataca logo a seguir
             end
         elseif fase == "vitoria" then
-            if inimigo.boss and #jogador.reliquiasDisponiveis() > 0 then
+            local temReliquia = inimigo.boss and #jogador.reliquiasDisponiveis() > 0
+            if jogador.habPendentes > 0 then
+                jogo.mudar("habilidade", temReliquia)
+            elseif temReliquia then
                 jogo.mudar("reliquia")
             else
                 jogo.mudar("portas")
@@ -423,7 +554,7 @@ function combate.desenhar()
     if fase == "escolha" then
         for i, texto in ipairs(opcoes) do
             local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, 340 + (i - 1) * 32)
+            love.graphics.print(prefixo .. texto, 20, 326 + (i - 1) * 28)
         end
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
@@ -438,6 +569,15 @@ function combate.desenhar()
                     jogador.vida_max .. ")"), 20, 340 + (i - 1) * 32)
         end
         love.graphics.print("A - beber   B - voltar", 20, 440)
+    elseif fase == "habilidade" then
+        for i, h in ipairs(disponiveisHab) do
+            local prefixo = (i == indiceHab) and "> " or "  "
+            local cd = cooldowns[h.id] or 0
+            love.graphics.print({{1, 1, 1}, prefixo, h.cor, h.nome, {0.6, 0.6, 0.6},
+                                 (cd > 0) and ("  (pronta em " .. cd .. ")") or "  (pronta)"}, 20, 326 + (i - 1) * 28)
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(disponiveisHab[indiceHab].descricao, 20, 440)
     else
         love.graphics.print("A - continuar", 20, 440)
     end

@@ -7,6 +7,7 @@ local eventos = require("eventos")
 local armazem = require("armazem")
 local classes = require("classes")
 local reliquias = require("reliquias")
+local habilidades = require("habilidades")
 
 local savegame = {}
 
@@ -109,6 +110,9 @@ function savegame.gravar()
             add("oferta", id)
         end
     end
+    for _, id in ipairs(jogador.habilidades) do
+        add("habilidade", id)
+    end
 
     if jogador.portas then
         for _, tipo in ipairs(jogador.portas) do
@@ -165,7 +169,8 @@ function savegame.carregar()
         stats = {},
         portas = {},
         reliquias = {},
-        oferta = {}
+        oferta = {},
+        habilidades = {}
     }
     local versaoOk = false
 
@@ -262,6 +267,11 @@ function savegame.carregar()
                 return nil
             end
             table.insert(d.oferta, valor)
+        elseif chave == "habilidade" then
+            if not habilidades.existe(valor) then
+                return nil
+            end
+            table.insert(d.habilidades, valor)
         end
         -- chaves desconhecidas sao ignoradas
     end
@@ -317,6 +327,7 @@ function savegame.carregar()
     jogador.classe = d.classe
     jogador.reliquias = d.reliquias
     jogador.ofertaReliquias = (#d.oferta > 0) and d.oferta or nil
+    jogador.habilidades = d.habilidades
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor
