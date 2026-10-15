@@ -52,9 +52,9 @@ end
 function explorar.desenhar()
     love.graphics.print("Sala " .. jogador.sala, 20, 20)
     love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
-                         jogador.vida .. "/" .. jogador.vida_max}, 20, 50)
-    cores.barra(220, 54, 200, 16, jogador.vida / jogador.vida_max)
-    love.graphics.print("Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " .. jogador.defesaTotal(), 20, 80)
+                         jogador.vida .. "/" .. jogador.vida_max}, 20, 80)
+    cores.barra(180, 83, 200, 16, jogador.vida / jogador.vida_max)
+    love.graphics.print("Nivel: " .. jogador.nivel .. "   Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " .. jogador.defesaTotal(), 20, 50)
     love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     local arma, armadura = jogador.arma, jogador.armadura
     love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ") or "Arma: -", 20, 110)
@@ -73,13 +73,13 @@ function explorar.desenhar()
         table.insert(texto, p.nome .. " x" .. jogador.quantas(p.id))
     end
     if not inimigo then
-        love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 200)
+        love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 180)
     elseif inimigo.boss then
-        love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 200)
+        love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 180)
     elseif inimigo.elite then
-        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 200)
+        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 180)
     else
-        love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 200)
+        love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 180)
     end
     if inimigo then
         love.graphics.print("A lutar  X pocoes  SELECT mochila  B menu", 20, 440)

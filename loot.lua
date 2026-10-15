@@ -29,6 +29,16 @@ loot.exclusivos = {{
     tipo = "armadura",
     bonus = 8,
     raridade = "lendaria"
+}, {
+    nome = "Arco do Caos",
+    tipo = "arma",
+    bonus = 15,
+    raridade = "lendaria"
+}, {
+    nome = "Coroa dos Esquecidos",
+    tipo = "armadura",
+    bonus = 10,
+    raridade = "lendaria"
 }}
 
 -- Valor por ponto de bonus. A loja vende ao valor total, tu vendes a metade.
@@ -82,6 +92,56 @@ local itens = {{
     nome = "Armadura Arcana",
     tipo = "armadura",
     bonus = 4,
+    raridade = "epica"
+}, {
+    nome = "Faca de Cacador",
+    tipo = "arma",
+    bonus = 1,
+    raridade = "comum"
+}, {
+    nome = "Lanca Enferrujada",
+    tipo = "arma",
+    bonus = 2,
+    raridade = "comum"
+}, {
+    nome = "Gibao de Couro",
+    tipo = "armadura",
+    bonus = 1,
+    raridade = "comum"
+}, {
+    nome = "Maca de Guerra",
+    tipo = "arma",
+    bonus = 4,
+    raridade = "rara"
+}, {
+    nome = "Florete Veloz",
+    tipo = "arma",
+    bonus = 5,
+    raridade = "rara"
+}, {
+    nome = "Escudo de Aco",
+    tipo = "armadura",
+    bonus = 2,
+    raridade = "rara"
+}, {
+    nome = "Peitoral Reforcado",
+    tipo = "armadura",
+    bonus = 3,
+    raridade = "rara"
+}, {
+    nome = "Cajado Trovejante",
+    tipo = "arma",
+    bonus = 8,
+    raridade = "epica"
+}, {
+    nome = "Espada de Obsidiana",
+    tipo = "arma",
+    bonus = 9,
+    raridade = "epica"
+}, {
+    nome = "Manto de Sombras",
+    tipo = "armadura",
+    bonus = 5,
     raridade = "epica"
 }}
 

@@ -1,4 +1,5 @@
 local recordes = {}
+local armazem = require("armazem")
 
 local FICHEIRO = "recordes.txt"
 
@@ -10,8 +11,8 @@ recordes.dados = {
 }
 
 function recordes.carregar()
-  if not love.filesystem.getInfo(FICHEIRO) then return end
-  for linha in love.filesystem.lines(FICHEIRO) do
+  if not armazem.existe(FICHEIRO) then return end
+  for linha in armazem.linhas(FICHEIRO) do
     local chave, valor = linha:match("^([%w_]+)=(%d+)$")
     if chave and recordes.dados[chave] ~= nil then
       recordes.dados[chave] = tonumber(valor)
@@ -24,7 +25,7 @@ function recordes.gravar()
   for chave, valor in pairs(recordes.dados) do
     table.insert(linhas, chave .. "=" .. valor)
   end
-  local ok, erro = love.filesystem.write(FICHEIRO, table.concat(linhas, "\n") .. "\n")
+  local ok, erro = armazem.escrever(FICHEIRO, table.concat(linhas, "\n") .. "\n")
   if not ok then print("Nao consegui gravar: " .. tostring(erro)) end
 end
 

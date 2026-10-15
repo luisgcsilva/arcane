@@ -9,6 +9,7 @@ local loja = {}
 
 local indice
 local aviso
+local pendente -- indice do item a espera de confirmacao (nil = nenhum)
 
 local DOURADO = {1, 0.85, 0.2}
 local CINZA = {0.5, 0.5, 0.5}
@@ -16,15 +17,27 @@ local CINZA = {0.5, 0.5, 0.5}
 function loja.entrar()
     indice = 1
     aviso = ""
+    pendente = nil
 end
 
 function loja.acao(a)
     if a == "cancelar" then
-        jogo.fechar()
+        if pendente then
+            pendente = nil -- B com confirmacao aberta: so cancela a compra
+            aviso = ""
+        else
+            jogo.fechar()
+        end
         return
     elseif a == "inventario" then
+        pendente = nil
         jogo.abrir("inventario") -- para vender
         return
+    end
+
+    -- qualquer coisa que nao seja A cancela a confirmacao
+    if a ~= "confirmar" then
+        pendente = nil
     end
 
     local n = #mercador.stock
@@ -41,10 +54,22 @@ function loja.acao(a)
         end
         aviso = ""
     elseif a == "confirmar" then
-        local ok, mensagem = mercador.comprar(indice)
-        aviso = mensagem
-        if ok then
-            savegame.gravar()
+        local e = mercador.stock[indice]
+        if e.vendido then
+            aviso = "Esse ja nao esta disponivel."
+        elseif pendente ~= indice then
+            -- primeiro A: pede confirmacao
+            pendente = indice
+            local nome = (e.tipo == "item") and e.item.nome or e.pocao.nome
+            aviso = "Comprar " .. nome .. " por " .. e.preco .. " moedas? A para confirmar."
+        else
+            -- segundo A no mesmo item: compra
+            pendente = nil
+            local ok, mensagem = mercador.comprar(indice)
+            aviso = mensagem
+            if ok then
+                savegame.gravar()
+            end
         end
     end
 end
@@ -72,7 +97,7 @@ function loja.desenhar()
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(aviso, 20, 400)
-    love.graphics.print("A comprar  SELECT vender  B sair", 20, 440)
+    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT vender  B sair", 20, 440)
 end
 
 return loja

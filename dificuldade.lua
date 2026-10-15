@@ -3,7 +3,7 @@ local cores = require("cores")
 
 local dificuldade = {}
 
-dificuldade.SALAS_POR_BOSS = 5
+dificuldade.SALAS_POR_BOSS = 10
 
 -- % e o resto da divisao: sala 5, 10, 15... dao resto 0
 function dificuldade.eBoss(sala)
@@ -53,11 +53,11 @@ function dificuldade.criarInimigo(sala, forcarBoss, elite)
         e[chave] = valor
     end
     if not modelo.boss then
-        e.vida = arredondar(modelo.vida * fator(sala, 0.20))
-        e.ataque = arredondar(modelo.ataque * fator(sala, 0.12))
+        e.vida = arredondar(modelo.vida * fator(sala, 0.10))
+        e.ataque = arredondar(modelo.ataque * fator(sala, 0.05))
         if elite then
-            e.vida = arredondar(e.vida * 1.6)
-            e.ataque = arredondar(e.ataque * 1.3)
+            e.vida = arredondar(e.vida * 1.4)
+            e.ataque = arredondar(e.ataque * 1.2)
             e.elite = true
             e.base = modelo.nome -- nome original (o savegame precisa dele)
             e.nome = "Elite " .. modelo.nome

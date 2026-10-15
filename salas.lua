@@ -28,12 +28,13 @@ salas.lista = {{
     id = "tesouro",
     nome = "Tesouro",
     peso = 15,
-    minSala = 2
+    minSala = 2,
+    naoRepetir = true
 }, {
     id = "elite",
     nome = "Elite",
     peso = 12,
-    minSala = 4,
+    minSala = 30,
     naoRepetir = true
 }, {
     id = "evento",

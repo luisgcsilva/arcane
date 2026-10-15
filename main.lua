@@ -15,7 +15,7 @@ jogo.registar("fogueira", require("estados.fogueira"))
 jogo.registar("tesouro", require("estados.tesouro"))
 jogo.registar("evento", require("estados.evento"))
 
-local DEBUG = true
+local DEBUG = false
 local registo = {}
 
 local function anotar(texto)
@@ -42,18 +42,13 @@ function love.update(dt)
 end
 
 function love.keypressed(tecla)
-    -- na consola ha comando ligado: ignora setas (analogico)
     if love.joystick.getJoystickCount() > 0 then
-        if tecla == "up" or tecla == "down" or tecla == "left" or tecla == "right" then
-            return
-        end
+        return
     end
-    anotar("tecla " .. tecla)
     enviar(input.daTecla(tecla))
 end
 
 function love.joystickpressed(joystick, numero)
-    anotar("botao " .. numero)
     enviar(input.daBotao(numero))
 end
 

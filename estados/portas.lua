@@ -2,6 +2,7 @@ local jogo = require("jogo")
 local jogador = require("jogador")
 local salas = require("salas")
 local savegame = require("savegame")
+local cores = require("cores")
 
 local portas = {}
 
@@ -64,9 +65,10 @@ end
 
 function portas.desenhar()
     love.graphics.setColor(1, 1, 1)
-    local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Proxima Sala " .. jogador.sala+1)
+    local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Proxima Sala " .. jogador.sala + 1)
     love.graphics.print(titulo, 20, 20)
-    love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 50)
+        love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
+                         jogador.vida .. "/" .. jogador.vida_max}, 20, 50)
     love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
 
     love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 90)

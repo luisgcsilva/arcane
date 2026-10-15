@@ -169,9 +169,15 @@ function combate.acao(a)
                         jogador.vida = jogador.vida_max
                         table.insert(mensagens, "O chefe cai! Vida maxima +5 e recuperas toda a vida.")
                     end
-                    largarMoedas()
+                    local subiu = jogador.ganharXp(inimigo.boss and 4 or (inimigo.elite and 2 or 1))
+                    if subiu > 0 then
+                        table.insert(mensagens, {{1, 1, 0.2},
+                                                 "Subiste para o nivel " .. jogador.nivel ..
+                            "! Vida maxima +4, ataque +1."})
+                    end
                     largarPocao()
                     largarLoot()
+                    largarMoedas()
                 else
                     fase = "pausa"
                 end

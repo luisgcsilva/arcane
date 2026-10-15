@@ -3,24 +3,42 @@ local cores = require("cores")
 
 -- Aqui uso uma LISTA (e nao uma tabela com nomes como chaves)
 -- porque a ordem importa: e a ordem em que aparecem no menu.
-pocoes.lista = {
-  { id = "pequena", nome = "Pocao Pequena", cura = 10, peso = 75, preco = 12, cor = { 1, 0.45, 0.45 } },
-  { id = "grande",  nome = "Pocao Grande",  cura = 25, peso = 25, preco = 30, cor = { 1, 0.15, 0.15 } },
-}
+pocoes.lista = {{
+    id = "pequena",
+    nome = "Pocao Pequena",
+    cura = 10,
+    peso = 60,
+    preco = 12,
+    cor = {1, 0.45, 0.45}
+}, {
+    id = "media",
+    nome = "Pocao Media",
+    cura = 18,
+    peso = 28,
+    preco = 20,
+    cor = {1, 0.3, 0.3}
+}, {
+    id = "grande",
+    nome = "Pocao Grande",
+    cura = 30,
+    peso = 12,
+    preco = 34,
+    cor = {1, 0.15, 0.15}
+}}
 
 -- Sorteio por pesos, igual ao das raridades do loot
 function pocoes.sortear()
-  local total = 0
-  for _, p in ipairs(pocoes.lista) do
-    total = total + p.peso
-  end
-  local sorte = math.random(total)
-  for _, p in ipairs(pocoes.lista) do
-    if sorte <= p.peso then
-      return p
+    local total = 0
+    for _, p in ipairs(pocoes.lista) do
+        total = total + p.peso
     end
-    sorte = sorte - p.peso
-  end
+    local sorte = math.random(total)
+    for _, p in ipairs(pocoes.lista) do
+        if sorte <= p.peso then
+            return p
+        end
+        sorte = sorte - p.peso
+    end
 end
 
 return pocoes

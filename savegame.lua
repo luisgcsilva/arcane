@@ -4,6 +4,7 @@ local pocoes = require("pocoes")
 local inimigos = require("inimigos")
 local salas = require("salas")
 local eventos = require("eventos")
+local armazem = require("armazem")
 
 local savegame = {}
 
@@ -16,7 +17,9 @@ local numericas = {
     vida = true,
     ataque_base = true,
     sala = true,
-    moedas = true
+    moedas = true,
+    nivel = true,
+    xp = true
 }
 
 local especiais = {
@@ -24,6 +27,8 @@ local especiais = {
     tesouro = true,
     evento = true
 }
+
+savegame.ultimoErro = nil
 
 -- ---------- item <-> texto ("Nome|tipo|bonus|raridade") ----------
 
@@ -53,11 +58,11 @@ end
 -- ---------- gravar ----------
 
 function savegame.existe()
-    return love.filesystem.getInfo(FICHEIRO) ~= nil
+    return armazem.existe(FICHEIRO)
 end
 
 function savegame.apagar()
-    love.filesystem.remove(FICHEIRO)
+    armazem.remover(FICHEIRO)
 end
 
 function savegame.gravar()
@@ -72,6 +77,8 @@ function savegame.gravar()
     add("ataque_base", jogador.ataque_base)
     add("sala", jogador.sala)
     add("moedas", jogador.moedas)
+    add("nivel", jogador.nivel)
+    add("xp", jogador.xp)
 
     if jogador.arma then
         add("arma", itemParaTexto(jogador.arma))
@@ -106,9 +113,12 @@ function savegame.gravar()
         add("loja", "1")
     end
 
-    local ok, erro = love.filesystem.write(FICHEIRO, table.concat(l, "\n") .. "\n")
-    if not ok then
-        print("Nao consegui gravar: " .. tostring(erro))
+    local ok, erro = armazem.escrever(FICHEIRO, table.concat(l, "\n") .. "\n")
+    if ok then
+        savegame.ultimoErro = nil
+    else
+        savegame.ultimoErro = tostring(erro)
+        print("Nao consegui gravar: " .. savegame.ultimoErro)
     end
 end
 
@@ -143,7 +153,7 @@ function savegame.carregar()
     }
     local versaoOk = false
 
-    for linha in love.filesystem.lines(FICHEIRO) do
+    for linha in armazem.linhas(FICHEIRO) do
         local chave, valor = linha:match("^([%w_]+)=(.+)$")
         if not chave then
             return nil
@@ -267,6 +277,8 @@ function savegame.carregar()
     jogador.pocoes = d.pocoes
     jogador.moedas = d.moedas or 0
     jogador.portas = temPortas and d.portas or nil
+    jogador.nivel = d.nivel or 1
+    jogador.xp = d.xp or 0
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor
@@ -288,7 +300,7 @@ function savegame.resumo()
     if not savegame.existe() then
         return nil
     end
-    for linha in love.filesystem.lines(FICHEIRO) do
+    for linha in armazem.linhas(FICHEIRO) do
         local sala = linha:match("^sala=(%d+)$")
         if sala then
             return tonumber(sala)

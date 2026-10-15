@@ -26,6 +26,8 @@ function jogador.reiniciar()
     jogador.moedas = 0
     jogador.especial = nil -- "fogueira" ou "tesouro" quando estas numa dessas salas
     jogador.eventoId = nil -- evento sorteado da sala atual (o savegame precisa dele)
+    jogador.nivel = 1 -- nivel do jogador (para calcular a vida maxima)
+    jogador.xp = 0 -- experiencia do jogador (para calcular a vida maxima)
 end
 
 function jogador.ataqueTotal()
@@ -129,6 +131,25 @@ function jogador.vender(indice)
     local ganho = loot.precoVenda(item)
     jogador.ganharMoedas(ganho)
     return item, ganho
+end
+
+function jogador.xpNecessario()
+    return 2 + jogador.nivel -- nivel 1 pede 3, nivel 2 pede 4...
+end
+
+-- Devolve quantos niveis subiste
+function jogador.ganharXp(n)
+    jogador.xp = jogador.xp + n
+    local subiu = 0
+    while jogador.xp >= jogador.xpNecessario() do
+        jogador.xp = jogador.xp - jogador.xpNecessario()
+        jogador.nivel = jogador.nivel + 1
+        jogador.vida_max = jogador.vida_max + 4
+        jogador.vida = jogador.vida + 4
+        jogador.ataque_base = jogador.ataque_base + 1
+        subiu = subiu + 1
+    end
+    return subiu
 end
 
 jogador.reiniciar()
