@@ -39,6 +39,9 @@ function jogador.reiniciar()
     jogador.habilidades = {} -- ids das habilidades que aprendeste
     jogador.habPendentes = 0 -- escolhas por fazer (so em memoria)
     jogador.bau = nil -- resultado ja sorteado do bau da sala atual
+    jogador.posVitoria = nil -- { boss = true/false } enquanto ha decisoes depois de uma vitoria
+    jogador.lootPendente = nil -- item que caiu e ainda nao foi decidido
+    jogador.cruzUsada = false
 end
 
 function jogador.ataqueTotal()
@@ -148,6 +151,12 @@ function jogador.xpNecessario()
     return 2 + jogador.nivel -- nivel 1 pede 3, nivel 2 pede 4...
 end
 
+-- Escolhas de habilidade por fazer: uma por cada 2 niveis, limitadas ao que falta aprender
+function jogador.recalcularHab()
+    jogador.habPendentes = math.max(0, math.min(math.floor(jogador.nivel / 2) - #jogador.habilidades,
+        #jogador.habilidadesDisponiveis()))
+end
+
 -- Devolve quantos niveis subiste
 function jogador.ganharXp(n)
     local c = jogador.defClasse()
@@ -162,8 +171,7 @@ function jogador.ganharXp(n)
         subiu = subiu + 1
     end
     -- uma habilidade por cada 2 niveis; assim, gravacoes antigas tambem recuperam o atraso
-    jogador.habPendentes = math.max(0, math.min(math.floor(jogador.nivel / 2) - #jogador.habilidades,
-        #jogador.habilidadesDisponiveis()))
+    jogador.recalcularHab()
     return subiu
 end
 
@@ -255,6 +263,17 @@ end
 
 function jogador.aprenderHabilidade(id)
     table.insert(jogador.habilidades, id)
+end
+
+-- Devolve true se a Cruz te salvou (e gasta-a)
+function jogador.salvarComCruz()
+    if jogador.temReliquia("cruz") and not jogador.cruzUsada then
+        jogador.cruzUsada = true
+        jogador.vida = 1
+        jogador.efeitos = {} -- sem isto, o veneno matava-te no turno seguinte
+        return true
+    end
+    return false
 end
 
 jogador.reiniciar()

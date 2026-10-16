@@ -35,24 +35,24 @@ habilidades.lista = {
       c.msg("Ergues a guarda como uma muralha.")
     end },
 
-  -- Ladino
-  { id = "duplo", classe = "ladino", nome = "Ataque Duplo", cor = { 0.5, 0.9, 0.6 }, cooldown = 3,
-    descricao = "Dois golpes rapidos, cada um com 0,8x de dano.",
+  -- ninja
+  { id = "duplo", classe = "ninja", nome = "Ataque Duplo", cor = { 0.5, 0.9, 0.6 }, cooldown = 3,
+    descricao = "Dois golpes rapidos, cada um com 1x de dano.",
     usar = function(c)
-      local total = c.atacar(0.8)
-      if c.vivo() then total = total + c.atacar(0.8) end
+      local total = c.atacar(1)
+      if c.vivo() then total = total + c.atacar(1) end
       c.msg("Dois golpes rapidos! Causas " .. total .. " de dano.")
     end },
 
-  { id = "sujo", classe = "ladino", nome = "Golpe Sujo", cor = { 0.6, 0.8, 0.5 }, cooldown = 4,
-    descricao = "Dano normal e atordoa o inimigo (os chefes resistem 50%).",
+  { id = "sujo", classe = "ninja", nome = "Golpe Sujo", cor = { 0.6, 0.8, 0.5 }, cooldown = 4,
+    descricao = "x,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
-      local d = c.atacar(1)
+      local d = c.atacar(1.5)
       c.msg("Golpe sujo! Causas " .. d .. " de dano.")
       c.atordoar()
     end },
 
-  { id = "roubo", classe = "ladino", nome = "Roubo", cor = { 1, 0.85, 0.2 }, cooldown = 4,
+  { id = "roubo", classe = "ninja", nome = "Roubo", cor = { 1, 0.85, 0.2 }, cooldown = 4,
     descricao = "Dano normal e roubas moedas ao inimigo.",
     usar = function(c)
       local d = c.atacar(1)
@@ -61,12 +61,13 @@ habilidades.lista = {
       c.msg("Causas " .. d .. " de dano e roubas " .. n .. " moedas.")
     end },
 
-  { id = "esquiva", classe = "ladino", nome = "Esquiva", cor = { 0.5, 0.8, 0.9 }, cooldown = 5,
+  { id = "esquiva", classe = "ninja", nome = "Esquiva", cor = { 0.5, 0.8, 0.9 }, cooldown = 5,
     descricao = "Evitas por completo o proximo golpe do inimigo.",
     usar = function(c)
       c.proteger(1)
       c.msg("Preparas-te para esquivar o proximo golpe.")
     end },
+    
 
   -- Mago
   { id = "bola", classe = "mago", nome = "Bola de Fogo", cor = { 1, 0.45, 0.2 }, cooldown = 4,

@@ -5,8 +5,25 @@ loot.cores = {
     comum = {0, 1, 0},
     rara = {0.3, 0.6, 1},
     epica = {0.8, 0.3, 1},
-    lendaria = {1, 0.65, 0.1}
+    lendaria = {1, 0.65, 0.1},
+    mitica = {1, 0.25, 0.35}
 }
+
+-- Valor por ponto de bonus. A loja vende ao valor total, tu vendes a metade.
+local VALOR = {
+    comum = 3,
+    rara = 6,
+    epica = 12,
+    lendaria = 20,
+    mitica = 40
+}
+
+-- Devolve um texto colorido: so o nome do item leva a cor da raridade.
+-- prefixo e sufixo sao opcionais.
+function loot.nomeColorido(item, prefixo, sufixo)
+    local branco = {1, 1, 1}
+    return {branco, prefixo or "", loot.cores[item.raridade], item.nome, branco, sufixo or ""}
+end
 
 -- So aparecem na loja: nao estao na tabela "itens", por isso nunca caem
 loot.exclusivos = {{
@@ -40,21 +57,6 @@ loot.exclusivos = {{
     bonus = 10,
     raridade = "lendaria"
 }}
-
--- Valor por ponto de bonus. A loja vende ao valor total, tu vendes a metade.
-local VALOR = {
-    comum = 3,
-    rara = 6,
-    epica = 12,
-    lendaria = 20
-}
-
--- Devolve um texto colorido: so o nome do item leva a cor da raridade.
--- prefixo e sufixo sao opcionais.
-function loot.nomeColorido(item, prefixo, sufixo)
-    local branco = {1, 1, 1}
-    return {branco, prefixo or "", loot.cores[item.raridade], item.nome, branco, sufixo or ""}
-end
 
 -- Dados: para acrescentar um item, basta uma linha nova.
 -- tipo "arma" da ataque, tipo "armadura" reduz o dano recebido.
@@ -143,6 +145,61 @@ local itens = {{
     tipo = "armadura",
     bonus = 5,
     raridade = "epica"
+}, {
+    nome = "Espada Flamejante",
+    tipo = "arma",
+    bonus = 11,
+    raridade = "lendaria"
+}, {
+    nome = "Machado do Tita",
+    tipo = "arma",
+    bonus = 12,
+    raridade = "lendaria"
+}, {
+    nome = "Lanca do Dragao",
+    tipo = "arma",
+    bonus = 13,
+    raridade = "lendaria"
+}, {
+    nome = "Cota de Mithril",
+    tipo = "armadura",
+    bonus = 6,
+    raridade = "lendaria"
+}, {
+    nome = "Armadura do Guardiao",
+    tipo = "armadura",
+    bonus = 7,
+    raridade = "lendaria"
+}, {
+    nome = "Lamina do Vazio",
+    tipo = "arma",
+    bonus = 16,
+    raridade = "mitica"
+}, {
+    nome = "Ceifador de Almas",
+    tipo = "arma",
+    bonus = 18,
+    raridade = "mitica"
+}, {
+    nome = "Arco Estelar",
+    tipo = "arma",
+    bonus = 20,
+    raridade = "mitica"
+}, {
+    nome = "Armadura do Abismo",
+    tipo = "armadura",
+    bonus = 11,
+    raridade = "mitica"
+}, {
+    nome = "Vestes Celestiais",
+    tipo = "armadura",
+    bonus = 13,
+    raridade = "mitica"
+}, {
+    nome = "Egide do Imperador",
+    tipo = "armadura",
+    bonus = 14,
+    raridade = "mitica"
 }}
 
 -- Quanto maior o peso, mais frequente. Total = 100, logo sao percentagens.
@@ -178,25 +235,48 @@ function loot.raridadeDe(nome)
     end
 end
 
+-- peso = (bonus - inicio) * subida, entre 0 e topo. A comum so desce.
+local escaloes = {{
+    nome = "rara",
+    inicio = -25,
+    topo = 50
+}, {
+    nome = "epica",
+    inicio = -5,
+    topo = 50
+}, {
+    nome = "lendaria",
+    inicio = 30,
+    topo = 40
+}, {
+    nome = "mitica",
+    inicio = 60,
+    topo = 30
+}}
+
 local function sortearRaridade(bonus)
     bonus = bonus or 0
-    local pesos = {
-        comum = math.max(10, 70 - 2 * bonus),
-        rara = 25 + bonus,
-        epica = 5 + bonus
-    }
-    local ordem = {"comum", "rara", "epica"}
+    local pesos = {{
+        nome = "comum",
+        peso = math.max(5, 70 - 2 * bonus)
+    }}
+    for _, t in ipairs(escaloes) do
+        table.insert(pesos, {
+            nome = t.nome,
+            peso = math.max(0, math.min(bonus - t.inicio, t.topo))
+        })
+    end
 
     local total = 0
-    for _, nome in ipairs(ordem) do
-        total = total + pesos[nome]
+    for _, p in ipairs(pesos) do
+        total = total + p.peso
     end
     local sorte = math.random(total)
-    for _, nome in ipairs(ordem) do
-        if sorte <= pesos[nome] then
-            return nome
+    for _, p in ipairs(pesos) do
+        if sorte <= p.peso then
+            return p.nome
         end
-        sorte = sorte - pesos[nome]
+        sorte = sorte - p.peso
     end
 end
 

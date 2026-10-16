@@ -17,6 +17,8 @@ function estado.entrar()
     jogador.especial = "reliquia"
     jogador.portas = nil
     jogador.inimigo = nil
+    jogador.posVitoria = nil
+    jogador.lootPendente = nil
 
     -- se vens de "Continuar", a oferta ja esta sorteada e gravada
     if not jogador.ofertaReliquias then

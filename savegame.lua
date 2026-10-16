@@ -111,6 +111,9 @@ function savegame.gravar()
             add("oferta", id)
         end
     end
+    if jogador.cruzUsada then
+        add("cruz_usada", "1")
+    end
     for _, id in ipairs(jogador.habilidades) do
         add("habilidade", id)
     end
@@ -134,10 +137,17 @@ function savegame.gravar()
                 add("bau", "moedas|" .. b.n)
             end
         end
+    elseif jogador.posVitoria then
+        add("vitoria", jogador.posVitoria.boss and "boss" or "normal")
+        if jogador.lootPendente then
+            add("loot", itemParaTexto(jogador.lootPendente))
+        end
     elseif jogador.inimigo then
         local e = jogador.inimigo
         add("inimigo",
             (e.base or e.nome) .. "|" .. e.vida .. "|" .. e.vida_max .. "|" .. e.ataque .. "|" .. (e.elite and 1 or 0))
+    elseif e.tipo == "forja" then
+        add("stock", "forja|" .. e.slot .. "|" .. e.preco)
     else
         add("loja", "1")
         for _, e in ipairs(mercador.stock) do
@@ -291,7 +301,8 @@ function savegame.carregar()
                 return nil
             end
             table.insert(d.reliquias, valor)
-
+        elseif chave == "cruz_usada" then
+            d.cruzUsada = (valor == "1")
         elseif chave == "oferta" then
             if not reliquias.existe(valor) then
                 return nil
@@ -302,6 +313,18 @@ function savegame.carregar()
                 return nil
             end
             table.insert(d.habilidades, valor)
+        elseif chave == "vitoria" then
+            if valor ~= "boss" and valor ~= "normal" then
+                return nil
+            end
+            d.vitoria = valor
+
+        elseif chave == "loot" then
+            local item = textoParaItem(valor)
+            if not item then
+                return nil
+            end
+            d.loot = item
         elseif chave == "bau" then
             local p = partir(valor)
             if p[1] == "item" then
@@ -355,6 +378,16 @@ function savegame.carregar()
                     preco = preco,
                     vendido = (p[4] == "1") or nil
                 })
+            elseif p[1] == "forja" then
+                local preco = tonumber(p[3])
+                if (p[2] ~= "arma" and p[2] ~= "armadura") or not preco then
+                    return nil
+                end
+                table.insert(d.stock, {
+                    tipo = "forja",
+                    slot = p[2],
+                    preco = preco
+                })
             elseif p[1] == "pocao" then
                 local def
                 for _, q in ipairs(pocoes.lista) do
@@ -403,6 +436,8 @@ function savegame.carregar()
         motivo = "moedas negativas"
     elseif not (d.inimigo or d.loja or temPortas or d.especial) then
         motivo = "falta inimigo/loja/portas"
+    elseif not (d.inimigo or d.loja or temPortas or d.especial or d.vitoria) then
+        motivo = "falta inimigo/loja/portas"
     end
     if not motivo and d.especial == "reliquia" and #d.oferta == 0 then
         motivo = "oferta de reliquia vazia"
@@ -429,7 +464,17 @@ function savegame.carregar()
     jogador.classe = d.classe
     jogador.reliquias = d.reliquias
     jogador.ofertaReliquias = (#d.oferta > 0) and d.oferta or nil
+    jogador.cruzUsada = d.cruzUsada or false
     jogador.habilidades = d.habilidades
+    jogador.bau = (d.especial == "tesouro") and d.bau or nil
+    jogador.posVitoria = d.vitoria and {
+        boss = (d.vitoria == "boss")
+    } or nil
+    jogador.lootPendente = d.loot
+    jogador.recalcularHab()
+    if d.loja and #d.stock > 0 then
+        mercador.stock = d.stock
+    end
     for nome, valor in pairs(d.stats) do
         if jogador.stats[nome] ~= nil then
             jogador.stats[nome] = valor
@@ -440,10 +485,12 @@ function savegame.carregar()
         return "portas", d.portas
     elseif d.especial then
         return d.especial -- o nome do estado e igual ao id da sala
+    elseif d.vitoria then
+        return "combate", "retomar"
     elseif d.inimigo then
         return "explorar", (d.inimigo.boss and "boss" or "combate"), d.inimigo
     end
-    return "explorar", "loja"
+    return "explorar", "loja", (#d.stock > 0) and "retomar" or nil
 end
 
 -- Devolve so a sala da gravacao (numero) ou nil. Nao toca no jogador.

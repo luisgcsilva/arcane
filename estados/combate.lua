@@ -12,7 +12,6 @@ local intencoes = require("intencoes")
 
 local combate = {}
 
-local opcoes = {"Atacar", "Pocao", "Fugir"}
 local indice
 local inimigo
 local mensagens
@@ -40,17 +39,24 @@ local inimigoAtordoado
 local protecao -- fracao do proximo golpe que e absorvida (0 a 1)
 local intencao -- id da intencao do inimigo neste turno
 local padraoIdx -- posicao no padrao do inimigo
+local confirmaPocao
 
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
 end
 
+-- Devolve true se morreste, false se a Cruz Sagrada te salvou
 local function morrer()
+    if jogador.salvarComCruz() then
+        table.insert(mensagens, {{1, 1, 0.75}, "A Cruz Sagrada brilha! Sobrevives com 1 de vida."})
+        return false
+    end
     jogador.vida = 0
     jogador.matadoPor = inimigo.nome
     table.insert(mensagens, "Foste derrotado...")
     fase = "derrota"
     savegame.apagar()
+    return true
 end
 
 local function aplicarEfeito(id)
@@ -165,6 +171,9 @@ local function escolherIntencao()
         return
     end
     intencao = p[padraoIdx]
+    if not intencoes.existe(intencao) then
+        print("Intencao invalida: '" .. tostring(intencao) .. "' em " .. inimigo.nome)
+    end
     padraoIdx = padraoIdx % #p + 1
     -- nao recupera forcas com a vida cheia
     if intencao == "curar" and inimigo.vida >= inimigo.vida_max then
@@ -193,28 +202,38 @@ local function guardarNaMochila(item)
     end
 end
 
+-- Mostra o item e prepara o menu de escolha. Serve tambem para retomar.
+local function oferecerLoot(item)
+    local atributo = (item.tipo == "arma") and "ataque" or "defesa"
+    table.insert(mensagens, {{1, 1, 1}, "Encontras: ", loot.cores[item.raridade], item.nome, {1, 1, 1},
+                             " (" .. item.raridade .. ", +" .. item.bonus .. " " .. atributo .. ")"})
+
+    local preco = loot.precoVenda(item)
+    local atual = jogador[item.tipo]
+    if jogador.eMelhor(item) then
+        if atual then
+            table.insert(mensagens, loot.nomeColorido(atual, "Equipado agora: ", " (+" .. atual.bonus .. ")"))
+        else
+            table.insert(mensagens, "Ainda nao tens nada equipado nesse espaco.")
+        end
+        opcoesAtuais = {"Equipar", "Guardar na mochila", "Vender (" .. preco .. " moedas)"}
+        acoesAtuais = {"equipar", "guardar", "vender"}
+    else
+        table.insert(mensagens, loot.nomeColorido(atual, "Nao e melhor que ", " (+" .. atual.bonus .. ")."))
+        opcoesAtuais = {"Guardar na mochila", "Vender (" .. preco .. " moedas)"}
+        acoesAtuais = {"guardar", "vender"}
+    end
+
+    pendente = item
+    indiceLoot = 1
+    fase = "loot"
+end
+
 local function largarLoot()
     if inimigo.boss or inimigo.elite or math.random() < 0.7 then
         local item = loot.sortear(jogador.sala + (inimigo.boss and 10 or (inimigo.elite and 6 or 0)))
-        local atributo = (item.tipo == "arma") and "ataque" or "defesa"
-        table.insert(mensagens, {{1, 1, 1}, "Encontras: ", loot.cores[item.raridade], item.nome, {1, 1, 1},
-                                 " (" .. item.raridade .. ", +" .. item.bonus .. " " .. atributo .. ")"})
-
-        local preco = loot.precoVenda(item)
-        local atual = jogador[item.tipo]
-        if jogador.eMelhor(item) then
-            -- (as linhas de mensagem ficam como estao)
-            opcoesAtuais = {"Equipar", "Guardar na mochila", "Vender (" .. preco .. " moedas)"}
-            acoesAtuais = {"equipar", "guardar", "vender"}
-        else
-            -- (a linha "Nao e melhor..." fica como esta)
-            opcoesAtuais = {"Guardar na mochila", "Vender (" .. preco .. " moedas)"}
-            acoesAtuais = {"guardar", "vender"}
-        end
-
-        pendente = item
-        indiceLoot = 1
-        fase = "loot"
+        jogador.lootPendente = item -- fica registado ate decidires
+        oferecerLoot(item)
     else
         table.insert(mensagens, "Nao largou nada.")
     end
@@ -248,24 +267,32 @@ local function abrirPocoes()
         return
     end
     indicePocao = 1
+    confirmaPocao = nil
     fase = "pocao"
 end
 
-function combate.entrar(inimigo_novo)
-    inimigo = inimigo_novo
-    mostradaInimigo = inimigo.vida / inimigo.vida_max
-    mostradaJogador = jogador.vida / jogador.vida_max
+function combate.entrar(arg)
+    if arg == "retomar" then
+        combate.retomar()
+        return
+    end
+
+    inimigo = arg -- o inimigo vem direto no argumento
     indice = 1
     fase = "escolha"
     turno = 1
     deslocamento = 0
-    mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!", "!"), "--- Turno " .. turno .. " ---"}
-    defendendo = false
-    jogador.efeitos = {}
-    pocaoGratis = jogador.temReliquia("frasco")
     cooldowns = {}
     inimigoAtordoado = false
     protecao = 0
+    defendendo = false
+    pocaoGratis = jogador.temReliquia("frasco")
+    jogador.efeitos = {}
+    mostradaInimigo = inimigo.vida / inimigo.vida_max
+    mostradaJogador = jogador.vida / jogador.vida_max
+    mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!"), "--- Turno 1 ---"}
+
+    -- por ultimo: a intencao precisa do inimigo ja atribuido
     inimigo.carregado = false
     padraoIdx = inimigo.padrao and math.random(#inimigo.padrao) or 1
     escolherIntencao()
@@ -306,6 +333,11 @@ local function vencer()
     if jogador.habPendentes > 0 then
         table.insert(mensagens, {{0.5, 1, 0.6}, "Podes aprender uma habilidade nova!"})
     end
+
+    jogador.posVitoria = {
+        boss = inimigo.boss and true or false
+    }
+    savegame.gravar()
 end
 
 local function criarCtx()
@@ -459,9 +491,14 @@ function combate.acao(a)
                 table.insert(mensagens, "Vendes " .. pendente.nome .. " por " .. ganho .. " moedas.")
             end
             pendente = nil
+            jogador.lootPendente = nil
+            savegame.gravar()
             fase = "vitoria"
         end
     elseif fase == "pocao" then
+        if a ~= "confirmar" then
+            confirmaPocao = nil
+        end
         if a == "cima" then
             indicePocao = indicePocao - 1
             if indicePocao < 1 then
@@ -479,18 +516,21 @@ function combate.acao(a)
             if jogador.vida >= jogador.vida_max then
                 table.insert(mensagens, "Ja tens a vida cheia.")
                 fase = "escolha"
+            elseif confirmaPocao ~= indicePocao then
+                confirmaPocao = indicePocao
             else
+                confirmaPocao = nil
                 local curado = jogador.usarPocao(p.id)
                 table.insert(mensagens, cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
+                if efeitos.curar(jogador.efeitos) > 0 then
+                    table.insert(mensagens, "A pocao cura o veneno e as hemorragias.")
+                end
                 if pocaoGratis then
                     pocaoGratis = false
                     jogador.darPocao(p.id)
                     jogador.stats.pocoes = jogador.stats.pocoes - 1
                     table.insert(mensagens,
                         {{0.4, 0.9, 1}, "O Frasco Infinito volta a encher-se: a pocao nao se gastou."})
-                end
-                if efeitos.curar(jogador.efeitos) > 0 then
-                    table.insert(mensagens, "A pocao cura o veneno e as hemorragias.")
                 end
                 fase = "pausa"
             end
@@ -533,8 +573,8 @@ function combate.acao(a)
                 else
                     table.insert(mensagens, cores.nome(inimigo, "O ", " esta atordoado e perde o turno."))
                 end
-                if processarEfeitos() then
-                    morrer()
+                if processarEfeitos() and morrer() then
+                    fase = "derrota"
                 else
                     fase = "turno_inimigo"
                 end
@@ -618,6 +658,13 @@ function combate.desenhar()
         love.graphics.print("v mais antigo: L1", 20, 70)
     end
 
+    if fase == "escolha" then
+        for i, texto in ipairs(opcoes) do
+            local prefixo = (i == indice) and "> " or "  "
+            love.graphics.print(prefixo .. texto, 20, 326 + (i - 1) * 28)
+        end
+    end
+
     if fase == "escolha" and intencao then
         local def = intencoes.lista[intencao]
         local t = {{0.7, 0.7, 0.7}, "O inimigo prepara-se:\n", inimigo.cor or {1, 1, 1}, inimigo.nome, def.cor,
@@ -628,7 +675,6 @@ function combate.desenhar()
         end
         love.graphics.printf(t, 300, 326, 320)
         love.graphics.setColor(1, 1, 1)
-
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
             local prefixo = (i == indiceLoot) and "> " or "  "
@@ -641,7 +687,12 @@ function combate.desenhar()
                 " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
                     jogador.vida_max .. ")"), 20, 340 + (i - 1) * 32)
         end
-        love.graphics.print("A - beber   B - voltar", 20, 440)
+        if confirmaPocao then
+            local p = disponiveis[confirmaPocao]
+            love.graphics.print(cores.nome(p, "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
+        else
+            love.graphics.print("A - beber   B - voltar", 20, 440)
+        end
     elseif fase == "habilidade" then
         for i, h in ipairs(disponiveisHab) do
             local prefixo = (i == indiceHab) and "> " or "  "
@@ -668,6 +719,40 @@ end
 function combate.atualizar(dt)
     mostradaInimigo = aproximar(mostradaInimigo, inimigo.vida / inimigo.vida_max, dt)
     mostradaJogador = aproximar(mostradaJogador, jogador.vida / jogador.vida_max, dt)
+end
+
+-- Chamada pelo "Continuar" quando a gravacao e de depois de uma vitoria
+function combate.retomar()
+    local pos = jogador.posVitoria or {}
+    -- o inimigo ja morreu: so precisamos de algo para o ecra desenhar
+    inimigo = {
+        nome = "Inimigo",
+        vida = 0,
+        vida_max = 1,
+        ataque = 0,
+        boss = pos.boss
+    }
+    indice = 1
+    turno = 1
+    deslocamento = 0
+    cooldowns = {}
+    inimigoAtordoado = false
+    protecao = 0
+    defendendo = false
+    pocaoGratis = false
+    jogador.efeitos = {}
+    mostradaInimigo = 0
+    mostradaJogador = jogador.vida / jogador.vida_max
+    mensagens = {"Retomas depois da vitoria."}
+    padraoIdx = inimigo.padrao and math.random(#inimigo.padrao) or 1
+    fase = "vitoria"
+
+    if jogador.lootPendente then
+        oferecerLoot(jogador.lootPendente)
+    end
+    if jogador.habPendentes > 0 then
+        table.insert(mensagens, {{0.5, 1, 0.6}, "Podes aprender uma habilidade nova!"})
+    end
 end
 
 return combate

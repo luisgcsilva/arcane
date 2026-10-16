@@ -11,7 +11,7 @@ local MAX = 10 -- quantas partidas se guardam
 -- Campos guardados, por ordem. Para guardar mais um dado, acrescenta aqui
 -- e preenche-o na funcao registar().
 local CAMPOS = {"numero", "data", "classe", "nivel", "sala", "vida_max", "ataque", "defesa", "moedas", "arma",
-                "armadura", "inimigos", "chefes", "dano_causado", "dano_sofrido", "pocoes", "causa", "recorde"}
+                "armadura", "inimigos", "chefes", "dano_causado", "dano_sofrido", "pocoes", "causa", "cruz", "recorde"}
 
 historico.partidas = {} -- a mais recente primeiro
 
@@ -125,7 +125,8 @@ function historico.registar(novoRecorde, numero)
         dano_sofrido = s.dano_sofrido,
         pocoes = s.pocoes,
         causa = jogador.matadoPor or "?",
-        recorde = novoRecorde and 1 or 0
+        recorde = novoRecorde and 1 or 0,
+        cruz = jogador.cruzUsada and 1 or 0
     }
 
     table.insert(historico.partidas, 1, p)

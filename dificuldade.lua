@@ -1,5 +1,6 @@
 local inimigos = require("inimigos")
 local cores = require("cores")
+local biomas = require("biomas")
 
 local dificuldade = {}
 
@@ -19,31 +20,47 @@ local function arredondar(x)
     return math.floor(x + 0.5)
 end
 
--- Sala 1 = x1.0. A vida cresce 20% por sala, o ataque 12%.
+-- Salas 1-21: cresce a ritmo inteiro. 21-51: a 80%. Depois da 51: a 40%.
 local function fator(sala, passo)
     local s = sala - 1
-    if s > 20 then s = 20 + (s - 20) * 0.5 end -- depois da sala 21 cresce a metade
-    return 1 + passo * s
+    local t = math.min(s, 20)
+    if s > 20 then
+        t = t + (math.min(s, 50) - 20) * 0.8
+    end
+    if s > 50 then
+        t = t + (s - 50) * 0.7
+    end
+    return 1 + passo * t
+end
+
+function dificuldade.candidatos(sala)
+    local id = biomas.daSala(sala).id
+    local lista = {}
+    for _, m in pairs(inimigos) do
+        if not m.boss and m.minSala <= sala and biomas.permite(m, id) then
+            table.insert(lista, m)
+        end
+    end
+    return lista
+end
+
+function dificuldade.chefesDoBioma(sala)
+    local id = biomas.daSala(sala).id
+    local lista = {}
+    for _, m in pairs(inimigos) do
+        if m.boss and m.biomas and biomas.permite(m, id) then
+            table.insert(lista, m)
+        end
+    end
+    return lista
 end
 
 local function escolherModelo(sala)
+    local lista
     if dificuldade.eBoss(sala) then
-        -- o chefe mais "avancado" que ja pode aparecer
-        local melhor
-        for _, m in pairs(inimigos) do
-            if m.boss and m.minSala <= sala and (melhor == nil or m.minSala > melhor.minSala) then
-                melhor = m
-            end
-        end
-        return melhor
-    end
-
-    -- inimigos normais ja desbloqueados nesta sala
-    local lista = {}
-    for _, m in pairs(inimigos) do
-        if not m.boss and m.minSala <= sala then
-            table.insert(lista, m)
-        end
+        lista = dificuldade.chefesDoBioma(sala)
+    else
+        lista = dificuldade.candidatos(sala)
     end
     return lista[math.random(#lista)]
 end
@@ -55,11 +72,11 @@ function dificuldade.criarInimigo(sala, forcarBoss, elite)
         e[chave] = valor
     end
     if not modelo.boss then
-        e.vida = arredondar(modelo.vida * fator(sala, 0.05))
-        e.ataque = arredondar(modelo.ataque * fator(sala, 0.05))
+        e.vida = arredondar(modelo.vida * fator(sala, 0.08))
+        e.ataque = arredondar(modelo.ataque * fator(sala, 0.06))
         if elite then
             e.vida = arredondar(e.vida * 1.6)
-            e.ataque = arredondar(e.ataque * 1.4)
+            e.ataque = arredondar(e.ataque * 1.25)
             e.elite = true
             e.base = modelo.nome -- nome original (o savegame precisa dele)
             e.nome = "Elite " .. modelo.nome

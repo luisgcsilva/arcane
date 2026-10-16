@@ -8,6 +8,7 @@ local menu = {}
 
 local opcoes, acoes, indice, aviso
 local confirmarNovo -- true quando espera confirmacao para apagar a gravacao
+local DEV = true -- poe false para esconder a Simulacao
 
 function menu.entrar()
     opcoes, acoes = {}, {}
@@ -21,6 +22,10 @@ function menu.entrar()
     table.insert(acoes, "novo")
     table.insert(opcoes, "Historico")
     table.insert(acoes, "historico")
+    if DEV then
+        table.insert(opcoes, "Simulacao")
+        table.insert(acoes, "simulacao")
+    end
     table.insert(opcoes, "Sair")
     table.insert(acoes, "sair")
     indice = 1
@@ -70,6 +75,8 @@ function menu.acao(a)
             end
         elseif escolha == "historico" then
             jogo.mudar("historico")
+        elseif escolha == "simulacao" then
+            jogo.mudar("simulacao")
         else
             love.event.quit()
         end

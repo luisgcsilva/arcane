@@ -9,18 +9,29 @@ local pocoes = {}
 local lista
 local indice
 local aviso
+local pendente -- indice da pocao a espera de confirmacao
 
 function pocoes.entrar()
     lista = jogador.pocoesDisponiveis()
     indice = 1
     aviso = ""
+    pendente = nil
 end
 
 function pocoes.acao(a)
     if a == "cancelar" then
-        savegame.gravar()
-        jogo.fechar()
+        if pendente then
+            pendente = nil -- B com confirmacao aberta: so cancela
+            aviso = ""
+        else
+            savegame.gravar()
+            jogo.fechar()
+        end
         return
+    end
+
+    if a ~= "confirmar" then
+        pendente = nil
     end
 
     local n = #lista

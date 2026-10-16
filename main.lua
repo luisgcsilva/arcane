@@ -5,6 +5,7 @@ local cores = require("cores")
 local registo = require("registo")
 local historico = require("historico")
 local reliquias = require("reliquias")
+local dificuldade = require("dificuldade")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -22,6 +23,7 @@ jogo.registar("historico", require("estados.historico"))
 jogo.registar("reliquia", require("estados.reliquia"))
 jogo.registar("ajuda", require("estados.ajuda"))
 jogo.registar("habilidade", require("estados.habilidade"))
+jogo.registar("simulacao", require("estados.simulacao"))
 
 local DEBUG = false
 
@@ -35,6 +37,15 @@ function love.load()
     recordes.carregar()
     registo.carregar()
     historico.carregar()
+    for sala = 1, 100 do
+        if dificuldade.eBoss(sala) then
+            if #dificuldade.chefesDoBioma(sala) == 0 then
+                print("AVISO: sala " .. sala .. " sem chefe")
+            end
+        elseif #dificuldade.candidatos(sala) == 0 then
+            print("AVISO: sala " .. sala .. " sem inimigos possiveis")
+        end
+    end
     jogo.mudar("menu")
 end
 

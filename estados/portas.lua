@@ -30,6 +30,9 @@ function portas.entrar(arg)
     jogador.inimigo = nil
     jogador.especial = nil
     jogador.eventoId = nil
+    jogador.bau = nil
+    jogador.posVitoria = nil
+    jogador.lootPendente = nil
     indice = 1
     savegame.gravar()
 end

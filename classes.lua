@@ -12,13 +12,13 @@ classes.lista = {
   { id = "ninja", nome = "Ninja", cor = { 0.5, 0.9, 0.6 },
     descricao = "Rapido e oportunista. Foge com facilidade e rouba mais moedas.",
     perk = "Fuga de 75% e +50% de moedas dos inimigos.",
-    vida = 40, ataque = 8, defesa = 0, vidaNivel = 5, ataqueNivel = 2,
+    vida = 58, ataque = 8, defesa = 0, vidaNivel = 9, ataqueNivel = 2,
     fuga = 0.75, moedas = 1.5, cura = 1 },
 
   { id = "mago", nome = "Mago", cor = { 0.6, 0.7, 1 },
     descricao = "Fragil mas devastador. Bate forte e cresce depressa em ataque.",
     perk = "Pocoes curam +50%.",
-    vida = 30, ataque = 9, defesa = 0, vidaNivel = 4, ataqueNivel = 3,
+    vida = 35, ataque = 9, defesa = 0, vidaNivel = 6, ataqueNivel = 3,
     fuga = 0.5, moedas = 1, cura = 1.5 },
 }
 

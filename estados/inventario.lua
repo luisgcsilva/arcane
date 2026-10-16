@@ -144,6 +144,8 @@ function inventario.desenhar()
             local r = reliquias.porId(id)
             local prefixo = (i == indiceR) and "> " or "  "
             love.graphics.print({{1, 1, 1}, prefixo, r.cor, r.nome}, 20, 70 + (i - 1) * 30)
+            local usada = (id == "cruz" and jogador.cruzUsada) and "  (usada)" or ""
+            love.graphics.print({{1, 1, 1}, prefixo, r.cor, r.nome, {0.6, 0.6, 0.6}, usada}, 20, 70 + (i - 1) * 30)
         end
         local sel = jogador.reliquias[indiceR] and reliquias.porId(jogador.reliquias[indiceR])
         if sel then

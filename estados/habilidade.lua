@@ -1,5 +1,6 @@
 local jogo = require("jogo")
 local jogador = require("jogador")
+local savegame = require("savegame")
 
 local estado = {}
 
@@ -69,6 +70,7 @@ function estado.acao(a)
         jogador.habPendentes = math.max(0, jogador.habPendentes - 1)
         aviso = "Aprendeste " .. h.nome .. "!"
         feito = true
+        savegame.gravar()
     end
 end
 

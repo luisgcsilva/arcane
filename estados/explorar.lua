@@ -23,7 +23,9 @@ function explorar.entrar(tipo, guardado)
     jogador.especial = nil
     if tipo == "loja" then
         inimigo = nil
-        mercador.gerar(jogador.sala)
+        if guardado ~= "retomar" then
+            mercador.gerar(jogador.sala)
+        end
     elseif guardado then
         inimigo = guardado
     else
@@ -91,7 +93,7 @@ function explorar.desenhar()
         table.insert(texto, p.cor)
         table.insert(texto, p.nome .. " x" .. jogador.quantas(p.id))
     end
-    
+
     if not inimigo then
         love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 240)
     elseif inimigo.boss then

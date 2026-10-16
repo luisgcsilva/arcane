@@ -16,18 +16,42 @@ local opcoes, acoes, indice
 local DOURADO = {1, 0.85, 0.2}
 local BRANCO = {1, 1, 1}
 
+local function sortearBau()
+    local sorte = math.random(100)
+    if sorte <= 15 then
+        -- o dano real so e calculado ao abrir (nunca te mata)
+        return {
+            tipo = "armadilha",
+            dano = math.max(2, math.floor(jogador.vida_max * 0.15))
+        }
+    elseif sorte <= 55 then
+        return {
+            tipo = "item",
+            item = loot.sortear(jogador.sala + 3)
+        }
+    end
+    return {
+        tipo = "moedas",
+        n = math.random(8, 15) + 3 * jogador.sala
+    }
+end
+
 function tesouro.entrar()
     jogador.especial = "tesouro"
     jogador.portas = nil
     jogador.inimigo = nil
     mensagens = {}
     fase = "fechado"
-    registo.add("  [tesouro]")
+    if not jogador.bau then
+        jogador.bau = sortearBau()
+    end
+    registo.add("  [tesouro] " .. jogador.bau.tipo)
     savegame.gravar()
 end
 
 -- A gravacao passa a apontar para as portas seguintes
 local function concluir()
+    jogador.bau = nil
     jogador.especial = nil
     jogador.portas = salas.gerarPortas(jogador.sala + 1, "tesouro")
     savegame.gravar()
@@ -35,11 +59,11 @@ local function concluir()
 end
 
 local function abrirBau()
-    local sorte = math.random(100)
+    local bau = jogador.bau
 
-    if sorte <= 15 then
-        -- armadilha: nunca te mata (deixa sempre pelo menos 1 de vida)
-        local dano = math.min(jogador.vida - 1, math.max(2, math.floor(jogador.vida_max * 0.15)))
+    if bau.tipo == "armadilha" then
+        -- nunca te mata (deixa sempre pelo menos 1 de vida)
+        local dano = math.min(jogador.vida - 1, bau.dano)
         if dano > 0 then
             jogador.vida = jogador.vida - dano
             jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + dano
@@ -48,8 +72,8 @@ local function abrirBau()
             table.insert(mensagens, "Uma armadilha dispara, mas escapas por pouco.")
         end
 
-    elseif sorte <= 55 then
-        local item = loot.sortear(jogador.sala + 3)
+    elseif bau.tipo == "item" then
+        local item = bau.item
         local atributo = (item.tipo == "arma") and "ataque" or "defesa"
         table.insert(mensagens, loot.nomeColorido(item, "Encontras: ", " (+" .. item.bonus .. " " .. atributo .. ")"))
 
@@ -72,12 +96,10 @@ local function abrirBau()
         return -- a sala so fecha depois da escolha
 
     else
-        local n = math.random(8, 15) + 3 * jogador.sala
-        jogador.ganharMoedas(n)
-        table.insert(mensagens, {DOURADO, "O bau esta cheio de moedas: +" .. n .. "."})
+        jogador.ganharMoedas(bau.n)
+        table.insert(mensagens, {DOURADO, "O bau esta cheio de moedas: +" .. bau.n .. "."})
     end
 
-    -- a gravacao ja aponta para as portas seguintes
     concluir()
 end
 

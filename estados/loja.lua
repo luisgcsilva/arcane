@@ -22,6 +22,7 @@ function loja.entrar()
 end
 
 function loja.acao(a)
+    mercador.atualizar()
     if a == "cancelar" then
         if pendente then
             pendente = nil -- B com confirmacao aberta: so cancela a compra
@@ -76,13 +77,14 @@ function loja.acao(a)
 end
 
 function loja.desenhar()
+    mercador.atualizar()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("LOJA", 20, 20)
     love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 400, 20)
 
     for i, e in ipairs(mercador.stock) do
         local prefixo = (i == indice) and "> " or "  "
-        local y = 80 + (i - 1) * 32
+        local y = 80 + (i - 1) * 26
 
         if e.vendido then
             love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (esgotado)"}, 20, y)
@@ -92,6 +94,17 @@ function loja.desenhar()
                 " +" .. e.item.bonus .. " " .. atributo .. " - " .. e.preco .. "m"), 20, y)
         elseif e.tipo == "reliquia" then
             love.graphics.print(cores.nome(e.reliquia, prefixo, " (reliquia) - " .. e.preco .. "m"), 20, y)
+        elseif e.tipo == "forja" then
+            local item = jogador[e.slot]
+            if not item then
+                love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (nada equipado)"}, 20, y)
+            elseif item.bonus >= mercador.MAX_FORJA[e.slot] then
+                love.graphics.print({CINZA, prefixo .. item.nome .. " no maximo (+" .. item.bonus .. ")"}, 20, y)
+            else
+                love.graphics.print({{1, 0.6, 0.3},
+                                     prefixo .. mercador.nomeDe(e) .. ": " .. item.nome .. " +" .. item.bonus .. " -> +" ..
+                    (item.bonus + 1) .. " - " .. e.preco .. "m"}, 20, y)
+            end
         else
             love.graphics.print(cores.nome(e.pocao, prefixo,
                 " (+" .. jogador.curaDe(e.pocao) .. " vida) - " .. e.preco .. "m"), 20, y)
