@@ -110,17 +110,15 @@ function mercador.comprar(i)
 end
 
 mercador.MAX_FORJA = {
-    arma = 30,
-    armadura = 24
+    arma = 20,
+    armadura = 16
 }
 
--- Preco de melhorar o item equipado nessa ranhura (nil se nao ha nenhum)
 function mercador.precoForja(slot)
-    local item = jogador[slot]
-    if not item then
+    if not jogador[slot] then
         return nil
     end
-    return 40 + 15 * item.bonus
+    return 40 + 15 * jogador.forja[slot]
 end
 
 -- Os precos do ferreiro dependem do que tens equipado, por isso recalculam-se
@@ -138,16 +136,16 @@ function mercador.forjar(e)
     if not item then
         return false, "Nao tens nada equipado nessa ranhura."
     end
-    if item.bonus >= mercador.MAX_FORJA[e.slot] then
-        return false, "O ferreiro ja nao consegue melhorar " .. item.nome .. "."
+    if jogador.forja[e.slot] >= mercador.MAX_FORJA[e.slot] then
+        return false, "O ferreiro ja nao consegue melhorar mais."
     end
     if jogador.moedas < e.preco then
         return false, "Moedas insuficientes."
     end
     jogador.moedas = jogador.moedas - e.preco
-    item.bonus = item.bonus + 1
+    jogador.forja[e.slot] = jogador.forja[e.slot] + 1
     mercador.atualizar()
-    return true, item.nome .. " agora e +" .. item.bonus .. "."
+    return true, item.nome .. " agora e " .. jogador.textoBonus(item) .. "."
 end
 
 return mercador

@@ -18,8 +18,8 @@ local BRANCO = {1, 1, 1}
 -- Texto colorido: so o nome tem a cor da raridade
 local function textoItem(item, prefixo)
     local atributo = (item.tipo == "arma") and "ataque" or "defesa"
-    return
-        {BRANCO, prefixo, loot.cores[item.raridade], item.nome, BRANCO, " (+" .. item.bonus .. " " .. atributo .. ")"}
+    return {BRANCO, prefixo, loot.cores[item.raridade], item.nome, BRANCO,
+            " (" .. jogador.textoBonus(item) .. " " .. atributo .. ")"}
 end
 
 local function equipado(rotulo, item)

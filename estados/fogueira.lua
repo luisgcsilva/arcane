@@ -82,8 +82,9 @@ function fogueira.acao(a)
             if not jogador.arma then
                 aviso = "Nao tens nenhuma arma equipada."
             else
-                jogador.arma.bonus = jogador.arma.bonus + 1
-                concluir("Afias " .. jogador.arma.nome .. ": agora e +" .. jogador.arma.bonus .. " de ataque.")
+                jogador.forja.arma = jogador.forja.arma + 1
+                concluir("Afias " .. jogador.arma.nome .. ": agora e " .. jogador.textoBonus(jogador.arma) ..
+                             " de ataque.")
             end
         else
             concluir("Segues caminho sem parar.")

@@ -72,8 +72,10 @@ function explorar.desenhar()
                             jogador.defesaTotal(), 130, 50)
     love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     local arma, armadura = jogador.arma, jogador.armadura
-    love.graphics.print(arma and loot.nomeColorido(arma, "Arma: ", " (+" .. arma.bonus .. ")") or "Arma: -", 20, 110)
-    love.graphics.print(armadura and loot.nomeColorido(armadura, "Armadura: ", " (+" .. armadura.bonus .. ")") or
+    love.graphics.print(
+        arma and loot.nomeColorido(arma, "Arma: ", " (" .. jogador.textoBonus(arma) .. ")") or "Arma: -", 20, 110)
+    love.graphics.print(armadura and
+                            loot.nomeColorido(armadura, "Armadura: ", " (" .. jogador.textoBonus(armadura) .. ")") or
                             "Armadura: -", 20, 140)
 
     local c = jogador.defClasse()

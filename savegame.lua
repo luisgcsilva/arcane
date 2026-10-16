@@ -23,7 +23,9 @@ local numericas = {
     sala = true,
     moedas = true,
     nivel = true,
-    xp = true
+    xp = true,
+    forja_arma = true,
+    forja_armadura = true
 }
 
 local especiais = {
@@ -84,6 +86,8 @@ function savegame.gravar()
     add("moedas", jogador.moedas)
     add("nivel", jogador.nivel)
     add("xp", jogador.xp)
+    add("forja_arma", jogador.forja.arma)
+    add("forja_armadura", jogador.forja.armadura)
 
     if jogador.classe then
         add("classe", jogador.classe)
@@ -455,6 +459,10 @@ function savegame.carregar()
     jogador.sala = d.sala
     jogador.arma = d.arma
     jogador.armadura = d.armadura
+    jogador.forja = {
+        arma = d.forja_arma or 0,
+        armadura = d.forja_armadura or 0
+    }
     jogador.inventario = d.inventario
     jogador.pocoes = d.pocoes
     jogador.moedas = d.moedas or 0

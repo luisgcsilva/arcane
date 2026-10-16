@@ -45,7 +45,7 @@ habilidades.lista = {
     end },
 
   { id = "sujo", classe = "ninja", nome = "Golpe Sujo", cor = { 0.6, 0.8, 0.5 }, cooldown = 4,
-    descricao = "x,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
+    descricao = "1,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
       local d = c.atacar(1.5)
       c.msg("Golpe sujo! Causas " .. d .. " de dano.")

@@ -55,7 +55,11 @@ function pocoes.acao(a)
         local p = lista[indice]
         if jogador.vida >= jogador.vida_max then
             aviso = "Ja tens a vida cheia."
+        elseif pendente ~= indice then
+            pendente = indice -- primeiro A: so pede confirmacao
+            aviso = ""
         else
+            pendente = nil
             local curado = jogador.usarPocao(p.id)
             aviso = "Bebes " .. p.nome .. " e recuperas " .. curado .. " de vida."
             -- a quantidade mudou: refazer a lista e manter o cursor valido
@@ -78,11 +82,13 @@ function pocoes.desenhar()
             love.graphics.print(cores.nome(p, prefixo,
                 " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
                     jogador.vida_max .. ")"), 20, 140 + (i - 1) * 32)
+            if pendente and lista[pendente] then
+                love.graphics.print(cores.nome(lista[pendente], "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
+            else
+                love.graphics.print("A - beber   B - fechar", 20, 440)
+            end
         end
     end
-
-    love.graphics.print(aviso, 20, 400)
-    love.graphics.print("A - beber   B - fechar", 20, 440)
 end
 
 return pocoes

@@ -42,14 +42,28 @@ function jogador.reiniciar()
     jogador.posVitoria = nil -- { boss = true/false } enquanto ha decisoes depois de uma vitoria
     jogador.lootPendente = nil -- item que caiu e ainda nao foi decidido
     jogador.cruzUsada = false
+    jogador.forja = {
+        arma = 0,
+        armadura = 0
+    } -- melhorias do ferreiro, ligadas a ranhura
 end
-
 function jogador.ataqueTotal()
-    return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.bonus("ataque")
+    return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.forja.arma +
+               jogador.bonus("ataque")
 end
 
 function jogador.defesaTotal()
-    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) + jogador.bonus("defesa")
+    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) + jogador.forja.armadura +
+               jogador.bonus("defesa")
+end
+
+-- Texto do bonus: "+7" (base) ou "+7 +3" (base + melhorias da ranhura, so no item equipado)
+function jogador.textoBonus(item)
+    local extra = (jogador[item.tipo] == item) and jogador.forja[item.tipo] or 0
+    if extra > 0 then
+        return "+" .. item.bonus .. " +" .. extra
+    end
+    return "+" .. item.bonus
 end
 
 -- Guarda na mochila. Devolve false se estiver cheia.

@@ -159,8 +159,8 @@ eventos.lista = {{
                 return "Nao tens 25 moedas.", true
             end
             jogador.moedas = jogador.moedas - 25
-            jogador.arma.bonus = jogador.arma.bonus + 1
-            return jogador.arma.nome .. " agora e +" .. jogador.arma.bonus .. "."
+            jogador.forja.arma = jogador.forja.arma + 1
+            return jogador.arma.nome .. " agora e " .. jogador.textoBonus(jogador.arma) .. "."
         end
     }, {
         texto = "Melhorar a armadura (+1) por 25 moedas",
@@ -172,8 +172,8 @@ eventos.lista = {{
                 return "Nao tens 25 moedas.", true
             end
             jogador.moedas = jogador.moedas - 25
-            jogador.armadura.bonus = jogador.armadura.bonus + 1
-            return jogador.armadura.nome .. " agora e +" .. jogador.armadura.bonus .. "."
+            jogador.forja.armadura = jogador.forja.armadura + 1
+            return jogador.armadura.nome .. " agora e " .. jogador.textoBonus(jogador.armadura) .. "."
         end
     }, {
         texto = "Seguir caminho",

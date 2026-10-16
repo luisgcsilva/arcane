@@ -117,8 +117,9 @@ function historico.registar(novoRecorde, numero, venceu)
         ataque = jogador.ataqueTotal(),
         defesa = jogador.defesaTotal(),
         moedas = jogador.moedas,
-        arma = jogador.arma and itemParaTexto(jogador.arma) or "-",
-        armadura = jogador.armadura and itemParaTexto(jogador.armadura) or "-",
+        arma = jogador.arma and (jogador.arma.nome .. " +" .. (jogador.arma.bonus + jogador.forja.arma)) or "-",
+        armadura = jogador.armadura and
+            (jogador.armadura.nome .. " +" .. (jogador.armadura.bonus + jogador.forja.armadura)) or "-",
         inimigos = s.inimigos,
         chefes = s.chefes,
         dano_causado = s.dano_causado,

@@ -84,7 +84,7 @@ function loja.desenhar()
 
     for i, e in ipairs(mercador.stock) do
         local prefixo = (i == indice) and "> " or "  "
-        local y = 80 + (i - 1) * 26
+        local y = 80 + (i - 1) * 22
 
         if e.vendido then
             love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (esgotado)"}, 20, y)
@@ -98,12 +98,14 @@ function loja.desenhar()
             local item = jogador[e.slot]
             if not item then
                 love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (nada equipado)"}, 20, y)
-            elseif item.bonus >= mercador.MAX_FORJA[e.slot] then
-                love.graphics.print({CINZA, prefixo .. item.nome .. " no maximo (+" .. item.bonus .. ")"}, 20, y)
+            elseif jogador.forja[e.slot] >= mercador.MAX_FORJA[e.slot] then
+                love.graphics.print({CINZA, prefixo .. item.nome .. " no maximo (" .. jogador.textoBonus(item) .. ")"},
+                    20, y)
             else
                 love.graphics.print({{1, 0.6, 0.3},
-                                     prefixo .. mercador.nomeDe(e) .. ": " .. item.nome .. " +" .. item.bonus .. " -> +" ..
-                    (item.bonus + 1) .. " - " .. e.preco .. "m"}, 20, y)
+                                     prefixo .. mercador.nomeDe(e) .. ": " .. item.nome .. " " ..
+                    jogador.textoBonus(item) .. " -> +" .. (jogador.forja[e.slot] + 1) .. " - " .. e.preco .. "m"}, 20,
+                    y)
             end
         else
             love.graphics.print(cores.nome(e.pocao, prefixo,

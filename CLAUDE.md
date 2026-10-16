@@ -5,9 +5,15 @@ O Luís está a aprender Lua: explicar cada conceito novo, passos pequenos,
 e propor desafios em vez de fazer tudo sozinho.
 
 ## Regras do projecto
-- Ficheiros: main.lua, conf.lua (title "Arcane", identity "arcane", 640x480),
-  input.lua, jogo.lua (gestor de estados), inimigos.lua (dados),
-  estados/menu.lua, estados/explorar.lua.
+- Ficheiros base: main.lua, conf.lua (title "Arcane", identity "arcane", 640x480),
+  input.lua, jogo.lua (gestor de estados: registar, mudar(nome, ...), abrir/fechar).
+- Dados (tabelas, desenho orientado a dados): inimigos, intencoes, efeitos,
+  habilidades, classes, reliquias, loot, pocoes, mercador, salas, eventos,
+  biomas. Para adicionar conteudo, editar a tabela, nao a logica.
+- Estados em estados/: menu, classes, explorar, portas, combate, habilidade,
+  reliquia, loja, fogueira, tesouro, evento, inventario, historico, derrota,
+  final, ajuda, simulacao. Cada novo estado registar em main.lua e acrescentar
+  entrada em estados/ajuda.lua (dados e TITULOS).
 - Na R36S só aparecem ficheiros .love, na pasta love2d de EASYROMS.
   Empacotar com tar (caminhos com /), script empacotar.ps1.
 - Input: todo traduzido para acções em input.lua (cima, baixo, esquerda,
@@ -22,9 +28,26 @@ e propor desafios em vez de fazer tudo sozinho.
   com pairs antes de usar (não alterar o modelo).
 
 ## Estado actual
-Menu inicial a funcionar (Novo jogo / Sair) e estado "explorar" provisório
-a mostrar um inimigo. Testado no PC e na R36S.
+Jogo completo e jogavel, testado no PC e na R36S.
+- 3 classes (Guerreiro, Ninja, Mago), habilidades, 18 reliquias, loot com
+  raridades (comum a mitica), loja com Ferreiro, fogueiras, tesouros, eventos.
+- 100 salas em 10 biomas (biomas.lua, 10 salas por bioma). Chefe a cada 10
+  salas, loja na sala antes do chefe. Chefes declaram os seus biomas.
+- Sala 100 = fim do jogo: estados/final.lua (continuar em modo infinito ou
+  terminar). dificuldade.SALA_FINAL = 100. Recordes contam vitorias.
+- Ferreiro: as melhorias ficam na ranhura (jogador.forja.arma/armadura),
+  nao no item; o bonus mostra-se "base +melhoria". Tetos em mercador.MAX_FORJA.
+- Gravacao automatica (savegame.lua, partida.txt), historico de partidas,
+  recordes.
+- Balanceamento por simulacao: simulacao.lua corre o bot N vezes e escreve
+  simulacao.txt/.csv. Escala de inimigos em dificuldade.fator; chefes nao
+  escalam (afinados a mao). Rever depois de qualquer mudanca de equilibrio.
+- Nomes de inimigos tem de ser unicos (o savegame restaura por nome).
+- DEBUG em main.lua deve ficar false; DEV em estados/menu.lua esconde a
+  Simulacao quando false.
 
-## Próximos passos
-Inimigo aleatório (math.random + randomseed), combate por turnos,
-salas geradas com loot, inventário, guardar progresso (love.filesystem).
+## Proximos passos
+Pendentes: novos tipos de sala (cofre, armadilha com escolha, desafio,
+santuario), meta-progressao/conquistas, sprites e som ou mapa em grelha,
+reequilibrar classes (Ninja fraco, Mago forte) depois de jogar a serio,
+nova simulacao com os tetos do Ferreiro novos.
