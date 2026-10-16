@@ -100,7 +100,7 @@ function historico.carregar()
 end
 
 -- Chamada uma vez por derrota (no derrota.entrar)
-function historico.registar(novoRecorde, numero)
+function historico.registar(novoRecorde, numero, venceu)
     local s = jogador.stats
     local nomes = {}
     for _, item in ipairs(jogador.inventario) do
@@ -126,7 +126,8 @@ function historico.registar(novoRecorde, numero)
         pocoes = s.pocoes,
         causa = jogador.matadoPor or "?",
         recorde = novoRecorde and 1 or 0,
-        cruz = jogador.cruzUsada and 1 or 0
+        cruz = jogador.cruzUsada and 1 or 0,
+        vitoria = venceu and 1 or 0
     }
 
     table.insert(historico.partidas, 1, p)

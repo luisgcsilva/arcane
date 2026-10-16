@@ -4,6 +4,7 @@ local recordes = require("recordes")
 local cores = require("cores")
 local savegame = require("savegame")
 local historico = require("historico")
+local dificuldade = require("dificuldade")
 
 local derrota = {}
 
@@ -11,9 +12,10 @@ local novoRecorde
 
 function derrota.entrar()
     -- corre uma vez por derrota, por isso a partida so e registada uma vez
+    local venceu = jogador.sala > dificuldade.SALA_FINAL -- passaste o chefe final e continuaste
+    novoRecorde = recordes.registarFim(jogador.sala, jogador.stats.inimigos, venceu)
+    historico.registar(novoRecorde, recordes.dados.partidas, venceu)
     savegame.apagar() -- apaga a gravacao, para nao se poder continuar
-    novoRecorde = recordes.registarFim(jogador.sala, jogador.stats.inimigos)
-    historico.registar(novoRecorde, recordes.dados.partidas)
 end
 
 function derrota.acao(a)

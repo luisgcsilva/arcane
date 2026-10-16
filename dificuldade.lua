@@ -5,6 +5,7 @@ local biomas = require("biomas")
 local dificuldade = {}
 
 dificuldade.SALAS_POR_BOSS = 10
+dificuldade.SALA_FINAL = 100
 
 -- % e o resto da divisao: sala 5, 10, 15... dao resto 0
 function dificuldade.eBoss(sala)

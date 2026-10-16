@@ -88,9 +88,10 @@ function menu.desenhar()
     love.graphics.print("ARCANE", 270, 80)
     for i, texto in ipairs(opcoes) do
         local prefixo = (i == indice) and "> " or "  "
-        love.graphics.print(prefixo .. texto, 250, 160 + i * 36)
+        love.graphics.print(prefixo .. texto, 250, 100 + i * 36)
     end
     love.graphics.print("Melhor sala: " .. recordes.dados.melhor_sala, 230, 340)
+    love.graphics.print("Vitorias: " .. recordes.dados.vitorias, 230, 364)
     love.graphics.print(aviso, 20, 400)
 end
 

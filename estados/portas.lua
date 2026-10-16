@@ -4,6 +4,7 @@ local salas = require("salas")
 local savegame = require("savegame")
 local cores = require("cores")
 local registo = require("registo")
+local biomas = require("biomas")
 
 local portas = {}
 
@@ -76,9 +77,17 @@ function portas.desenhar()
     love.graphics.print(titulo, 20, 20)
     love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
                          jogador.vida .. "/" .. jogador.vida_max}, 20, 50)
+    local prox = biomas.daSala(jogador.sala + 1)
+    local atual = biomas.daSala(jogador.sala)
+    local texto = {{1, 1, 1}, "Bioma: ", prox.cor, prox.nome}
+    if jogador.sala > 0 and prox.id ~= atual.id then
+        table.insert(texto, DOURADO)
+        table.insert(texto, "  (novo bioma!)")
+    end
+    love.graphics.print(texto, 20, 70)
     love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
 
-    love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 90)
+    love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 95)
 
     local n = #lista
     local L, A, ESPACO = 120, 180, 40

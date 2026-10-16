@@ -9,11 +9,12 @@ local dados = {
     portas = {"Esq/Dir - escolher a porta", "A - abrir", "X - pocoes", "SELECT - mochila", "B - menu"},
     explorar = {"A - lutar (ou seguir, na loja)", "Y - abrir a loja", "X - pocoes", "SELECT - mochila", "B - menu"},
     combate = {"Cima/baixo - escolher", "A - confirmar", "B - voltar (nas pocoes)", "L1/R1 - ler o registo do combate",
-               "Habilidade - usa uma habilidade (recarga em turnos)",   "Painel a direita - o que o inimigo vai fazer"},
+               "Habilidade - usa uma habilidade (recarga em turnos)", "Painel a direita - o que o inimigo vai fazer"},
     habilidade = {"Cima/Baixo - escolher", "A - aprender"},
     loja = {"Cima/baixo - escolher", "A - comprar (2x para confirmar)", "SELECT - vender na mochila", "B - sair"},
     inventario = {"Cima/baixo - escolher", "L1/R1 - alternar equipamento/reliquias", "A - equipar", "X - vender (2x)",
                   "Y - pocoes", "B ou SELECT - fechar"},
+    final = {"Cima/baixo - escolher", "A - confirmar (2x para terminar)"},
     pocoes = {"Cima/baixo - escolher", "A - beber", "B - fechar"},
     tesouro = {"A - abrir o bau / escolher", "X - pocoes", "SELECT - mochila"},
     fogueira = {"Cima/baixo - escolher", "A - confirmar", "X - pocoes", "SELECT - mochila"},
@@ -38,7 +39,8 @@ local TITULOS = {
     evento = "EVENTO",
     reliquia = "RELIQUIA",
     derrota = "DERROTA",
-    historico = "HISTORICO"
+    historico = "HISTORICO",
+    final = "VITORIA"
 }
 
 local GERAL = {"START - registo de salas (cima/baixo, L1/R1)", "L2 - esta ajuda", "A confirma, B cancela, o d-pad move"}

@@ -41,9 +41,9 @@ function estado.desenhar()
     for i, p in ipairs(historico.partidas) do
         local sel = (i == indice)
         love.graphics.setColor(sel and {1, 0.85, 0.2} or {1, 1, 1})
-        love.graphics.print(string.format("%s #%s  %s  %s  sala %s  nv %s%s%s", sel and ">" or " ", p.numero, p.data,
-            p.classe, p.sala, p.nivel, p.recorde == "1" and "  (recorde)" or "", p.cruz == "1" and " (cruz)" or ""), 20,
-            56 + (i - 1) * 22)
+        love.graphics.print(string.format("%s #%s  %s  %s  sala %s  nv %s%s%s%s", sel and ">" or " ", p.numero, p.data,
+            p.classe, p.sala, p.nivel, p.recorde == "1" and "  (recorde)" or "", p.cruz == "1" and " (cruz)" or "",
+            p.vitoria == "1" and "  VITORIA" or ""), 20, 56 + (i - 1) * 22)
     end
 
     local p = historico.partidas[indice]
@@ -55,7 +55,11 @@ function estado.desenhar()
         love.graphics.print(historico.itens(p.armadura, "Armadura: "), 20, 314)
         love.graphics.print(string.format("Inimigos %s (chefes %s)   Dano causado %s   Dano sofrido %s   Pocoes %s",
             p.inimigos, p.chefes, p.dano_causado, p.dano_sofrido, p.pocoes), 20, 336)
-        love.graphics.print({{1, 1, 1}, "Morto por: ", historico.corInimigo(p.causa), p.causa}, 20, 358)
+        if p.causa == "?" and p.vitoria == "1" then
+            love.graphics.print({{1, 0.85, 0.2}, "Terminou a aventura vitorioso"}, 20, 358)
+        else
+            love.graphics.print({{1, 1, 1}, "Morto por: ", historico.corInimigo(p.causa), p.causa}, 20, 358)
+        end
         if p.cruz == "1" then
             love.graphics.print({{1, 1, 0.75}, "Cruz Sagrada: salvou-te nesta partida"}, 20, 380)
         end

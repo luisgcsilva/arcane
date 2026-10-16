@@ -146,8 +146,6 @@ function savegame.gravar()
         local e = jogador.inimigo
         add("inimigo",
             (e.base or e.nome) .. "|" .. e.vida .. "|" .. e.vida_max .. "|" .. e.ataque .. "|" .. (e.elite and 1 or 0))
-    elseif e.tipo == "forja" then
-        add("stock", "forja|" .. e.slot .. "|" .. e.preco)
     else
         add("loja", "1")
         for _, e in ipairs(mercador.stock) do
@@ -156,6 +154,8 @@ function savegame.gravar()
                 add("stock", "item|" .. itemParaTexto(e.item) .. "|" .. e.preco .. "|" .. vendido)
             elseif e.tipo == "reliquia" then
                 add("stock", "reliquia|" .. e.reliquia.id .. "|" .. e.preco .. "|" .. vendido)
+            elseif e.tipo == "forja" then
+                add("stock", "forja|" .. e.slot .. "|" .. e.preco)
             else
                 add("stock", "pocao|" .. e.pocao.id .. "|" .. e.preco)
             end

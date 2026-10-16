@@ -24,6 +24,7 @@ jogo.registar("reliquia", require("estados.reliquia"))
 jogo.registar("ajuda", require("estados.ajuda"))
 jogo.registar("habilidade", require("estados.habilidade"))
 jogo.registar("simulacao", require("estados.simulacao"))
+jogo.registar("final", require("estados.final"))
 
 local DEBUG = false
 

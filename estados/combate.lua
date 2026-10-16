@@ -9,6 +9,7 @@ local registo = require("registo")
 local reliquias = require("reliquias")
 local habilidades = require("habilidades")
 local intencoes = require("intencoes")
+local dificuldade = require("dificuldade")
 
 local combate = {}
 
@@ -593,16 +594,23 @@ function combate.acao(a)
                 table.insert(mensagens, {efeitos.lista.atordoamento.cor, "Estas atordoado! Perdes este turno."})
                 fase = "pausa" -- o inimigo ataca logo a seguir
             end
+
         elseif fase == "vitoria" then
             local temReliquia = inimigo.boss and #jogador.reliquiasDisponiveis() > 0
+            local destino, arg
             if jogador.habPendentes > 0 then
-                jogo.mudar("habilidade", temReliquia)
+                destino, arg = "habilidade", temReliquia
             elseif temReliquia then
-                jogo.mudar("reliquia")
+                destino = "reliquia"
             else
-                jogo.mudar("portas")
+                destino = "portas"
             end
-        else
+            if inimigo.boss and jogador.sala == dificuldade.SALA_FINAL then
+                jogo.mudar("final", destino, arg)
+            else
+                jogo.mudar(destino, arg)
+            end
+        elseif fase == "derrota" then
             jogo.mudar("derrota")
         end
     end
