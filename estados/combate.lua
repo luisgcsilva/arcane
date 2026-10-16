@@ -8,6 +8,7 @@ local efeitos = require("efeitos")
 local registo = require("registo")
 local reliquias = require("reliquias")
 local habilidades = require("habilidades")
+local intencoes = require("intencoes")
 
 local combate = {}
 
@@ -37,6 +38,8 @@ local disponiveisHab -- habilidades que conheces
 local indiceHab
 local inimigoAtordoado
 local protecao -- fracao do proximo golpe que e absorvida (0 a 1)
+local intencao -- id da intencao do inimigo neste turno
+local padraoIdx -- posicao no padrao do inimigo
 
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
@@ -77,30 +80,56 @@ local function processarEfeitos()
 end
 
 local function inimigoAtaca()
-    local d = dano(inimigo.ataque - jogador.defesaTotal())
+    local def = intencoes.lista[intencao or "normal"]
     local defendeu = defendendo
     defendendo = false
-    if defendeu then
-        d = math.max(1, math.ceil(d / 2))
-    end
-
     local prot = protecao
     protecao = 0
-    if prot > 0 then
-        d = math.max(0, math.floor(d * (1 - prot) + 0.5))
+
+    if def.carrega then
+        inimigo.carregado = true
+        table.insert(mensagens, cores.nome(inimigo, "O ", " " .. def.frase))
+    end
+    if def.descarrega then
+        inimigo.carregado = false
+    end
+    if def.cura then
+        local n = math.min(math.ceil(inimigo.vida_max * def.cura), inimigo.vida_max - inimigo.vida)
+        inimigo.vida = inimigo.vida + n
+        table.insert(mensagens, cores.nome(inimigo, "O ", " " .. def.frase .. " (+" .. n .. " vida)."))
     end
 
-    jogador.vida = jogador.vida - d
-    jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
-    table.insert(mensagens, cores.nome(inimigo, "O ", " causa-te " .. d .. " de dano" ..
-        (defendeu and " (defendeste parte do golpe)." or ".")))
-    if jogador.vida <= 0 then
-        morrer()
-        return
+    -- golpes (a lista pode ser vazia)
+    local total = 0
+    local defesa = def.ignoraDefesa and 0 or jogador.defesaTotal()
+    for _, mult in ipairs(def.golpes) do
+        local d = dano(math.floor(inimigo.ataque * mult + 0.5) - defesa)
+        if defendeu then
+            d = math.max(1, math.ceil(d / 2))
+        end
+        if prot > 0 then
+            d = math.max(0, math.floor(d * (1 - prot) + 0.5))
+        end
+
+        total = total + d
+        jogador.vida = jogador.vida - d
+        jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
+
+        if d == 0 then
+            table.insert(mensagens, cores.nome(inimigo, "O ", " falha o ataque!"))
+        else
+            table.insert(mensagens, cores.nome(inimigo, "O ", def.acerto .. d .. " de dano" ..
+                (defendeu and " (defendeste parte do golpe)." or ".")))
+        end
+        if jogador.vida <= 0 then
+            morrer()
+            return
+        end
     end
 
+    -- espinhos (uma vez por turno, se levaste dano)
     local esp = jogador.bonus("espinhos")
-    if esp > 0 then
+    if total > 0 and esp > 0 then
         local causado = math.min(esp, inimigo.vida - 1) -- os espinhos nunca matam
         if causado > 0 then
             inimigo.vida = inimigo.vida - causado
@@ -109,20 +138,38 @@ local function inimigoAtaca()
         end
     end
 
-    -- primeiro os efeitos que ja tinhas; so depois o novo (que comeca no turno seguinte)
+    -- primeiro os efeitos que ja tinhas; so depois o novo (comeca no turno seguinte)
     if processarEfeitos() then
         morrer()
         return
     end
 
     local ef = inimigo.efeito
-    if ef and math.random() < ef.chance * (defendeu and 0.5 or 1) then
+    if total > 0 and ef and math.random() < ef.chance * (defendeu and 0.5 or 1) then
         aplicarEfeito(ef.id)
     end
 end
 
 local function limiteScroll()
     return math.max(0, #mensagens - MAX_LINHAS)
+end
+
+local function escolherIntencao()
+    if inimigo.carregado then
+        intencao = "pesado" -- depois de carregar, o golpe vem sempre
+        return
+    end
+    local p = inimigo.padrao
+    if not p then
+        intencao = "normal"
+        return
+    end
+    intencao = p[padraoIdx]
+    padraoIdx = padraoIdx % #p + 1
+    -- nao recupera forcas com a vida cheia
+    if intencao == "curar" and inimigo.vida >= inimigo.vida_max then
+        intencao = "normal"
+    end
 end
 
 local function novoTurno()
@@ -133,6 +180,7 @@ local function novoTurno()
         end
     end
     table.insert(mensagens, "--- Turno " .. turno .. " ---")
+    escolherIntencao()
 end
 
 local function guardarNaMochila(item)
@@ -218,6 +266,9 @@ function combate.entrar(inimigo_novo)
     cooldowns = {}
     inimigoAtordoado = false
     protecao = 0
+    inimigo.carregado = false
+    padraoIdx = inimigo.padrao and math.random(#inimigo.padrao) or 1
+    escolherIntencao()
 end
 
 local function vencer()
@@ -475,7 +526,13 @@ function combate.acao(a)
         if fase == "pausa" then
             if inimigoAtordoado then
                 inimigoAtordoado = false
-                table.insert(mensagens, cores.nome(inimigo, "O ", " esta atordoado e perde o turno."))
+                if inimigo.carregado then
+                    inimigo.carregado = false
+                    table.insert(mensagens,
+                        cores.nome(inimigo, "O ", " esta atordoado: o golpe carregado e interrompido!"))
+                else
+                    table.insert(mensagens, cores.nome(inimigo, "O ", " esta atordoado e perde o turno."))
+                end
                 if processarEfeitos() then
                     morrer()
                 else
@@ -509,6 +566,16 @@ function combate.acao(a)
             jogo.mudar("derrota")
         end
     end
+end
+
+-- dano aproximado da intencao (sem a variacao de +/-1 nem defender)
+local function danoPrevisto(def)
+    local defesa = def.ignoraDefesa and 0 or jogador.defesaTotal()
+    local total = 0
+    for _, mult in ipairs(def.golpes) do
+        total = total + math.max(1, math.floor(inimigo.ataque * mult + 0.5) - defesa)
+    end
+    return total
 end
 
 function combate.desenhar()
@@ -551,11 +618,17 @@ function combate.desenhar()
         love.graphics.print("v mais antigo: L1", 20, 70)
     end
 
-    if fase == "escolha" then
-        for i, texto in ipairs(opcoes) do
-            local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, 326 + (i - 1) * 28)
+    if fase == "escolha" and intencao then
+        local def = intencoes.lista[intencao]
+        local t = {{0.7, 0.7, 0.7}, "O inimigo prepara-se:\n", inimigo.cor or {1, 1, 1}, inimigo.nome, def.cor,
+                   " " .. def.texto}
+        if #def.golpes > 0 then
+            table.insert(t, {0.7, 0.7, 0.7})
+            table.insert(t, "\n(cerca de " .. danoPrevisto(def) .. " de dano)")
         end
+        love.graphics.printf(t, 300, 326, 320)
+        love.graphics.setColor(1, 1, 1)
+
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
             local prefixo = (i == indiceLoot) and "> " or "  "

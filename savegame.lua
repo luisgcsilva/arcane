@@ -8,6 +8,7 @@ local armazem = require("armazem")
 local classes = require("classes")
 local reliquias = require("reliquias")
 local habilidades = require("habilidades")
+local mercador = require("mercador")
 
 local savegame = {}
 
@@ -123,12 +124,32 @@ function savegame.gravar()
         if jogador.eventoId then
             add("evento_id", jogador.eventoId)
         end
+        if jogador.bau then
+            local b = jogador.bau
+            if b.tipo == "item" then
+                add("bau", "item|" .. itemParaTexto(b.item))
+            elseif b.tipo == "armadilha" then
+                add("bau", "armadilha|" .. b.dano)
+            else
+                add("bau", "moedas|" .. b.n)
+            end
+        end
     elseif jogador.inimigo then
         local e = jogador.inimigo
         add("inimigo",
             (e.base or e.nome) .. "|" .. e.vida .. "|" .. e.vida_max .. "|" .. e.ataque .. "|" .. (e.elite and 1 or 0))
     else
         add("loja", "1")
+        for _, e in ipairs(mercador.stock) do
+            local vendido = e.vendido and 1 or 0
+            if e.tipo == "item" then
+                add("stock", "item|" .. itemParaTexto(e.item) .. "|" .. e.preco .. "|" .. vendido)
+            elseif e.tipo == "reliquia" then
+                add("stock", "reliquia|" .. e.reliquia.id .. "|" .. e.preco .. "|" .. vendido)
+            else
+                add("stock", "pocao|" .. e.pocao.id .. "|" .. e.preco)
+            end
+        end
     end
 
     local ok, erro = armazem.escrever(FICHEIRO, table.concat(l, "\n") .. "\n")
@@ -148,6 +169,14 @@ local function modeloPorNome(nome)
             return m
         end
     end
+end
+
+local function partir(texto)
+    local t = {}
+    for parte in (texto .. "|"):gmatch("([^|]*)|") do
+        table.insert(t, parte)
+    end
+    return t
 end
 
 -- Devolve o inimigo da sala (para o explorar usar) ou nil se a gravacao
@@ -170,7 +199,8 @@ function savegame.carregar()
         portas = {},
         reliquias = {},
         oferta = {},
-        habilidades = {}
+        habilidades = {},
+        stock = {}
     }
     local versaoOk = false
 
@@ -272,6 +302,78 @@ function savegame.carregar()
                 return nil
             end
             table.insert(d.habilidades, valor)
+        elseif chave == "bau" then
+            local p = partir(valor)
+            if p[1] == "item" then
+                local item = textoParaItem((p[2] or "") .. "|" .. (p[3] or "") .. "|" .. (p[4] or "") .. "|" ..
+                                               (p[5] or ""))
+                if not item then
+                    return nil
+                end
+                d.bau = {
+                    tipo = "item",
+                    item = item
+                }
+            elseif p[1] == "armadilha" and tonumber(p[2]) then
+                d.bau = {
+                    tipo = "armadilha",
+                    dano = tonumber(p[2])
+                }
+            elseif p[1] == "moedas" and tonumber(p[2]) then
+                d.bau = {
+                    tipo = "moedas",
+                    n = tonumber(p[2])
+                }
+            else
+                return nil
+            end
+
+        elseif chave == "stock" then
+            local p = partir(valor)
+            if p[1] == "item" then
+                local item = textoParaItem((p[2] or "") .. "|" .. (p[3] or "") .. "|" .. (p[4] or "") .. "|" ..
+                                               (p[5] or ""))
+                local preco = tonumber(p[6])
+                if not item or not preco then
+                    return nil
+                end
+                table.insert(d.stock, {
+                    tipo = "item",
+                    item = item,
+                    preco = preco,
+                    vendido = (p[7] == "1") or nil
+                })
+            elseif p[1] == "reliquia" then
+                local def = reliquias.porId(p[2] or "")
+                local preco = tonumber(p[3])
+                if not def or not preco then
+                    return nil
+                end
+                table.insert(d.stock, {
+                    tipo = "reliquia",
+                    reliquia = def,
+                    preco = preco,
+                    vendido = (p[4] == "1") or nil
+                })
+            elseif p[1] == "pocao" then
+                local def
+                for _, q in ipairs(pocoes.lista) do
+                    if q.id == p[2] then
+                        def = q
+                    end
+                end
+                local preco = tonumber(p[3])
+                if not def or not preco then
+                    return nil
+                end
+                table.insert(d.stock, {
+                    tipo = "pocao",
+                    pocao = def,
+                    preco = preco
+                })
+            else
+                return nil
+            end
         end
         -- chaves desconhecidas sao ignoradas
     end

@@ -38,6 +38,7 @@ function jogador.reiniciar()
     jogador.ofertaReliquias = nil -- oferta de um chefe a espera de escolha
     jogador.habilidades = {} -- ids das habilidades que aprendeste
     jogador.habPendentes = 0 -- escolhas por fazer (so em memoria)
+    jogador.bau = nil -- resultado ja sorteado do bau da sala atual
 end
 
 function jogador.ataqueTotal()

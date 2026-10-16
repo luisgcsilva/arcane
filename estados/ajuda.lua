@@ -9,7 +9,7 @@ local dados = {
     portas = {"Esq/Dir - escolher a porta", "A - abrir", "X - pocoes", "SELECT - mochila", "B - menu"},
     explorar = {"A - lutar (ou seguir, na loja)", "Y - abrir a loja", "X - pocoes", "SELECT - mochila", "B - menu"},
     combate = {"Cima/baixo - escolher", "A - confirmar", "B - voltar (nas pocoes)", "L1/R1 - ler o registo do combate",
-               "Habilidade - usa uma habilidade (recarga em turnos)"},
+               "Habilidade - usa uma habilidade (recarga em turnos)",   "Painel a direita - o que o inimigo vai fazer"},
     habilidade = {"Cima/Baixo - escolher", "A - aprender"},
     loja = {"Cima/baixo - escolher", "A - comprar (2x para confirmar)", "SELECT - vender na mochila", "B - sair"},
     inventario = {"Cima/baixo - escolher", "L1/R1 - alternar equipamento/reliquias", "A - equipar", "X - vender (2x)",

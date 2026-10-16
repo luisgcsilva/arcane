@@ -18,7 +18,8 @@ return {
         vida = 10,
         ataque = 3,
         minSala = 3,
-        cor = {0.2, 0.6, 0.2}
+        cor = {0.2, 0.6, 0.2},
+        padrao = {"normal", " normal", "duplo"}
     },
     zombie = {
         nome = "Zombie",
@@ -29,21 +30,23 @@ return {
         efeito = {
             id = "veneno",
             chance = 0.25
-        }
+        },
+        padrao = {"normal", "curar", "normal"}
     },
     esqueleto = {
         nome = "Esqueleto",
         vida = 14,
         ataque = 4,
         minSala = 5,
-        cor = {0.9, 0.9, 0.9}
+        cor = {0.9, 0.9, 0.9},
+        padrao = {"normal", "normal", "carregar"}
     },
     espectro = {
         nome = "Espectro",
         vida = 18,
         ataque = 7,
         minSala = 7,
-        cor = {0.6, 0.6, 0.6}
+        cor = {0.6, 0.6, 0.6}, padrao = { "normal", "perfurar" }
     },
     troll = {
         nome = "Troll",
@@ -57,7 +60,8 @@ return {
         vida = 22,
         ataque = 5,
         minSala = 12,
-        cor = {0.7, 0.2, 0.2}
+        cor = {0.7, 0.2, 0.2},
+        padrao = {"normal", "carregar"}
     },
     morcego = {
         nome = "Morcego",
@@ -68,7 +72,8 @@ return {
         efeito = {
             id = "sangramento",
             chance = 0.30
-        }
+        },
+        padrao = {"duplo", "normal"}
     },
     aranha = {
         nome = "Aranha Gigante",
@@ -79,7 +84,8 @@ return {
         efeito = {
             id = "veneno",
             chance = 0.40
-        }
+        },
+        padrao = {"normal", "duplo"}
     },
     bruxa = {
         nome = "Bruxa",
@@ -90,7 +96,7 @@ return {
         efeito = {
             id = "veneno",
             chance = 0.35
-        }
+        }, padrao = { "perfurar", "perfurar", "normal" }
     },
     golem = {
         nome = "Golem de Pedra",
@@ -101,7 +107,7 @@ return {
         efeito = {
             id = "atordoamento",
             chance = 0.20
-        }
+        }, padrao = { "normal", "carregar" }
     },
     cavaleiro = {
         nome = "Cavaleiro Negro",
@@ -112,14 +118,14 @@ return {
         efeito = {
             id = "sangramento",
             chance = 0.30
-        }
+        }, padrao = { "normal", "duplo", "carregar" }
     },
     demonio = {
         nome = "Demonio Menor",
         vida = 34,
         ataque = 11,
         minSala = 15,
-        cor = {1, 0.3, 0.2}
+        cor = {1, 0.3, 0.2}, padrao = { "perfurar", "duplo", "normal" }
     },
 
     -- chefes
@@ -129,7 +135,7 @@ return {
         ataque = 7,
         minSala = 10,
         boss = true,
-        cor = {0.2, 0.2, 0.8}
+        cor = {0.2, 0.2, 0.8}, padrao = { "normal", "duplo", "carregar" }
     },
     rei_troll = {
         nome = "Rei Troll",
@@ -137,7 +143,7 @@ return {
         ataque = 12,
         minSala = 20,
         boss = true,
-        cor = {0.8, 0.2, 0.2}
+        cor = {0.8, 0.2, 0.2}, padrao = { "normal", "carregar", "normal", "duplo"}
     },
     senhor_osso = {
         nome = "Senhor dos Ossos",
@@ -145,7 +151,7 @@ return {
         ataque = 14,
         minSala = 30,
         boss = true,
-        cor = {0.8, 0.8, 0.8}
+        cor = {0.8, 0.8, 0.8}, padrao = { "normal", "perfurar", "carregar", "curar" }
     },
     dragao = {
         nome = "Dragao Arcano",
@@ -153,7 +159,7 @@ return {
         ataque = 19,
         minSala = 40,
         boss = true,
-        cor = {0.8, 0.4, 0.1}
+        cor = {0.8, 0.4, 0.1}, padrao = { "normal", "duplo", "carregar", "perfurar" }
     },
     lich = {
         nome = "Lich Eterno",
@@ -161,7 +167,7 @@ return {
         ataque = 25,
         minSala = 50,
         boss = true,
-        cor = {0.3, 1, 0.8}
+        cor = {0.3, 1, 0.8}, padrao = { "perfurar", "curar", "carregar", "duplo" }
     }
 
 }
