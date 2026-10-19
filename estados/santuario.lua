@@ -83,9 +83,9 @@ function santuario.acao(a)
         if indice > #oferta then
             concluir("Segues caminho sem rezar.")
         else
-            local ok, mensagem = bencoes.aplicar(oferta[indice], jogador)
+            local ok, mensagem, colorida = bencoes.aplicar(oferta[indice], jogador)
             if ok then
-                concluir(mensagem)
+                concluir(colorida or mensagem)
             else
                 aviso = mensagem -- nao gastou a escolha
                 corAviso = VERMELHO
@@ -121,7 +121,11 @@ function santuario.desenhar()
         end
     end
 
-    love.graphics.printf({corAviso, aviso}, 20, 380, 600)
+    if type(aviso) == "table" then
+        love.graphics.printf(aviso, 20, 380, 600)
+    else
+        love.graphics.printf({corAviso, aviso}, 20, 380, 600)
+    end
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(feito and "A seguir  X pocoes  SELECT mochila" or "A escolher  X pocoes  SELECT mochila", 20,
         440)

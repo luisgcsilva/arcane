@@ -14,6 +14,14 @@ local feito -- true depois de escolheres: so falta carregar A
 
 local ROXO = {0.75, 0.5, 1}
 
+-- As opcoes podem ser uma lista fixa ou uma funcao que a calcula na hora
+local function opcoesDe(ev)
+    if type(ev.opcoes) == "function" then
+        return ev.opcoes()
+    end
+    return ev.opcoes
+end
+
 function evento.entrar()
     jogador.especial = "evento"
     jogador.portas = nil
@@ -57,7 +65,11 @@ function evento.acao(a)
         return
     end
 
-    local n = #ev.opcoes
+    local lista = opcoesDe(ev)
+    local n = #lista
+    if indice > n then
+        indice = n
+    end
     if a == "cima" then
         indice = indice - 1
         if indice < 1 then
@@ -71,7 +83,7 @@ function evento.acao(a)
         end
         aviso = ""
     elseif a == "confirmar" then
-        local mensagem, recusado = ev.opcoes[indice].efeito()
+        local mensagem, recusado = lista[indice].efeito()
         if recusado then
             aviso = mensagem -- nao gastou a escolha
         else
@@ -90,9 +102,15 @@ function evento.desenhar()
     love.graphics.printf(ev.texto, 20, 100, 600)
 
     if not feito then
-        for i, op in ipairs(ev.opcoes) do
+        for i, op in ipairs(opcoesDe(ev)) do
             local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. op.texto, 20, 200 + (i - 1) * 36)
+            local y = 200 + (i - 1) * 36
+            if op.colorido then
+                love.graphics.print(op.colorido(prefixo), 20, y)
+            else
+                local texto = (type(op.texto) == "function") and op.texto() or op.texto
+                love.graphics.print(prefixo .. texto, 20, y)
+            end
         end
     end
 
