@@ -9,6 +9,7 @@ local savegame = require("savegame")
 local mercador = require("mercador")
 local registo = require("registo")
 local reliquias = require("reliquias")
+local bencoes = require("bencoes")
 
 local explorar = {}
 local inimigo
@@ -77,6 +78,11 @@ function explorar.desenhar()
     love.graphics.print(armadura and
                             loot.nomeColorido(armadura, "Armadura: ", " (" .. jogador.textoBonus(armadura) .. ")") or
                             "Armadura: -", 20, 140)
+    if jogador.bencao then
+        local b = bencoes.porId(jogador.bencao.id)
+        love.graphics.print({{1, 1, 1}, "Bencao: ", b.cor, b.nome, {1, 1, 1},
+                             " (" .. jogador.bencao.restantes .. " salas)"}, 20, 170)
+    end
 
     local c = jogador.defClasse()
     love.graphics.setColor(1, 1, 1)

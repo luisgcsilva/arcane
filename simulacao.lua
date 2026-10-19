@@ -490,6 +490,8 @@ local function jogarPartida(classeId)
         elseif tipo == "tesouro" then
             visitarTesouro()
             anterior = "tesouro"
+        elseif tipo == "santuario" then
+            anterior = "santuario" -- nao simulado
         else -- evento: nao simulado
             anterior = "evento"
         end

@@ -34,6 +34,7 @@ function portas.entrar(arg)
     jogador.bau = nil
     jogador.posVitoria = nil
     jogador.lootPendente = nil
+    jogador.ofertaBencoes = nil
     indice = 1
     savegame.gravar()
 end
@@ -55,11 +56,19 @@ function portas.acao(a)
         registo.add("  Porta " .. indice .. " -> " .. tipo)
         jogador.portas = nil
         jogador.sala = jogador.sala + 1
+        -- a bencao ativa gasta uma sala; quando acaba, desaparece
+        if jogador.bencao then
+            jogador.bencao.restantes = jogador.bencao.restantes - 1
+            if jogador.bencao.restantes <= 0 then
+                jogador.bencao = nil
+            end
+        end
         -- fogueira e tesouro tem estado proprio; o resto passa pelo explorar
         local destinos = {
             fogueira = "fogueira",
             tesouro = "tesouro",
-            evento = "evento"
+            evento = "evento",
+            santuario = "santuario"
         }
         jogo.mudar(destinos[tipo] or "explorar", tipo)
     elseif a == "menu" then

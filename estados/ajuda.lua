@@ -19,6 +19,7 @@ local dados = {
     tesouro = {"A - abrir o bau / escolher", "X - pocoes", "SELECT - mochila"},
     fogueira = {"Cima/baixo - escolher", "A - confirmar", "X - pocoes", "SELECT - mochila"},
     evento = {"Cima/baixo - escolher", "A - confirmar", "X - pocoes", "SELECT - mochila"},
+    santuario = {"Cima/baixo - escolher", "A - confirmar", "X - pocoes", "SELECT - mochila"},
     reliquia = {"Cima/baixo - escolher", "A - ficar com a reliquia"},
     derrota = {"A - voltar ao menu"},
     historico = {"Cima/baixo - escolher", "B - voltar"}
@@ -40,7 +41,8 @@ local TITULOS = {
     reliquia = "RELIQUIA",
     derrota = "DERROTA",
     historico = "HISTORICO",
-    final = "VITORIA"
+    final = "VITORIA",
+    santuario = "SANTUARIO"
 }
 
 local GERAL = {"START - registo de salas (cima/baixo, L1/R1)", "L2 - esta ajuda", "A confirma, B cancela, o d-pad move"}

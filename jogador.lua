@@ -6,6 +6,7 @@ local classes = require("classes")
 local registo = require("registo")
 local reliquias = require("reliquias")
 local habilidades = require("habilidades")
+local bencoes = require("bencoes")
 
 jogador.MAX_ITENS = 10 -- tamanho da mochila
 
@@ -51,17 +52,42 @@ function jogador.reiniciar()
         ataque = 0,
         defesa = 0
     } -- quantas vezes compraste cada treino (o preco sobe com isto)
+    jogador.bencao = nil -- {id, restantes}: a bencao ativa
+    jogador.ofertaBencoes = nil -- ids oferecidos no santuario atual (o savegame precisa deles)
 end
+
+-- soma + percentagem, com pelo menos +1 quando ha bonus ativo
+local function comPercentagem(soma, pct)
+    if pct <= 0 then
+        return soma
+    end
+    return soma + math.max(1, math.floor(soma * pct + 0.5))
+end
+
 function jogador.ataqueTotal()
-    return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.forja.arma +
-               jogador.bonus("ataque")
+    local soma = jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.forja.arma +
+                     jogador.bonus("ataque")
+    return comPercentagem(soma, jogador.bonus("ataque_pct"))
 end
 
 function jogador.defesaTotal()
-    return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) + jogador.forja.armadura +
-               jogador.treino.defesa + jogador.bonus("defesa")
+    local soma = jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) +
+                     jogador.forja.armadura + jogador.treino.defesa + jogador.bonus("defesa")
+    return comPercentagem(soma, jogador.bonus("defesa_pct"))
 end
 
+function jogador.bonus(chave)
+    local total = 0
+    for _, id in ipairs(jogador.reliquias) do
+        local r = reliquias.porId(id)
+        total = total + ((r.mods and r.mods[chave]) or 0)
+    end
+    if jogador.bencao then
+        local b = bencoes.porId(jogador.bencao.id)
+        total = total + ((b and b.mods and b.mods[chave]) or 0)
+    end
+    return total
+end
 -- Texto do bonus: "+7" (base) ou "+7 +3" (base + melhorias da ranhura, so no item equipado)
 function jogador.textoBonus(item)
     local extra = (jogador[item.tipo] == item) and jogador.forja[item.tipo] or 0
@@ -234,16 +260,6 @@ function jogador.temReliquia(id)
         end
     end
     return false
-end
-
--- Soma o valor de "chave" em todas as reliquias que tens
-function jogador.bonus(chave)
-    local total = 0
-    for _, id in ipairs(jogador.reliquias) do
-        local r = reliquias.porId(id)
-        total = total + ((r.mods and r.mods[chave]) or 0)
-    end
-    return total
 end
 
 -- Reliquias que ainda nao tens

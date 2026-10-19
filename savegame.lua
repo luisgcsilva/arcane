@@ -9,6 +9,7 @@ local classes = require("classes")
 local reliquias = require("reliquias")
 local habilidades = require("habilidades")
 local mercador = require("mercador")
+local bencoes = require("bencoes")
 
 local savegame = {}
 
@@ -32,6 +33,7 @@ local especiais = {
     fogueira = true,
     tesouro = true,
     evento = true,
+    santuario = true,
     reliquia = true
 }
 
@@ -124,6 +126,9 @@ function savegame.gravar()
     for _, id in ipairs(jogador.habilidades) do
         add("habilidade", id)
     end
+    if jogador.bencao then
+        add("bencao", jogador.bencao.id .. "|" .. jogador.bencao.restantes)
+    end
 
     if jogador.portas then
         for _, tipo in ipairs(jogador.portas) do
@@ -133,6 +138,11 @@ function savegame.gravar()
         add("especial", jogador.especial)
         if jogador.eventoId then
             add("evento_id", jogador.eventoId)
+        end
+        if jogador.ofertaBencoes then
+            for _, id in ipairs(jogador.ofertaBencoes) do
+                add("oferta_bencao", id)
+            end
         end
         if jogador.bau then
             local b = jogador.bau
@@ -219,7 +229,8 @@ function savegame.carregar()
         reliquias = {},
         oferta = {},
         habilidades = {},
-        stock = {}
+        stock = {},
+        ofertaBencoes = {}
     }
     local versaoOk = false
 
@@ -322,6 +333,20 @@ function savegame.carregar()
                 return nil
             end
             table.insert(d.habilidades, valor)
+        elseif chave == "bencao" then
+            local id, n = valor:match("^([%w_]+)|(%d+)$")
+            if not id or not bencoes.existe(id) then
+                return nil
+            end
+            d.bencao = {
+                id = id,
+                restantes = tonumber(n)
+            }
+        elseif chave == "oferta_bencao" then
+            if not bencoes.existe(valor) then
+                return nil
+            end
+            table.insert(d.ofertaBencoes, valor)
         elseif chave == "vitoria" then
             if valor ~= "boss" and valor ~= "normal" then
                 return nil
@@ -458,6 +483,9 @@ function savegame.carregar()
     elseif not (d.inimigo or d.loja or temPortas or d.especial or d.vitoria) then
         motivo = "falta inimigo/loja/portas"
     end
+    if not motivo and d.especial == "santuario" and #d.ofertaBencoes == 0 then
+        motivo = "oferta do santuario vazia"
+    end
     if not motivo and d.especial == "reliquia" and #d.oferta == 0 then
         motivo = "oferta de reliquia vazia"
     end
@@ -478,6 +506,8 @@ function savegame.carregar()
         arma = d.forja_arma or 0,
         armadura = d.forja_armadura or 0
     }
+    jogador.bencao = d.bencao
+    jogador.ofertaBencoes = (#d.ofertaBencoes > 0) and d.ofertaBencoes or nil
     jogador.inventario = d.inventario
     jogador.pocoes = d.pocoes
     jogador.moedas = d.moedas or 0

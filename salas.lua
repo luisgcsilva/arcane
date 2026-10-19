@@ -42,6 +42,12 @@ salas.lista = {{
     peso = 14,
     minSala = 3,
     naoRepetir = true
+}, {
+    id = "santuario",
+    nome = "Santuario",
+    peso = 100,
+    minSala = 1,
+    naoRepetir = true
 }}
 
 -- ids aceites (o chefe nao e sorteado: so aparece nas salas de chefe)
