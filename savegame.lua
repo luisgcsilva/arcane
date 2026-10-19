@@ -88,6 +88,9 @@ function savegame.gravar()
     add("xp", jogador.xp)
     add("forja_arma", jogador.forja.arma)
     add("forja_armadura", jogador.forja.armadura)
+    add("treino_vida", jogador.treino.vida)
+    add("treino_ataque", jogador.treino.ataque)
+    add("treino_defesa", jogador.treino.defesa)
 
     if jogador.classe then
         add("classe", jogador.classe)
@@ -160,6 +163,8 @@ function savegame.gravar()
                 add("stock", "reliquia|" .. e.reliquia.id .. "|" .. e.preco .. "|" .. vendido)
             elseif e.tipo == "forja" then
                 add("stock", "forja|" .. e.slot .. "|" .. e.preco)
+            elseif e.tipo == "treino" then
+                add("stock", "treino|" .. e.atributo .. "|" .. e.preco)
             else
                 add("stock", "pocao|" .. e.pocao.id .. "|" .. e.preco)
             end
@@ -392,6 +397,16 @@ function savegame.carregar()
                     slot = p[2],
                     preco = preco
                 })
+            elseif p[1] == "treino" then
+                local preco = tonumber(p[3])
+                if not mercador.TREINO[p[2] or ""] or not preco then
+                    return nil
+                end
+                table.insert(d.stock, {
+                    tipo = "treino",
+                    atributo = p[2],
+                    preco = preco
+                })
             elseif p[1] == "pocao" then
                 local def
                 for _, q in ipairs(pocoes.lista) do
@@ -475,6 +490,11 @@ function savegame.carregar()
     jogador.cruzUsada = d.cruzUsada or false
     jogador.habilidades = d.habilidades
     jogador.bau = (d.especial == "tesouro") and d.bau or nil
+    jogador.treino = {
+        vida = d.treino_vida or 0,
+        ataque = d.treino_ataque or 0,
+        defesa = d.treino_defesa or 0
+    }
     jogador.posVitoria = d.vitoria and {
         boss = (d.vitoria == "boss")
     } or nil

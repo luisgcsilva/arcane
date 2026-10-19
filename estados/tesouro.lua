@@ -4,6 +4,7 @@ local loot = require("loot")
 local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
+local cores = require("cores")
 
 local tesouro = {}
 
@@ -138,18 +139,10 @@ function tesouro.acao(a)
                 if antigo and coube then
                     table.insert(mensagens, antigo.nome .. " vai para a mochila.")
                 elseif antigo then
-                    local ganho = loot.precoVenda(antigo)
-                    jogador.ganharMoedas(ganho)
-                    table.insert(mensagens, "Mochila cheia! Vendes " .. antigo.nome .. " por " .. ganho .. " moedas.")
+                    table.insert(mensagens, jogador.venderPorCheia(antigo))
                 end
             elseif escolha == "guardar" then
-                if jogador.guardar(pendente) then
-                    table.insert(mensagens, "Guardas " .. pendente.nome .. " na mochila.")
-                else
-                    local ganho = loot.precoVenda(pendente)
-                    jogador.ganharMoedas(ganho)
-                    table.insert(mensagens, "Mochila cheia! Vendes " .. pendente.nome .. " por " .. ganho .. " moedas.")
-                end
+                table.insert(mensagens, jogador.guardarOuVender(pendente))
             else
                 local ganho = loot.precoVenda(pendente)
                 jogador.ganharMoedas(ganho)

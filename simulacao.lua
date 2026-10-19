@@ -420,6 +420,16 @@ local function visitarLoja()
             end -- compra ate faltarem moedas ou chegar ao teto
         end
     end
+    -- sobras: treino, a rodar entre os tres ate faltarem moedas
+    local comprou = true
+    while comprou do
+        comprou = false
+        for i, e in ipairs(mercador.stock) do
+            if e.tipo == "treino" and mercador.comprar(i) then
+                comprou = true
+            end
+        end
+    end
 end
 
 local function visitarFogueira()

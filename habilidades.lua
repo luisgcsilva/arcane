@@ -37,9 +37,9 @@ habilidades.lista = {
 
   -- ninja
   { id = "duplo", classe = "ninja", nome = "Ataque Duplo", cor = { 0.5, 0.9, 0.6 }, cooldown = 3,
-    descricao = "Dois golpes rapidos, cada um com 1x de dano.",
+    descricao = "Dois golpes rapidos, cada um com 1.2x de dano.",
     usar = function(c)
-      local total = c.atacar(1)
+      local total = c.atacar(1.2)
       if c.vivo() then total = total + c.atacar(1) end
       c.msg("Dois golpes rapidos! Causas " .. total .. " de dano.")
     end },
@@ -53,9 +53,9 @@ habilidades.lista = {
     end },
 
   { id = "roubo", classe = "ninja", nome = "Roubo", cor = { 1, 0.85, 0.2 }, cooldown = 4,
-    descricao = "Dano normal e roubas moedas ao inimigo.",
+    descricao = "Dano 1.25x e roubas moedas ao inimigo.",
     usar = function(c)
-      local d = c.atacar(1)
+      local d = c.atacar(1.25)
       local n = math.random(5, 10) + c.sala
       c.moedas(n)
       c.msg("Causas " .. d .. " de dano e roubas " .. n .. " moedas.")

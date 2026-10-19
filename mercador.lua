@@ -9,6 +9,37 @@ local SLOTS = {"arma", "arma", "armadura", "armadura"}
 
 mercador.stock = {}
 
+mercador.TREINO = {
+    vida = {
+        nome = "Treino de vida",
+        base = 120,
+        passo = 40,
+        ganho = 5,
+        texto = "vida maxima"
+    },
+    ataque = {
+        nome = "Treino de ataque",
+        base = 400,
+        passo = 150,
+        ganho = 1,
+        texto = "ataque"
+    },
+    defesa = {
+        nome = "Treino de defesa",
+        base = 400,
+        passo = 150,
+        ganho = 1,
+        texto = "defesa"
+    }
+}
+local ORDEM_TREINO = {"vida", "ataque", "defesa"}
+
+-- O preco sobe a cada compra: base + passo * quantas vezes ja compraste
+function mercador.precoTreino(atributo)
+    local t = mercador.TREINO[atributo]
+    return t.base + t.passo * jogador.treino[atributo]
+end
+
 -- Chamada uma vez, ao entrar na sala da loja
 function mercador.gerar(sala)
     mercador.stock = {}
@@ -62,6 +93,15 @@ function mercador.gerar(sala)
             preco = 0
         })
     end
+
+    for _, atributo in ipairs(ORDEM_TREINO) do
+        table.insert(mercador.stock, {
+            tipo = "treino",
+            atributo = atributo,
+            preco = 0
+        })
+    end
+
     mercador.atualizar()
 end
 
@@ -74,6 +114,9 @@ function mercador.nomeDe(e)
     end
     if e.tipo == "forja" then
         return (e.slot == "arma") and "Afiar a arma" or "Reforcar a armadura"
+    end
+    if e.tipo == "treino" then
+        return mercador.TREINO[e.atributo].nome
     end
     return e.pocao.nome
 end
@@ -89,13 +132,17 @@ function mercador.comprar(i)
         return mercador.forjar(e)
     end
 
+    if e.tipo == "treino" then
+        return mercador.treinar(e)
+    end
+
     if jogador.moedas < e.preco then
         return false, "Moedas insuficientes."
     end
 
     if e.tipo == "item" then
         if not jogador.guardar(e.item) then
-            return false, "Mochila cheia! Vende algo primeiro."
+            return false, "Mochila cheia! Vende algo primeiro.", "mochila"
         end
         e.vendido = true
     elseif e.tipo == "reliquia" then
@@ -126,6 +173,8 @@ function mercador.atualizar()
     for _, e in ipairs(mercador.stock) do
         if e.tipo == "forja" then
             e.preco = mercador.precoForja(e.slot) or 0
+        elseif e.tipo == "treino" then
+            e.preco = mercador.precoTreino(e.atributo)
         end
     end
 end
@@ -146,6 +195,24 @@ function mercador.forjar(e)
     jogador.forja[e.slot] = jogador.forja[e.slot] + 1
     mercador.atualizar()
     return true, item.nome .. " agora e " .. jogador.textoBonus(item) .. "."
+end
+
+function mercador.treinar(e)
+    mercador.atualizar()
+    if jogador.moedas < e.preco then
+        return false, "Moedas insuficientes."
+    end
+    local t = mercador.TREINO[e.atributo]
+    jogador.moedas = jogador.moedas - e.preco
+    jogador.treino[e.atributo] = jogador.treino[e.atributo] + 1
+    if e.atributo == "vida" then
+        jogador.vida_max = jogador.vida_max + t.ganho
+        jogador.vida = jogador.vida + t.ganho
+    elseif e.atributo == "ataque" then
+        jogador.ataque_base = jogador.ataque_base + t.ganho
+    end
+    mercador.atualizar()
+    return true, t.nome .. ": +" .. t.ganho .. " " .. t.texto .. "."
 end
 
 return mercador

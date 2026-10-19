@@ -219,7 +219,7 @@ return {
     elemental = { -- torre
         nome = "Elemental de Fogo",
         vida = 28,
-        ataque = 12,
+        ataque = 11,
         minSala = 25,
         biomas = {"vulcao"},
         cor = {1, 0.55, 0.15},
@@ -292,8 +292,8 @@ return {
     },
     golem_magma = {
         nome = "Golem de Magma",
-        vida = 66,
-        ataque = 11,
+        vida = 56,
+        ataque = 10,
         minSala = 61,
         biomas = {"vulcao"},
         cor = {0.9, 0.35, 0.1},
@@ -305,7 +305,7 @@ return {
     },
     afogado = {
         nome = "Afogado",
-        vida = 48,
+        vida = 52,
         ataque = 12,
         minSala = 71,
         biomas = {"afundada"},
@@ -319,7 +319,7 @@ return {
     sereia = {
         nome = "Sereia",
         vida = 36,
-        ataque = 14,
+        ataque = 15,
         minSala = 71,
         biomas = {"afundada"},
         cor = {0.4, 0.85, 0.9},

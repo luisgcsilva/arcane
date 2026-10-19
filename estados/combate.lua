@@ -12,6 +12,11 @@ local intencoes = require("intencoes")
 local dificuldade = require("dificuldade")
 
 local combate = {}
+local LARGURA_MSG = 600 -- largura maxima de uma mensagem, em pixeis
+local PAINEL_X = 326
+local PAINEL_Y = 300
+local PAINEL_LARG = 320
+local PAINEL_MAX_Y = 440
 
 local indice
 local inimigo
@@ -194,13 +199,7 @@ local function novoTurno()
 end
 
 local function guardarNaMochila(item)
-    if jogador.guardar(item) then
-        table.insert(mensagens, "Guardas " .. item.nome .. " na mochila.")
-    else
-        local ganho = loot.precoVenda(item)
-        jogador.ganharMoedas(ganho)
-        table.insert(mensagens, "Mochila cheia! Vendes " .. item.nome .. " por " .. ganho .. " moedas.")
-    end
+    table.insert(mensagens, jogador.guardarOuVender(item))
 end
 
 -- Mostra o item e prepara o menu de escolha. Serve tambem para retomar.
@@ -480,9 +479,7 @@ function combate.acao(a)
                 if antigo and coube then
                     table.insert(mensagens, antigo.nome .. " vai para a mochila.")
                 elseif antigo then
-                    local ganho = loot.precoVenda(antigo)
-                    jogador.ganharMoedas(ganho)
-                    table.insert(mensagens, "Mochila cheia! Vendes " .. antigo.nome .. " por " .. ganho .. " moedas.")
+                    table.insert(mensagens, jogador.venderPorCheia(antigo))
                 end
             elseif escolha == "guardar" then
                 guardarNaMochila(pendente)
@@ -628,7 +625,30 @@ end
 
 function combate.desenhar()
     local fim = #mensagens - deslocamento
-    local inicio = math.max(1, fim - MAX_LINHAS + 1)
+    local fonte = love.graphics.getFont()
+    -- quantas linhas de ecra o texto ocupa depois de partido (largura opcional)
+    local function linhasDe(m, largura)
+        local _, partidas = fonte:getWrap(m, largura or LARGURA_MSG)
+        return #partidas
+    end
+    -- altura em pixeis: 28 para a primeira linha, mais a altura da fonte para cada extra
+    local function alturaDe(m)
+        return 28 + (linhasDe(m) - 1) * fonte:getHeight()
+    end
+
+    -- de tras para a frente, enquanto couber na area (MAX_LINHAS * 28 pixeis)
+    local inicio, usada = fim + 1, 0
+    while inicio > 1 do
+        local h = alturaDe(mensagens[inicio - 1])
+        if usada + h > MAX_LINHAS * 28 then
+            break
+        end
+        usada = usada + h
+        inicio = inicio - 1
+    end
+    if inicio > fim and fim >= 1 then
+        inicio = fim -- uma mensagem enorme tambem tem de aparecer
+    end
     local ativos = {}
     for _, id in ipairs(efeitos.ordem) do
         local t = jogador.efeitos[id]
@@ -650,13 +670,15 @@ function combate.desenhar()
 
     local frJogador = jogador.vida / jogador.vida_max
     love.graphics.print({{1, 1, 1}, "Tu   Vida: ", cores.daVida(frJogador), jogador.vida .. "/" .. jogador.vida_max},
-        20, 50)
+        20, 45)
 
-    cores.barra(380, 24, 220, 16, mostradaInimigo)
-    cores.barra(380, 54, 220, 16, mostradaJogador)
+    cores.barra(420, 24, 140, 16, mostradaInimigo)
+    cores.barra(420, 47, 140, 16, mostradaJogador)
 
+    local y = 95
     for i = inicio, fim do
-        love.graphics.print(mensagens[i], 20, 100 + (i - inicio) * 28)
+        love.graphics.printf(mensagens[i], 20, y, LARGURA_MSG)
+        y = y + alturaDe(mensagens[i])
     end
 
     if deslocamento > 0 then
@@ -669,19 +691,46 @@ function combate.desenhar()
     if fase == "escolha" then
         for i, texto in ipairs(opcoes) do
             local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, 326 + (i - 1) * 28)
+            love.graphics.print(prefixo .. texto, 20, PAINEL_X + (i - 1) * 28)
         end
     end
 
     if fase == "escolha" and intencao then
         local def = intencoes.lista[intencao]
-        local t = {{0.7, 0.7, 0.7}, "O inimigo prepara-se:\n", inimigo.cor or {1, 1, 1}, inimigo.nome, def.cor,
-                   " " .. def.texto}
-        if #def.golpes > 0 then
-            table.insert(t, {0.7, 0.7, 0.7})
-            table.insert(t, "\n(cerca de " .. danoPrevisto(def) .. " de dano)")
+        local cinza = {0.7, 0.7, 0.7}
+
+        -- titulo: texto do titulo (ou nil para nao mostrar); comDano: mostra a linha do dano
+        local function montar(titulo, comDano)
+            local t = {}
+            if titulo then
+                table.insert(t, cinza)
+                table.insert(t, titulo .. "\n")
+            end
+            table.insert(t, inimigo.cor or {1, 1, 1})
+            table.insert(t, inimigo.nome)
+            table.insert(t, def.cor)
+            table.insert(t, " " .. def.texto)
+            if comDano and #def.golpes > 0 then
+                table.insert(t, cinza)
+                table.insert(t, "\n(cerca de " .. danoPrevisto(def) .. " de dano)")
+            end
+            return t
         end
-        love.graphics.printf(t, 300, 326, 320)
+
+        local function cabe(t)
+            return PAINEL_X + linhasDe(t, PAINEL_LARG) * fonte:getHeight() <= PAINEL_MAX_Y
+        end
+
+        -- do mais completo para o mais curto: para ao primeiro que couber
+        local tentativas = {{"O inimigo prepara-se:", true}, {"Prepara:", true}, {nil, true}, {nil, false}}
+        local t
+        for _, tentativa in ipairs(tentativas) do
+            t = montar(tentativa[1], tentativa[2])
+            if cabe(t) then
+                break
+            end
+        end
+        love.graphics.printf(t, PAINEL_Y, PAINEL_X, PAINEL_LARG)
         love.graphics.setColor(1, 1, 1)
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
@@ -697,21 +746,22 @@ function combate.desenhar()
         end
         if confirmaPocao then
             local p = disponiveis[confirmaPocao]
-            love.graphics.print(cores.nome(p, "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
+            love.graphics.print(cores.nome(p, "Beber ", "? A confirma, outra tecla cancela"), 20, PAINEL_MAX_Y)
         else
-            love.graphics.print("A - beber   B - voltar", 20, 440)
+            love.graphics.print("A - beber   B - voltar", 20, PAINEL_MAX_Y)
         end
     elseif fase == "habilidade" then
         for i, h in ipairs(disponiveisHab) do
             local prefixo = (i == indiceHab) and "> " or "  "
             local cd = cooldowns[h.id] or 0
             love.graphics.print({{1, 1, 1}, prefixo, h.cor, h.nome, {0.6, 0.6, 0.6},
-                                 (cd > 0) and ("  (pronta em " .. cd .. ")") or "  (pronta)"}, 20, 326 + (i - 1) * 28)
+                                 (cd > 0) and ("  (pronta em " .. cd .. ")") or "  (pronta)"}, 20,
+                PAINEL_X + (i - 1) * 28)
         end
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print(disponiveisHab[indiceHab].descricao, 20, 440)
+        love.graphics.print(disponiveisHab[indiceHab].descricao, 20, PAINEL_MAX_Y)
     else
-        love.graphics.print("A - continuar", 20, 440)
+        love.graphics.print("A - continuar", 20, PAINEL_MAX_Y)
     end
 end
 

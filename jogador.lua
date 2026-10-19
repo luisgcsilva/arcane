@@ -46,6 +46,11 @@ function jogador.reiniciar()
         arma = 0,
         armadura = 0
     } -- melhorias do ferreiro, ligadas a ranhura
+    jogador.treino = {
+        vida = 0,
+        ataque = 0,
+        defesa = 0
+    } -- quantas vezes compraste cada treino (o preco sobe com isto)
 end
 function jogador.ataqueTotal()
     return jogador.ataque_base + (jogador.arma and jogador.arma.bonus or 0) + jogador.forja.arma +
@@ -54,7 +59,7 @@ end
 
 function jogador.defesaTotal()
     return jogador.defClasse().defesa + (jogador.armadura and jogador.armadura.bonus or 0) + jogador.forja.armadura +
-               jogador.bonus("defesa")
+               jogador.treino.defesa + jogador.bonus("defesa")
 end
 
 -- Texto do bonus: "+7" (base) ou "+7 +3" (base + melhorias da ranhura, so no item equipado)
@@ -73,6 +78,21 @@ function jogador.guardar(item)
     end
     table.insert(jogador.inventario, item)
     return true
+end
+
+-- Vende por falta de espaco. Devolve a mensagem, ja a laranja.
+function jogador.venderPorCheia(item)
+    local ganho = loot.precoVenda(item)
+    jogador.ganharMoedas(ganho)
+    return {cores.LARANJA, "Mochila cheia! Vendes " .. item.nome .. " por " .. ganho .. " moedas."}
+end
+
+-- Guarda na mochila ou, se estiver cheia, vende. Devolve a mensagem para mostrar.
+function jogador.guardarOuVender(item)
+    if jogador.guardar(item) then
+        return "Guardas " .. item.nome .. " na mochila."
+    end
+    return jogador.venderPorCheia(item)
 end
 
 -- Equipa o item que esta na posicao "indice" da mochila.
