@@ -12,6 +12,8 @@ local aviso
 local largar -- true quando esta a espera de confirmacao para largar
 local aba -- "equip" ou "reliquias"
 local indiceR -- cursor da lista de reliquias
+local equiparPendente -- true quando espera confirmacao para equipar
+local corAviso = {1, 1, 1}
 
 local BRANCO = {1, 1, 1}
 
@@ -33,6 +35,8 @@ function inventario.entrar()
     indice = 1
     aviso = ""
     largar = false
+    corAviso = {1, 1, 1}
+    equiparPendente = false
     aba = "equip"
     indiceR = 1
 end
@@ -47,12 +51,14 @@ function inventario.acao(a)
     if a == "ombro_esq" or a == "ombro_dir" then
         aba = (aba == "equip") and "reliquias" or "equip"
         largar = false
+        equiparPendente = false
         aviso = ""
         return
     end
 
     if a == "extra" then
         largar = false
+        equiparPendente = false
         jogo.abrir("pocoes")
         return
     end
@@ -86,6 +92,10 @@ function inventario.acao(a)
         largar = false
     end
 
+    if a ~= "confirmar" then
+        equiparPendente = false
+    end
+
     if a == "cima" then
         indice = indice - 1
         if indice < 1 then
@@ -100,16 +110,37 @@ function inventario.acao(a)
         aviso = ""
     elseif a == "confirmar" then
         local item = jogador.inventario[indice]
-        jogador.equipar(indice)
-        aviso = "Equipas " .. item.nome .. "."
+        local atual = jogador[item.tipo]
+        if not equiparPendente then
+            -- primeiro A: mostra o que muda e pede confirmacao
+            equiparPendente = true
+            local atributo = (item.tipo == "arma") and "ataque" or "defesa"
+            local delta = item.bonus - (atual and atual.bonus or 0)
+            if atual then
+                aviso =
+                    "Trocar " .. atual.nome .. " (+" .. atual.bonus .. ") por " .. item.nome .. " (+" .. item.bonus ..
+                        "): " .. (delta >= 0 and "+" or "") .. delta .. " " .. atributo .. ". A para confirmar."
+            else
+                aviso = "Equipar " .. item.nome .. " (+" .. item.bonus .. " " .. atributo .. ")? A para confirmar."
+            end
+            corAviso = (delta > 0 and {0.4, 1, 0.4}) or (delta < 0 and {1, 0.4, 0.4}) or {1, 1, 1}
+        else
+            -- segundo A no mesmo item: equipa
+            equiparPendente = false
+            jogador.equipar(indice)
+            aviso = "Equipas " .. item.nome .. "." .. (atual and (" " .. atual.nome .. " volta para a mochila.") or "")
+            corAviso = {1, 1, 1}
+        end
     elseif a == "menu" then
         if largar then
             local item, ganho = jogador.vender(indice)
             aviso = "Vendes " .. item.nome .. " por " .. ganho .. " moedas."
+            corAviso = {1, 1, 1}
             largar = false
         else
             largar = true
             aviso = "X outra vez: vender por " .. loot.precoVenda(jogador.inventario[indice]) .. " moedas."
+            corAviso = {1, 0.85, 0.2}
         end
     end
 
@@ -157,8 +188,8 @@ function inventario.desenhar()
         return
     end
 
-    love.graphics.print(aviso, 20, 400)
-    love.graphics.print("A equipar  X vender  Y pocoes  B fechar", 20, 440)
+    love.graphics.printf({corAviso, aviso}, 20, 398, 600)
+    love.graphics.print("A equipar (2x)  X vender  Y pocoes  B fechar", 20, 440)
     if #jogador.inventario == 0 then
         love.graphics.print("(vazia)", 20, 140)
     else
@@ -167,8 +198,6 @@ function inventario.desenhar()
             love.graphics.print(textoItem(item, prefixo), 20, 140 + (i - 1) * 28)
         end
     end
-
-    love.graphics.print(aviso, 20, 400)
 end
 
 return inventario

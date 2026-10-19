@@ -34,17 +34,17 @@ loot.exclusivos = {{
 }, {
     nome = "Martelo Trovejante",
     tipo = "arma",
-    bonus = 13,
+    bonus = 14,
     raridade = "lendaria"
 }, {
     nome = "Egide Eterna",
     tipo = "armadura",
-    bonus = 6,
+    bonus = 8,
     raridade = "lendaria"
 }, {
     nome = "Manto das Estrelas",
     tipo = "armadura",
-    bonus = 8,
+    bonus = 10,
     raridade = "lendaria"
 }, {
     nome = "Arco do Caos",
@@ -54,7 +54,7 @@ loot.exclusivos = {{
 }, {
     nome = "Coroa dos Esquecidos",
     tipo = "armadura",
-    bonus = 10,
+    bonus = 12,
     raridade = "lendaria"
 }}
 
@@ -113,7 +113,7 @@ local itens = {{
 }, {
     nome = "Maca de Guerra",
     tipo = "arma",
-    bonus = 4,
+    bonus = 3,
     raridade = "rara"
 }, {
     nome = "Florete Veloz",
@@ -188,17 +188,17 @@ local itens = {{
 }, {
     nome = "Armadura do Abismo",
     tipo = "armadura",
-    bonus = 11,
+    bonus = 13,
     raridade = "mitica"
 }, {
     nome = "Vestes Celestiais",
     tipo = "armadura",
-    bonus = 13,
+    bonus = 15,
     raridade = "mitica"
 }, {
     nome = "Egide do Imperador",
     tipo = "armadura",
-    bonus = 14,
+    bonus = 17,
     raridade = "mitica"
 }}
 

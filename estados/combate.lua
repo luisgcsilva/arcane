@@ -114,8 +114,9 @@ local function inimigoAtaca()
     -- golpes (a lista pode ser vazia)
     local total = 0
     local defesa = def.ignoraDefesa and 0 or jogador.defesaTotal()
+    local defesaPorGolpe = defesa / math.max(1, #def.golpes)
     for _, mult in ipairs(def.golpes) do
-        local d = dano(math.floor(inimigo.ataque * mult + 0.5) - defesa)
+        local d = dano(math.floor(inimigo.ataque * mult - defesaPorGolpe + 0.5))
         if defendeu then
             d = math.max(1, math.ceil(d / 2))
         end
@@ -223,6 +224,8 @@ local function oferecerLoot(item)
         opcoesAtuais = {"Guardar na mochila", "Vender (" .. preco .. " moedas)"}
         acoesAtuais = {"guardar", "vender"}
     end
+
+    table.insert(mensagens, (jogador.linhaDiferenca(item)))
 
     pendente = item
     indiceLoot = 1
@@ -616,9 +619,10 @@ end
 -- dano aproximado da intencao (sem a variacao de +/-1 nem defender)
 local function danoPrevisto(def)
     local defesa = def.ignoraDefesa and 0 or jogador.defesaTotal()
+    local defesaPorGolpe = defesa / math.max(1, #def.golpes)
     local total = 0
     for _, mult in ipairs(def.golpes) do
-        total = total + math.max(1, math.floor(inimigo.ataque * mult + 0.5) - defesa)
+        total = total + math.max(1, math.floor(inimigo.ataque * mult - defesaPorGolpe + 0.5))
     end
     return total
 end

@@ -142,6 +142,24 @@ function jogador.eMelhor(item)
     return atual == nil or item.bonus > atual.bonus
 end
 
+-- Compara um item com o que esta equipado na mesma ranhura.
+-- Devolve uma linha colorida pronta a mostrar e o delta numerico.
+function jogador.linhaDiferenca(item)
+    local atual = jogador[item.tipo]
+    local atributo = (item.tipo == "arma") and "ataque" or "defesa"
+    local delta = item.bonus - (atual and atual.bonus or 0)
+
+    local cor = {1, 1, 1}
+    if delta > 0 then
+        cor = {0.4, 1, 0.4}
+    elseif delta < 0 then
+        cor = {1, 0.4, 0.4}
+    end
+
+    local sinal = (delta >= 0) and "+" or "" -- os negativos ja trazem o "-"
+    return {cor, "Se equipares: " .. sinal .. delta .. " " .. atributo}, delta
+end
+
 -- Equipa um item que NAO esta na mochila (acabou de cair).
 -- Devolve o item antigo (ou nil) e se coube na mochila.
 function jogador.equiparDireto(item)

@@ -134,8 +134,9 @@ local function inimigoAtaca(est)
 
     local total = 0
     local defesa = def.ignoraDefesa and 0 or jogador.defesaTotal()
+    local defesaPorGolpe = defesa / math.max(1, #def.golpes)
     for _, mult in ipairs(def.golpes) do
-        local d = dano(math.floor(inimigo.ataque * mult + 0.5) - defesa)
+        local d = dano(math.floor(inimigo.ataque * mult - defesaPorGolpe + 0.5))
         if defendeu then
             d = math.max(1, math.ceil(d / 2))
         end

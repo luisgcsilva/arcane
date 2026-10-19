@@ -6,6 +6,7 @@ local reliquias = require("reliquias")
 local mercador = {}
 
 local SLOTS = {"arma", "arma", "armadura", "armadura"}
+local VALOR_BASE_FORJA = 150
 
 mercador.stock = {}
 
@@ -20,14 +21,14 @@ mercador.TREINO = {
     ataque = {
         nome = "Treino de ataque",
         base = 400,
-        passo = 150,
+        passo = VALOR_BASE_FORJA,
         ganho = 1,
         texto = "ataque"
     },
     defesa = {
         nome = "Treino de defesa",
         base = 400,
-        passo = 150,
+        passo = VALOR_BASE_FORJA,
         ganho = 1,
         texto = "defesa"
     }
@@ -165,7 +166,7 @@ function mercador.precoForja(slot)
     if not jogador[slot] then
         return nil
     end
-    return 40 + 15 * jogador.forja[slot]
+    return VALOR_BASE_FORJA + 50 * jogador.forja[slot]
 end
 
 -- Os precos do ferreiro dependem do que tens equipado, por isso recalculam-se

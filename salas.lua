@@ -16,13 +16,13 @@ salas.lista = {{
     id = "loja",
     nome = "Loja",
     peso = 15,
-    minSala = 2,
+    minSala = 7,
     naoRepetir = true
 }, {
     id = "fogueira",
     nome = "Fogueira",
     peso = 12,
-    minSala = 2,
+    minSala = 5,
     naoRepetir = true
 }, {
     id = "tesouro",
@@ -45,8 +45,8 @@ salas.lista = {{
 }, {
     id = "santuario",
     nome = "Santuario",
-    peso = 100,
-    minSala = 1,
+    peso = 10,
+    minSala = 11,
     naoRepetir = true
 }}
 

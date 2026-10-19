@@ -137,13 +137,13 @@ function loja.desenhar()
             if not item then
                 love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (nada equipado)"}, 20, y)
             elseif jogador.forja[e.slot] >= mercador.MAX_FORJA[e.slot] then
-                love.graphics.print({CINZA, prefixo .. item.nome .. " no maximo (" .. jogador.textoBonus(item) .. ")"},
-                    20, y)
+                love.graphics.print({CINZA, prefixo .. mercador.nomeDe(e) .. " (no maximo)"}, 20, y)
             else
                 local laranja = {1, 0.6, 0.3}
+                local nivel = jogador.forja[e.slot]
                 love.graphics.print(comPreco({laranja,
-                                              prefixo .. mercador.nomeDe(e) .. ": " .. item.nome .. " " ..
-                    jogador.textoBonus(item) .. " -> +" .. (jogador.forja[e.slot] + 1)}, e, laranja), 20, y)
+                                              prefixo .. mercador.nomeDe(e) .. " (+" .. nivel .. " -> +" .. (nivel + 1) ..
+                    ")"}, e, laranja), 20, y)
             end
         elseif e.tipo == "treino" then
             local t = mercador.TREINO[e.atributo]
@@ -160,6 +160,13 @@ function loja.desenhar()
     if sel and sel.tipo == "reliquia" and not sel.vendido then
         love.graphics.setColor(1, 1, 1)
         love.graphics.printf(sel.reliquia.descricao, 20, 360, 600)
+    end
+    if sel and sel.tipo == "forja" then
+        local item = jogador[sel.slot]
+        if item then
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf(item.nome .. " " .. jogador.textoBonus(item), 20, 360, 600)
+        end
     end
 
     love.graphics.setColor(1, 1, 1)

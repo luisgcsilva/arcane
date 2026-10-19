@@ -91,6 +91,7 @@ local function abrirBau()
             opcoes = {"Guardar na mochila", "Vender (" .. preco .. " moedas)"}
             acoes = {"guardar", "vender"}
         end
+        table.insert(mensagens, (jogador.linhaDiferenca(item)))
         pendente = item
         indice = 1
         fase = "escolha"
