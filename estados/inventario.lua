@@ -4,6 +4,8 @@ local loot = require("loot")
 local cores = require("cores")
 local savegame = require("savegame")
 local reliquias = require("reliquias")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local inventario = {}
 
@@ -16,12 +18,44 @@ local equiparPendente -- true quando espera confirmacao para equipar
 local corAviso = {1, 1, 1}
 
 local BRANCO = {1, 1, 1}
+local CINZA = {0.5, 0.5, 0.5}
+local OURO = {1, 0.85, 0.2}
+
+-- Primeiro item visivel numa lista com janela de `tam` linhas, a manter o cursor a vista
+local function primeiroVisivel(sel, n, tam)
+    local primeiro = math.min(sel - math.floor(tam / 2), n - tam + 1)
+    return math.max(1, primeiro)
+end
 
 -- Texto colorido: so o nome tem a cor da raridade
 local function textoItem(item, prefixo)
     local atributo = (item.tipo == "arma") and "ataque" or "defesa"
     return {BRANCO, prefixo, loot.cores[item.raridade], item.nome, BRANCO,
             " (" .. jogador.textoBonus(item) .. " " .. atributo .. ")"}
+end
+
+-- Uma ranhura de equipamento: icone do slot, moldura na cor da raridade e texto
+local function ranhura(tipo, item, rotulo, y)
+    local altura = love.graphics.getFont():getHeight()
+    if item and loot.caminhoIcone(item) then
+        love.graphics.setColor(ui.FUNDO)
+        love.graphics.rectangle("fill", 20, y, 32, 32)
+        ui.icone(item, 20, y, 2)
+    else
+        ui.slot((tipo == "arma") and "espada" or "peitoral", 20, y, 2)
+    end
+    local ty = y + (32 - altura) / 2
+    if item then
+        love.graphics.setColor(loot.cores[item.raridade])
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 19, y - 1, 34, 34)
+        love.graphics.setLineWidth(1)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(textoItem(item, rotulo), 64, ty)
+    else
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print({CINZA, rotulo .. "-"}, 64, ty)
+    end
 end
 
 local function equipado(rotulo, item)
@@ -149,34 +183,48 @@ function inventario.acao(a)
 end
 
 function inventario.desenhar()
-    love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 400, 20)
+    love.graphics.setColor(1, 1, 1)
+    local altura = love.graphics.getFont():getHeight()
+    local n = #jogador.inventario
 
-    local CINZA = {0.5, 0.5, 0.5}
-    local OURO = {1, 0.85, 0.2}
-    local titulo = "MOCHILA (" .. #jogador.inventario .. "/" .. jogador.MAX_ITENS .. ")"
+    -- love.graphics.print({OURO, "Moedas: " .. jogador.moedas}, 400, 20)
+    ui.moedas(400, 20, jogador.moedas)
+    local titulo = "MOCHILA (" .. n .. "/" .. jogador.MAX_ITENS .. ")"
     local tituloR = "Reliquias (" .. #jogador.reliquias .. "/" .. #reliquias.lista .. ")"
     if aba == "equip" then
         love.graphics.print({OURO, titulo, CINZA, "   |   " .. tituloR}, 20, 20)
-        love.graphics.print(equipado("Arma: ", jogador.arma), 20, 56)
-        love.graphics.print(equipado("Armadura: ", jogador.armadura), 20, 84)
-        if #jogador.inventario > 0 then
-            love.graphics.print("Vale " .. loot.precoVenda(jogador.inventario[indice]) .. " moedas", 20, 370)
-        end
-
     else
         love.graphics.print({CINZA, titulo .. "   |   ", OURO, tituloR}, 20, 20)
     end
+    ui.linha(20, 50, 600, 2)
 
+    ---------- separador das reliquias ----------
     if aba == "reliquias" then
-        if #jogador.reliquias == 0 then
-            love.graphics.print("(ainda nao tens nenhuma. Os chefes oferecem uma.)", 20, 80)
+        local JANELA = 7
+        local k = #jogador.reliquias
+        ui.painel("ouro", 10, 60, 620, 270, 2, ui.FUNDO)
+        love.graphics.setColor(1, 1, 1)
+        if k == 0 then
+            love.graphics.printf("(ainda nao tens nenhuma. Os chefes oferecem uma.)", 36, 80, 568)
         end
-        for i, id in ipairs(jogador.reliquias) do
+        local primeiro = primeiroVisivel(indiceR, k, JANELA)
+        for i = primeiro, math.min(k, primeiro + JANELA - 1) do
+            local id = jogador.reliquias[i]
             local r = reliquias.porId(id)
-            local prefixo = (i == indiceR) and "> " or "  "
-            love.graphics.print({{1, 1, 1}, prefixo, r.cor, r.nome}, 20, 70 + (i - 1) * 30)
+            local y = 72 + (i - primeiro) * 32
             local usada = (id == "cruz" and jogador.cruzUsada) and "  (usada)" or ""
-            love.graphics.print({{1, 1, 1}, prefixo, r.cor, r.nome, {0.6, 0.6, 0.6}, usada}, 20, 70 + (i - 1) * 30)
+            if i == indiceR and not ui.cursor(24, y + (32 - 18) / 2, 2) then
+                love.graphics.print(">", 30, y + (32 - altura) / 2)
+            end
+            ui.imagem(reliquias.caminhoIcone(r), 54, y, 2)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print({r.cor, r.nome, {0.6, 0.6, 0.6}, usada}, 94, y + (32 - altura) / 2)
+        end
+        if primeiro > 1 then
+            ui.seta("cima", 596, 76, 2)
+        end
+        if primeiro + JANELA - 1 < k then
+            ui.seta("baixo", 596, 292, 2)
         end
         local sel = jogador.reliquias[indiceR] and reliquias.porId(jogador.reliquias[indiceR])
         if sel then
@@ -184,20 +232,71 @@ function inventario.desenhar()
             love.graphics.printf(sel.descricao, 20, 340, 600)
         end
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print("Cima/baixo  L1/R1 equipamento  B fechar", 20, 440)
+        sprites.ajuda({{"L1", "equipamento"}, {"B", "fechar"}}, 20, 446)
         return
     end
 
-    love.graphics.printf({corAviso, aviso}, 20, 398, 600)
-    love.graphics.print("A equipar (2x)  X vender  Y pocoes  B fechar", 20, 440)
-    if #jogador.inventario == 0 then
-        love.graphics.print("(vazia)", 20, 140)
+    ---------- separador do equipamento ----------
+    ranhura("arma", jogador.arma, "Arma: ", 58)
+    ranhura("armadura", jogador.armadura, "Armadura: ", 96)
+
+    local JANELA = 7
+    ui.painel("ouro", 10, 134, 620, 254, 2, ui.FUNDO)
+    love.graphics.setColor(1, 1, 1)
+    if n == 0 then
+        love.graphics.print("(vazia)", 36, 152)
     else
-        for i, item in ipairs(jogador.inventario) do
-            local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(textoItem(item, prefixo), 20, 140 + (i - 1) * 28)
+        local primeiro = primeiroVisivel(indice, n, JANELA)
+        for i = primeiro, math.min(n, primeiro + JANELA - 1) do
+            local item = jogador.inventario[i]
+            local y = 146 + (i - primeiro) * 32
+            if i == indice and not ui.cursor(28, y + (32 - 18) / 2, 2) then
+                love.graphics.print(">", 30, y + (32 - altura) / 2)
+            end
+            ui.icone(item, 54, y, 2)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(loot.nomeColorido(item, "", ""), 94, y + (32 - altura) / 2)
+        end
+        if primeiro > 1 then
+            ui.seta("cima", 596, 146, 2)
+        end
+        if primeiro + JANELA - 1 < n then
+            ui.seta("baixo", 596, 342, 2)
+        end
+        local sel = jogador.inventario[indice]
+        if sel then
+            local atributo = (sel.tipo == "arma") and "ataque" or "defesa"
+            local cor = loot.cores[sel.raridade]
+
+            -- icone grande com moldura na cor da raridade
+            love.graphics.setColor(cor)
+            love.graphics.setLineWidth(2)
+            love.graphics.rectangle("line", 511, 148, 68, 68)
+            love.graphics.setLineWidth(1)
+            ui.icone(sel, 513, 150, 4)
+
+            -- detalhes por baixo, centrados na coluna (x=470 a 620)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf(jogador.textoBonus(sel) .. " " .. atributo, 470, 224, 150, "center")
+            love.graphics.printf({cor, sel.raridade}, 470, 250, 150, "center")
+            love.graphics.printf((jogador.linhaDiferenca(sel)), 470, 280, 150, "center")
+
+            -- "Vale [moeda] N", centrado na coluna
+            local valor = loot.precoVenda(sel)
+            local f = love.graphics.getFont()
+            local rotulo = "Vale "
+            local largura = f:getWidth(rotulo) + 32 + 6 + f:getWidth(tostring(valor))
+            local x0 = 545 - largura / 2
+            local y0 = 336
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(rotulo, x0, y0 + (32 - f:getHeight()) / 2)
+            ui.moedas(x0 + f:getWidth(rotulo), y0, valor, 2)
         end
     end
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf({corAviso, aviso}, 20, 394, 600)
+    sprites.ajuda({{"A", "equipar"}, {"X", "vender"}, {"Y", "pocoes"}, {"B", "fechar"}}, 20, 446)
 end
 
 return inventario

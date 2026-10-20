@@ -5,12 +5,17 @@ local savegame = require("savegame")
 local cores = require("cores")
 local registo = require("registo")
 local biomas = require("biomas")
+local ui = require("ui")
+local fontes = require("fontes")
+local sprites = require("sprites")
 
 local portas = {}
 
 local lista -- ids das portas, por ordem
 local indice
-local fonteGrande
+local PORTA = 4 -- escala: a porta tem 32 px, no ecra fica com 128
+local FECHADA = "imagens/ui/porta_fechada.png"
+local ABERTA = "imagens/ui/porta_aberta.png"
 
 local DOURADO = {1, 0.85, 0.2}
 local CINZA = {0.6, 0.6, 0.6}
@@ -19,7 +24,6 @@ local MADEIRA_CLARA = {0.45, 0.32, 0.18}
 
 -- arg: uma lista (gravacao retomada) ou o tipo da sala de onde vens
 function portas.entrar(arg)
-    fonteGrande = fonteGrande or love.graphics.newFont(48)
     if type(arg) == "table" then
         lista = arg
     else
@@ -81,11 +85,26 @@ function portas.acao(a)
 end
 
 function portas.desenhar()
+    local normal = love.graphics.getFont()
+    local temUI = ui.disponivel()
+    local fr = jogador.vida / jogador.vida_max
     love.graphics.setColor(1, 1, 1)
+
+    -- titulo numa faixa e moedas
     local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Proxima Sala " .. jogador.sala + 1)
-    love.graphics.print(titulo, 20, 20)
-    love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
-                         jogador.vida .. "/" .. jogador.vida_max}, 20, 50)
+    ui.faixa(20, 10, 360, 3)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf(titulo, 20, 10 + (36 - normal:getHeight()) / 2, 360, "center")
+    --love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
+
+    -- painel com vida e bioma
+    ui.painel("ouro", 10, 58, 620, 100, 2, ui.FUNDO)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(fr), jogador.vida .. "/" .. jogador.vida_max}, 28, 74)
+    if not sprites.barra(220, 72, fr, 2) then
+        cores.barra(220, 78, 140, 14, fr)
+    end
     local prox = biomas.daSala(jogador.sala + 1)
     local atual = biomas.daSala(jogador.sala)
     local texto = {{1, 1, 1}, "Bioma: ", prox.cor, prox.nome}
@@ -93,36 +112,48 @@ function portas.desenhar()
         table.insert(texto, DOURADO)
         table.insert(texto, "  (novo bioma!)")
     end
-    love.graphics.print(texto, 20, 70)
-    love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(texto, 28, 104)
 
-    love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 95)
+    love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 168)
 
+    -- as portas: fechada normalmente, aberta a selecionada
     local n = #lista
-    local L, A, ESPACO = 120, 180, 40
+    local L, A, ESPACO, Y = 32 * PORTA, 32 * PORTA, 30, 204
     local x0 = (640 - (n * L + (n - 1) * ESPACO)) / 2
-    local fonteNormal = love.graphics.getFont()
 
     for i = 1, n do
         local x = x0 + (i - 1) * (L + ESPACO)
         local escolhida = (i == indice)
 
-        love.graphics.setColor(escolhida and MADEIRA_CLARA or MADEIRA)
-        love.graphics.rectangle("fill", x, 130, L, A)
+        -- o sprite desenha-se centrado, por isso damos o centro da porta
+        if not sprites.desenhar(escolhida and ABERTA or FECHADA, x + L / 2, Y + A / 2, PORTA) then
+            -- plano B (sem imagem): os retangulos antigos
+            love.graphics.setColor(escolhida and MADEIRA_CLARA or MADEIRA)
+            love.graphics.rectangle("fill", x, Y, L, A)
+            love.graphics.setColor(escolhida and DOURADO or CINZA)
+            love.graphics.setLineWidth(escolhida and 4 or 2)
+            love.graphics.rectangle("line", x, Y, L, A)
+            love.graphics.setLineWidth(1)
+        end
+
+        if not escolhida then
+            love.graphics.setFont(fontes.enorme)
+            love.graphics.printf("?", x, Y + A / 2 - fontes.enorme:getHeight() / 2, L, "center")
+            love.graphics.setFont(normal)
+            love.graphics.setColor(0.25, 0.12, 0.12) -- o painel e claro: "?" escuro
+        else
+            love.graphics.setColor(1, 1, 1)
+        end
 
         love.graphics.setColor(escolhida and DOURADO or CINZA)
-        love.graphics.setLineWidth(escolhida and 4 or 2)
-        love.graphics.rectangle("line", x, 130, L, A)
-
-        love.graphics.setFont(fonteGrande)
-        love.graphics.printf("?", x, 130 + A / 2 - 28, L, "center")
-        love.graphics.setFont(fonteNormal)
-        love.graphics.printf("Porta " .. i, x, 130 + A + 10, L, "center")
+        love.graphics.printf("Porta " .. i, x, Y + A + 8, L, "center")
+        if escolhida then
+            ui.cursorCima(x + L / 2 - 12, Y + A + 40, 3)
+        end
     end
-
-    love.graphics.setLineWidth(1)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Esq/Dir escolher A abrir  L2 ajuda", 20, 440)
+    sprites.ajuda({{"ESQDIR", "escolher"}, {"A", "abrir"}, {"L2", "ajuda"}}, 20, 446)
 end
 
 return portas

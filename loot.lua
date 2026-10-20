@@ -9,6 +9,52 @@ loot.cores = {
     mitica = {1, 0.25, 0.35}
 }
 
+-- Numero do icone Raven (faNUMERO.png) de cada item, pelo nome
+local ICONES = {
+    -- armas
+    ["Adaga Velha"] = 1444,
+    ["Espada Curta"] = 1441,
+    ["Faca de Cacador"] = 1442,
+    ["Lanca Enferrujada"] = 1461,
+    ["Machado de Ferro"] = 1465,
+    ["Maca de Guerra"] = 1473,
+    ["Florete Veloz"] = 1450,
+    ["Lamina Arcana"] = 1731,
+    ["Cajado Trovejante"] = 1690,
+    ["Espada de Obsidiana"] = 1721,
+    ["Espada Flamejante"] = 1681,
+    ["Espada do Alvorecer"] = 1708,
+    ["Machado do Tita"] = 1701,
+    ["Lanca do Dragao"] = 1801,
+    ["Martelo Trovejante"] = 1706,
+    ["Arco do Caos"] = 1750,
+    ["Lamina do Vazio"] = 1719,
+    ["Ceifador de Almas"] = 1695,
+    ["Arco Estelar"] = 1752,
+    -- armaduras
+    ["Tunica de Pano"] = 1828,
+    ["Gibao de Couro"] = 2082,
+    ["Cota de Malha"] = 1921,
+    ["Escudo de Aco"] = 1811,
+    ["Peitoral Reforcado"] = 1922,
+    ["Armadura Arcana"] = 1830,
+    ["Manto de Sombras"] = 2093,
+    ["Cota de Mithril"] = 1819,
+    ["Armadura do Guardiao"] = 1925,
+    ["Egide Eterna"] = 1812,
+    ["Manto das Estrelas"] = 2094,
+    ["Coroa dos Esquecidos"] = 1837,
+    ["Armadura do Abismo"] = 2051,
+    ["Vestes Celestiais"] = 2092,
+    ["Egide do Imperador"] = 1927
+}
+
+-- Caminho do icone de um item (nil se nao tiver)
+function loot.caminhoIcone(item)
+    local n = ICONES[item.nome]
+    return n and ("imagens/itens/fa" .. n .. ".png") or nil
+end
+
 -- Valor por ponto de bonus. A loja vende ao valor total, tu vendes a metade.
 local VALOR = {
     comum = 3,

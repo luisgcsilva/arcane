@@ -6,6 +6,7 @@ local registo = require("registo")
 local historico = require("historico")
 local reliquias = require("reliquias")
 local dificuldade = require("dificuldade")
+local fontes = require("fontes")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -35,7 +36,9 @@ local function anotar(texto)
 end
 
 function love.load()
-    love.graphics.setFont(love.graphics.newFont(20))
+    fontes.carregar()
+    love.graphics.setDefaultFilter("nearest", "nearest") -- pixel art sem desfocar ao ampliar
+    love.graphics.setFont(fontes.normal)
     recordes.carregar()
     registo.carregar()
     historico.carregar()
@@ -45,7 +48,7 @@ function love.load()
                 print("AVISO: sala " .. sala .. " sem chefe")
             end
         elseif #dificuldade.candidatos(sala) == 0 then
-            print("AVISO: sala " .. sala .. " sem inimigos possiveis")
+            print("AVISO: sala " .. sala .. " sem inimigos possíveis")
         end
     end
     jogo.mudar("menu")

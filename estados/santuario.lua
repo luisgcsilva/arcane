@@ -4,6 +4,7 @@ local bencoes = require("bencoes")
 local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
+local ui = require("ui")
 
 local santuario = {}
 
@@ -99,25 +100,40 @@ function santuario.desenhar()
     love.graphics.print("O santuario", 20, 20)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
-    love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
+    -- love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
 
     love.graphics.printf("Uma luz suave enche a sala. Podes pedir uma bencao, mas tudo tem um preco.", 20, 100, 600)
 
     if not feito then
+        local altura = love.graphics.getFont():getHeight()
         for i, b in ipairs(oferta) do
-            local prefixo = (i == indice) and "> " or "  "
-            local tipo, valor = bencoes.custoDe(b, jogador)
-            local preco = (tipo == "vida") and (valor .. " de vida") or (valor .. " moedas")
-            local corPreco = bencoes.podePagar(b, jogador) and CINZA or VERMELHO
-            love.graphics.print({{1, 1, 1}, prefixo, b.cor, b.nome, corPreco, "  (" .. preco .. ")"}, 20,
-                180 + (i - 1) * 36)
-        end
-        local prefixo = (indice > #oferta) and "> " or "  "
-        love.graphics.print(prefixo .. "Sair sem rezar", 20, 180 + #oferta * 36)
-
-        if oferta[indice] then
+            local y = 160 + (i - 1) * 40
+            if i == indice then
+                ui.cursorLinha(20, y + (32 - altura) / 2, altura)
+            end
+            ui.imagem(bencoes.caminhoIcone(b), 56, y, 2)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.printf(oferta[indice].descricao, 20, 330, 600)
+            love.graphics.print({b.cor, b.nome}, 96, y + (32 - altura) / 2)
+        end
+        local ySair = 160 + #oferta * 40
+        if indice > #oferta then
+            ui.cursorLinha(20, ySair + (32 - altura) / 2, altura)
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("Sair sem rezar", 56, ySair + (32 - altura) / 2)
+
+        local b = oferta[indice]
+        if b then
+            ui.detalhe(380, 150, 250, 222, bencoes.caminhoIcone(b), b.cor, {b.cor, b.nome}, b.descricao)
+            local tipo, valor = bencoes.custoDe(b, jogador)
+            local pode = bencoes.podePagar(b, jogador)
+            if tipo == "vida" then
+                love.graphics.printf({pode and {1, 1, 1} or VERMELHO, "Custa " .. valor .. " de vida"}, 390, 330, 230,
+                    "center")
+            else
+                ui.linhaMoedas(505, "Custa ", {1, 1, 1}, valor, 2, 324, not pode)
+            end
         end
     end
 

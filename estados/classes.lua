@@ -3,6 +3,9 @@ local jogador = require("jogador")
 local classes = require("classes")
 local cores = require("cores")
 local registo = require("registo")
+local sprites = require("sprites")
+local ui = require("ui")
+local fontes = require("fontes")
 
 local estado = {}
 
@@ -36,19 +39,32 @@ function estado.desenhar()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("ESCOLHE A TUA CLASSE", 20, 20)
 
+    -- lista: a mao marca a selecionada (se nao houver imagem, volta ao ">")
+    local altura = love.graphics.getFont():getHeight()
     for i, c in ipairs(classes.lista) do
-        local prefixo = (i == indice) and "> " or "  "
-        love.graphics.print(cores.nome(c, prefixo), 20, 80 + (i - 1) * 36)
+        local y = 80 + (i - 1) * 36
+        love.graphics.print(cores.nome(c, ""), 60, y)
+        if i == indice and not ui.cursor(20, y + (altura - 16) / 2, 2) then
+            love.graphics.print(">", 30, y)
+        end
     end
 
     local c = classes.lista[indice]
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(c.descricao, 20, 210, 600)
-    love.graphics.print("Vida " .. c.vida .. "   Ataque " .. c.ataque .. "   Defesa " .. c.defesa, 20, 290)
-    love.graphics.print("Por nivel: +" .. c.vidaNivel .. " vida, +" .. c.ataqueNivel .. " ataque", 20, 322)
-    love.graphics.print(c.perk, 20, 354)
 
-    love.graphics.print("A escolher  B voltar", 20, 440)
+    -- sombra e sprite da classe selecionada
+    love.graphics.setColor(0, 0, 0, 0.35)
+    love.graphics.ellipse("fill", 500, 182, 50, 9)
+    sprites.desenhar(sprites.caminhoClasse(c.id), 500, 132, 5)
+
+    -- painel com a descricao e os numeros
+    ui.painel("ouro", 10, 196, 620, 212, 2, ui.FUNDO)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf(c.descricao, 36, 216, 568)
+    love.graphics.print("Vida " .. c.vida .. "   Ataque " .. c.ataque .. "   Defesa " .. c.defesa, 36, 296)
+    love.graphics.print("Por nivel: +" .. c.vidaNivel .. " vida, +" .. c.ataqueNivel .. " ataque", 36, 328)
+    love.graphics.printf(c.perk, 36, 360, 568)
+
+    sprites.ajuda({{"A", "escolher"}, {"B", "voltar"}}, 20, 440)
 end
 
 return estado

@@ -1,5 +1,6 @@
 local jogo = require("jogo")
 local jogador = require("jogador")
+local sprites = require("sprites")
 local loot = require("loot")
 local pocoes = require("pocoes")
 local cores = require("cores")
@@ -10,6 +11,9 @@ local reliquias = require("reliquias")
 local habilidades = require("habilidades")
 local intencoes = require("intencoes")
 local dificuldade = require("dificuldade")
+local fontes = require("fontes")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local combate = {}
 local LARGURA_MSG = 600 -- largura maxima de uma mensagem, em pixeis
@@ -17,6 +21,14 @@ local PAINEL_X = 326
 local PAINEL_Y = 300
 local PAINEL_LARG = 320
 local PAINEL_MAX_Y = 440
+
+local fontePequena -- criada na primeira vez que o combate desenha
+
+local CENA_Y = 175 -- chao: onde assentam os pes das personagens
+local JOGADOR_X = 140
+local INIMIGO_X = 500
+local LOG_Y = 205 -- onde comeca o log
+local LOG_FIM = 322 -- onde acaba o log
 
 local indice
 local inimigo
@@ -628,23 +640,25 @@ local function danoPrevisto(def)
 end
 
 function combate.desenhar()
+    fontePequena = fontes.pequena
+    local normal = love.graphics.getFont()
     local fim = #mensagens - deslocamento
-    local fonte = love.graphics.getFont()
-    -- quantas linhas de ecra o texto ocupa depois de partido (largura opcional)
-    local function linhasDe(m, largura)
-        local _, partidas = fonte:getWrap(m, largura or LARGURA_MSG)
+
+    -- quantas linhas de ecra o texto ocupa depois de partido (fonte f, normal por defeito)
+    local function linhasDe(m, largura, f)
+        local _, partidas = (f or normal):getWrap(m, largura or LARGURA_MSG)
         return #partidas
     end
-    -- altura em pixeis: 28 para a primeira linha, mais a altura da fonte para cada extra
+    -- altura de uma mensagem do log (fonte pequena), com 2 px de folga
     local function alturaDe(m)
-        return 28 + (linhasDe(m) - 1) * fonte:getHeight()
+        return linhasDe(m, LARGURA_MSG, fontePequena) * fontePequena:getHeight() + 2
     end
 
-    -- de tras para a frente, enquanto couber na area (MAX_LINHAS * 28 pixeis)
+    -- de tras para a frente, enquanto couber na zona do log
     local inicio, usada = fim + 1, 0
     while inicio > 1 do
         local h = alturaDe(mensagens[inicio - 1])
-        if usada + h > MAX_LINHAS * 28 then
+        if usada + h > LOG_FIM - LOG_Y then
             break
         end
         usada = usada + h
@@ -653,6 +667,7 @@ function combate.desenhar()
     if inicio > fim and fim >= 1 then
         inicio = fim -- uma mensagem enorme tambem tem de aparecer
     end
+
     local ativos = {}
     for _, id in ipairs(efeitos.ordem) do
         local t = jogador.efeitos[id]
@@ -665,37 +680,64 @@ function combate.desenhar()
         table.insert(ativos, {0.6, 0.8, 1})
         table.insert(ativos, "Guarda")
     end
-    if #ativos > 0 then
-        love.graphics.print(ativos, 200, 50)
-    end
-    local frInimigo = inimigo.vida / inimigo.vida_max
-    love.graphics.print({inimigo.cor or {1, 1, 1}, inimigo.nome, {1, 1, 1}, "   Vida: ", cores.daVida(frInimigo),
-                         inimigo.vida .. "/" .. inimigo.vida_max}, 20, 20)
 
+    ---------- HUD, cena e log: tudo com a fonte pequena ----------
+    love.graphics.setFont(fontePequena)
+
+    -- jogador (esquerda)
     local frJogador = jogador.vida / jogador.vida_max
     love.graphics.print({{1, 1, 1}, "Tu   Vida: ", cores.daVida(frJogador), jogador.vida .. "/" .. jogador.vida_max},
-        20, 45)
+        20, 4)
+    if not sprites.barra(20, 20, mostradaJogador, 3) then
+        cores.barra(20, 28, 240, 12, mostradaJogador) -- plano B se nao houver imagem
+    end
+    if #ativos > 0 then
+        love.graphics.print(ativos, 172, 32) -- ao lado da barra
+    end
 
-    cores.barra(420, 24, 140, 16, mostradaInimigo)
-    cores.barra(420, 47, 140, 16, mostradaJogador)
+    -- inimigo (direita)
+    local frInimigo = inimigo.vida / inimigo.vida_max
+    love.graphics.print({inimigo.cor or {1, 1, 1}, inimigo.nome, {1, 1, 1}, "   Vida: ", cores.daVida(frInimigo),
+                         inimigo.vida .. "/" .. inimigo.vida_max}, 380, 4)
+    local ini = "inimigo"
+    if not sprites.barra(380, 20, mostradaInimigo, 3, inimigo.boss and "azul" or "bronze") then
+        cores.barra(380, 28, 240, 12, mostradaInimigo)
+    end
 
-    local y = 95
+    -- sombras no chao
+    love.graphics.setColor(0, 0, 0, 0.35)
+    love.graphics.ellipse("fill", JOGADOR_X, CENA_Y, 40, 8)
+    love.graphics.ellipse("fill", INIMIGO_X, CENA_Y, 48, 9)
+    love.graphics.setColor(1, 1, 1)
+
+    -- personagens: o centro fica acima do chao, a distancia de meia imagem ampliada
+    sprites.desenhar(sprites.caminhoClasse(jogador.classe), JOGADOR_X, CENA_Y - 40, 4)
+    local escalaI = inimigo.boss and 8 or 6
+    sprites.desenhar(sprites.caminhoInimigo(inimigo), INIMIGO_X, CENA_Y - 8 * escalaI, escalaI, 6, inimigo.espelhar)
+
+    -- log
+    local y = LOG_Y
     for i = inicio, fim do
         love.graphics.printf(mensagens[i], 20, y, LARGURA_MSG)
         y = y + alturaDe(mensagens[i])
     end
-
-    if deslocamento > 0 then
-        love.graphics.print("^ mais recente: R1", 380, 70)
-    end
     if inicio > 1 then
-        love.graphics.print("v mais antigo: L1", 20, 70)
+        love.graphics.print("v mais antigo: L1", 20, LOG_Y - 17)
     end
+    if deslocamento > 0 then
+        love.graphics.print("^ mais recente: R1", 450, LOG_Y - 17)
+    end
+
+    love.graphics.setFont(normal) -- daqui para baixo volta a fonte normal
 
     if fase == "escolha" then
         for i, texto in ipairs(opcoes) do
-            local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, PAINEL_X + (i - 1) * 28)
+            local y = PAINEL_X + (i - 1) * 28
+            if i == indice then
+                ui.cursorLinha(20, y, normal:getHeight())
+            end
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(texto, 60, y)
         end
     end
 
@@ -722,7 +764,7 @@ function combate.desenhar()
         end
 
         local function cabe(t)
-            return PAINEL_X + linhasDe(t, PAINEL_LARG) * fonte:getHeight() <= PAINEL_MAX_Y
+            return PAINEL_X + linhasDe(t, PAINEL_LARG) * normal:getHeight() <= PAINEL_MAX_Y
         end
 
         -- do mais completo para o mais curto: para ao primeiro que couber
@@ -738,34 +780,45 @@ function combate.desenhar()
         love.graphics.setColor(1, 1, 1)
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
-            local prefixo = (i == indiceLoot) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, 340 + (i - 1) * 32)
+            local y = 340 + (i - 1) * 32
+            if i == indiceLoot then
+                ui.cursorLinha(20, y, normal:getHeight())
+            end
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(texto, 60, y)
         end
     elseif fase == "pocao" then
         for i, p in ipairs(disponiveis) do
-            local prefixo = (i == indicePocao) and "> " or "  "
-            love.graphics.print(cores.nome(p, prefixo,
+            local y = 340 + (i - 1) * 32
+            if i == indicePocao then
+                ui.cursorLinha(20, y, normal:getHeight())
+            end
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(cores.nome(p, "",
                 " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
-                    jogador.vida_max .. ")"), 20, 340 + (i - 1) * 32)
+                    jogador.vida_max .. ")"), 60, y)
         end
         if confirmaPocao then
             local p = disponiveis[confirmaPocao]
             love.graphics.print(cores.nome(p, "Beber ", "? A confirma, outra tecla cancela"), 20, PAINEL_MAX_Y)
         else
-            love.graphics.print("A - beber   B - voltar", 20, PAINEL_MAX_Y)
+            sprites.ajuda({{"A", "beber"}, {"B", "voltar"}}, 20, PAINEL_MAX_Y)
         end
     elseif fase == "habilidade" then
         for i, h in ipairs(disponiveisHab) do
-            local prefixo = (i == indiceHab) and "> " or "  "
+            local y = PAINEL_X + (i - 1) * 28
             local cd = cooldowns[h.id] or 0
-            love.graphics.print({{1, 1, 1}, prefixo, h.cor, h.nome, {0.6, 0.6, 0.6},
-                                 (cd > 0) and ("  (pronta em " .. cd .. ")") or "  (pronta)"}, 20,
-                PAINEL_X + (i - 1) * 28)
+            if i == indiceHab then
+                ui.cursorLinha(20, y + 6, normal:getHeight())
+            end
+            ui.imagem(habilidades.caminhoIcone(h), 50, y, 2)
+            love.graphics.print({h.cor, h.nome, {0.6, 0.6, 0.6},
+                                 (cd > 0) and ("  (pronta em " .. cd .. ")") or "  (pronta)"}, 86, y)
         end
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(disponiveisHab[indiceHab].descricao, 20, PAINEL_MAX_Y)
     else
-        love.graphics.print("A - continuar", 20, PAINEL_MAX_Y)
+        sprites.ajuda({{"A", "continuar"}}, 20, PAINEL_MAX_Y)
     end
 end
 

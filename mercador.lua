@@ -16,21 +16,24 @@ mercador.TREINO = {
         base = 120,
         passo = 40,
         ganho = 5,
-        texto = "vida maxima"
+        texto = "vida maxima",
+        icone = 659
     },
     ataque = {
         nome = "Treino de ataque",
         base = 400,
         passo = VALOR_BASE_FORJA,
         ganho = 1,
-        texto = "ataque"
+        texto = "ataque",
+        icone = 657
     },
     defesa = {
         nome = "Treino de defesa",
         base = 400,
         passo = VALOR_BASE_FORJA,
         ganho = 1,
-        texto = "defesa"
+        texto = "defesa",
+        icone = 664
     }
 }
 local ORDEM_TREINO = {"vida", "ataque", "defesa"}

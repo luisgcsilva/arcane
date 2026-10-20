@@ -8,12 +8,13 @@ return {
         cor = {0.4, 0.9, 0.4}
     },
     creeper = {
-        nome = "Creeper",
+        nome = "Ogre",
         vida = 8,
         ataque = 5,
         minSala = 1,
         biomas = {"cavernas"},
-        cor = {0.2, 0.8, 0.4}
+        cor = {0.2, 0.8, 0.4},
+        sprite = "brawny_ogre"
     },
     goblin = {
         nome = "Goblin",

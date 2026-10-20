@@ -1,4 +1,5 @@
 local armazem = require("armazem")
+local fontes = require("fontes")
 
 local registo = {}
 
@@ -76,7 +77,7 @@ function registo.desenhar()
     if not (registo.ativo and registo.visivel) then
         return
     end
-    fonte = fonte or love.graphics.newFont(12)
+    fonte = fontes.minima
     local anterior = love.graphics.getFont()
     love.graphics.setFont(fonte)
 

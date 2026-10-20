@@ -1,6 +1,9 @@
 local jogo = require("jogo")
 local jogador = require("jogador")
 local savegame = require("savegame")
+local ui = require("ui")
+local sprites = require("sprites")
+local habilidades = require("habilidades")
 
 local estado = {}
 
@@ -86,16 +89,23 @@ function estado.desenhar()
     end
 
     love.graphics.print("Subiste de nivel. Escolhe uma habilidade:", 20, 70)
+    local altura = love.graphics.getFont():getHeight()
     for i, h in ipairs(oferta) do
-        local prefixo = (i == indice) and "> " or "  "
-        love.graphics.print({{1, 1, 1}, prefixo, h.cor, h.nome}, 20, 120 + (i - 1) * 36)
+        local y = 120 + (i - 1) * 40
+        if i == indice then
+            ui.cursorLinha(20, y + (32 - altura) / 2, altura)
+        end
+        ui.imagem(habilidades.caminhoIcone(h), 56, y, 2)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print({h.cor, h.nome}, 96, y + (32 - altura) / 2)
     end
 
     local h = oferta[indice]
+    ui.detalhe(380, 100, 250, 290, habilidades.caminhoIcone(h), h.cor, {h.cor, h.nome}, h.descricao)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(h.descricao, 20, 270, 600)
-    love.graphics.print("Recarga: " .. h.cooldown .. " turnos", 20, 340)
-    love.graphics.print("A escolher", 20, 440)
+    love.graphics.printf("Recarga: " .. h.cooldown .. " turnos", 390, 346, 230, "center")
+    sprites.ajuda({{"A", "escolher"}}, 20, 440)
+
 end
 
 return estado

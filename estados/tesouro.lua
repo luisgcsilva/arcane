@@ -5,6 +5,8 @@ local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
 local cores = require("cores")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local tesouro = {}
 
@@ -13,6 +15,7 @@ local aberto
 local fase -- "fechado", "escolha" ou "aberto"
 local pendente -- item a espera de decisao
 local opcoes, acoes, indice
+local bauCheio -- true quando o bau abriu com moedas dentro
 
 local DOURADO = {1, 0.85, 0.2}
 local BRANCO = {1, 1, 1}
@@ -43,6 +46,7 @@ function tesouro.entrar()
     jogador.inimigo = nil
     mensagens = {}
     fase = "fechado"
+    bauCheio = false
     if not jogador.bau then
         jogador.bau = sortearBau()
     end
@@ -99,6 +103,7 @@ local function abrirBau()
 
     else
         jogador.ganharMoedas(bau.n)
+        bauCheio = true
         table.insert(mensagens, {DOURADO, "O bau esta cheio de moedas: +" .. bau.n .. "."})
     end
 
@@ -165,32 +170,49 @@ function tesouro.desenhar()
     love.graphics.print("TESOURO", 20, 20)
     love.graphics.setColor(BRANCO)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
-    love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    -- love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
 
-    -- o bau: corpo e tampa
-    love.graphics.setColor(0.45, 0.3, 0.15)
-    love.graphics.rectangle("fill", 470, 220, 120, 70)
-    love.graphics.setColor((fase ~= "fechado") and {0.2, 0.15, 0.1} or {0.55, 0.38, 0.2})
-    love.graphics.rectangle("fill", 470, (fase ~= "fechado") and 195 or 200, 120, 25)
-    love.graphics.setColor(DOURADO)
-    love.graphics.rectangle("fill", 521, 238, 18, 18)
+    local caminho
+    if fase == "fechado" then
+        caminho = "imagens/itens/chest_closed.png"
+    elseif fase == "escolha" or bauCheio then
+        caminho = "imagens/itens/chest_open_full.png"
+    else
+        caminho = "imagens/itens/chest_open_empty.png"
+    end
+    local aberto = (fase ~= "fechado")
+    if not ui.imagem(caminho, 482, 190, 6) then
+        -- plano B: o bau de rectangulos de antes
+        love.graphics.setColor(0.45, 0.3, 0.15)
+        love.graphics.rectangle("fill", 470, 220, 120, 70)
+        love.graphics.setColor(aberto and {0.2, 0.15, 0.1} or {0.55, 0.38, 0.2})
+        love.graphics.rectangle("fill", 470, aberto and 195 or 200, 120, 25)
+        love.graphics.setColor(DOURADO)
+        love.graphics.rectangle("fill", 521, 238, 18, 18)
+    end
     love.graphics.setColor(BRANCO)
 
     if fase == "fechado" then
-        love.graphics.print("Um bau antigo, fechado. Pode ser uma armadilha...", 20, 110)
-        love.graphics.print("A - abrir o bau", 20, 440)
+        love.graphics.print("Um baú antigo, fechado. Pode ser uma armadilha...", 20, 110)
+        love.graphics.print("A - abrir o baú", 20, 440)
     else
         for i, linha in ipairs(mensagens) do
             love.graphics.print(linha, 20, 110 + (i - 1) * 32)
         end
         if fase == "escolha" then
+            local altura = love.graphics.getFont():getHeight()
             for i, texto in ipairs(opcoes) do
-                local prefixo = (i == indice) and "> " or "  "
-                love.graphics.print(prefixo .. texto, 20, 260 + (i - 1) * 32)
+                local y = 260 + (i - 1) * 32
+                if i == indice then
+                    ui.cursorLinha(20, y, altura)
+                end
+                love.graphics.print(texto, 60, y)
             end
-            love.graphics.print("A escolher  X pocoes  SELECT mochila", 20, 440)
+            sprites.ajuda({{"A", "escolher", "X", "poções", "SELECT", "mochila"}}, 20, 440)
         else
-            love.graphics.print("A seguir  X pocoes  SELECT mochila", 20, 440)
+            sprites.ajuda({{"A", "seguir", "X", "poções", "SELECT", "mochila"}}, 20, 440)
+
         end
     end
 end

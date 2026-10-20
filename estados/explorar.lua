@@ -10,6 +10,8 @@ local mercador = require("mercador")
 local registo = require("registo")
 local reliquias = require("reliquias")
 local bencoes = require("bencoes")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local explorar = {}
 local inimigo
@@ -65,56 +67,79 @@ function explorar.acao(a)
 end
 
 function explorar.desenhar()
-    love.graphics.print("Sala " .. jogador.sala, 20, 20)
-    love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(jogador.vida / jogador.vida_max),
-                         jogador.vida .. "/" .. jogador.vida_max}, 20, 80)
-    cores.barra(180, 83, 200, 16, jogador.vida / jogador.vida_max)
-    love.graphics.print("Nivel: " .. jogador.nivel .. "   Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " ..
-                            jogador.defesaTotal(), 130, 50)
-    love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
+    local fonte = love.graphics.getFont()
+    local c = jogador.defClasse()
+    local fr = jogador.vida / jogador.vida_max
+    local CINZA = {0.5, 0.5, 0.5}
+
+    -- titulo numa faixa e moedas
+    ui.faixa(20, 10, 200, 3)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.printf("Sala " .. jogador.sala, 20, 10 + (39 - fonte:getHeight()) / 2, 200, "center")
+    -- love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
+    
+    ---------- painel do jogador (esquerda) ----------
+    ui.painel("ouro", 10, 64, 400, 312, 2, ui.FUNDO)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro", {1, 1, 1}, "   Nivel " .. jogador.nivel}, 28, 78)
+    love.graphics.print("Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " .. jogador.defesaTotal(), 28, 108)
+
+    if not sprites.barra(28, 142, fr, 3) then
+        cores.barra(28, 148, 144, 16, fr) -- plano B
+    end
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print({{1, 1, 1}, "Vida: ", cores.daVida(fr), jogador.vida .. "/" .. jogador.vida_max}, 182,
+        142 + (33 - fonte:getHeight()) / 2)
+
     local arma, armadura = jogador.arma, jogador.armadura
-    love.graphics.print(
-        arma and loot.nomeColorido(arma, "Arma: ", " (" .. jogador.textoBonus(arma) .. ")") or "Arma: -", 20, 110)
-    love.graphics.print(armadura and
-                            loot.nomeColorido(armadura, "Armadura: ", " (" .. jogador.textoBonus(armadura) .. ")") or
-                            "Armadura: -", 20, 140)
+    ui.ranhura("arma", arma, arma and loot.nomeColorido(arma, "Arma: ", " (" .. jogador.textoBonus(arma) .. ")") or
+        {CINZA, "Arma: -"}, 28, 192, 320)
+    ui.ranhura("armadura", armadura,
+        armadura and loot.nomeColorido(armadura, "Armadura: ", " (" .. jogador.textoBonus(armadura) .. ")") or
+            {CINZA, "Armadura: -"}, 28, 248, 320)
+
     if jogador.bencao then
         local b = bencoes.porId(jogador.bencao.id)
-        love.graphics.print({{1, 1, 1}, "Bencao: ", b.cor, b.nome, {1, 1, 1},
-                             " (" .. jogador.bencao.restantes .. " salas)"}, 20, 170)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf({{1, 1, 1}, "Bencao: ", b.cor, b.nome, {1, 1, 1},
+                              " (" .. jogador.bencao.restantes .. " salas)"}, 28, 306, 368)
     end
 
-    local c = jogador.defClasse()
+    ---------- painel do que encontraste (direita) ----------
+    ui.painel("ouro", 420, 64, 210, 312, 2, ui.FUNDO)
+    local cx = 525
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro", {1, 1, 1}}, 20, 50)
-
-    local partes = {}
-    for _, p in ipairs(pocoes.lista) do
-        table.insert(partes, p.nome .. " x" .. jogador.quantas(p.id))
-    end
-    local texto = {}
-    for i, p in ipairs(pocoes.lista) do
-        if i > 1 then
-            table.insert(texto, {1, 1, 1})
-            table.insert(texto, "   ")
-        end
-        table.insert(texto, p.cor)
-        table.insert(texto, p.nome .. " x" .. jogador.quantas(p.id))
-    end
-
     if not inimigo then
-        love.graphics.print({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 20, 240)
-    elseif inimigo.boss then
-        love.graphics.print(cores.nome(inimigo, "CHEFE: ", "!"), 20, 240)
-    elseif inimigo.elite then
-        love.graphics.print(cores.nome(inimigo, "ELITE: ", "!"), 20, 240)
+        -- mercador: o icone da bolsa
+        love.graphics.setColor(0, 0, 0, 0.35)
+        love.graphics.ellipse("fill", cx, 208, 40, 8)
+        ui.slot("bolsa", cx - 32, 144, 4)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf({{1, 0.85, 0.2}, "Um mercador oferece os seus produtos."}, 434, 228, 182, "center")
     else
-        love.graphics.print(cores.nome(inimigo, "Apareceu um ", "!"), 20, 240)
+        local escala = inimigo.boss and 8 or 6
+        love.graphics.setColor(0, 0, 0, 0.35)
+        love.graphics.ellipse("fill", cx, 208, 8 * escala, 1.5 * escala)
+        sprites.desenhar(sprites.caminhoInimigo(inimigo), cx, 208 - 8 * escala, escala, 6, inimigo.espelhar)
+
+        local texto
+        if inimigo.boss then
+            texto = cores.nome(inimigo, "CHEFE: ", "!")
+        elseif inimigo.elite then
+            texto = cores.nome(inimigo, "ELITE: ", "!")
+        else
+            texto = cores.nome(inimigo, "Apareceu um ", "!")
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf(texto, 434, 228, 182, "center")
     end
+
+    love.graphics.setColor(1, 1, 1)
     if inimigo then
-        love.graphics.print("A lutar  X pocoes  SELECT mochila  B menu", 20, 440)
+        sprites.ajuda({{"A", "lutar"}, {"X", "pocoes"}, {"SELECT", "mochila"}, {"B", "menu"}}, 20, 446)
     else
-        love.graphics.print("A continuar   L2 ajuda", 20, 440)
+        sprites.ajuda({{"A", "continuar"}, {"Y", "loja"}, {"L2", "ajuda"}}, 20, 446)
     end
 end
 

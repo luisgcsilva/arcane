@@ -3,6 +3,8 @@ local jogador = require("jogador")
 local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local fogueira = {}
 
@@ -97,30 +99,39 @@ function fogueira.desenhar()
     love.graphics.print("FOGUEIRA", 20, 20)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
-    love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    -- love.graphics.print({DOURADO, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
 
-    -- uma fogueira simples feita de triangulos
-    love.graphics.setColor(1, 0.5, 0.1)
-    love.graphics.polygon("fill", 540, 190, 500, 290, 580, 290)
-    love.graphics.setColor(1, 0.85, 0.2)
-    love.graphics.polygon("fill", 540, 230, 520, 290, 560, 290)
-    love.graphics.setColor(0.35, 0.22, 0.1)
-    love.graphics.rectangle("fill", 490, 290, 100, 12)
+    if not ui.imagem("imagens/itens/fa23.png", 492, 196, 6) then
+        love.graphics.setColor(1, 0.5, 0.1)
+        love.graphics.polygon("fill", 540, 190, 500, 290, 580, 290)
+        love.graphics.setColor(1, 0.85, 0.2)
+        love.graphics.polygon("fill", 540, 230, 520, 290, 560, 290)
+        love.graphics.setColor(0.35, 0.22, 0.1)
+        love.graphics.rectangle("fill", 490, 290, 100, 12)
+    end
     love.graphics.setColor(1, 1, 1)
 
     love.graphics.print("Uma fogueira ainda acesa. So podes fazer uma coisa.", 20, 100)
 
     if not feito then
         local opcoes = {"Descansar (+" .. curaReal() .. " vida)", "Afiar a arma (+1 ataque)", "Seguir caminho"}
+        local altura = love.graphics.getFont():getHeight()
         for i, texto in ipairs(opcoes) do
-            local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(prefixo .. texto, 20, 160 + (i - 1) * 36)
+            local y = 160 + (i - 1) * 36
+            if i == indice then
+                ui.cursorLinha(20, y, altura)
+            end
+            love.graphics.print(texto, 60, y)
         end
     end
 
     love.graphics.print(aviso, 20, 380)
-    love.graphics.print(feito and "A seguir  X pocoes  SELECT mochila" or "A escolher  X pocoes  SELECT mochila", 20,
-        440)
+    if feito then
+        sprites.ajuda({{"A", "seguir", "X", "poções", "SELECT", "mochila"}}, 20, 440)
+    else
+        sprites.ajuda({{"A", "escolher", "X", "poções", "SELECT", "mochila"}}, 20, 440)
+    end
 end
 
 return fogueira

@@ -150,4 +150,17 @@ function bencoes.sortearOferta(n)
     return oferta
 end
 
+local ICONES = {
+    furia = 1007,
+    muralha = 664,
+    fortuna = 668,
+    passoleve = 1854,
+    vigor = 659
+}
+
+function bencoes.caminhoIcone(b)
+    local n = ICONES[b.id]
+    return n and ("imagens/itens/fa" .. n .. ".png") or nil
+end
+
 return bencoes

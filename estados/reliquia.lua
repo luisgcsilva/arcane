@@ -3,6 +3,8 @@ local jogador = require("jogador")
 local reliquias = require("reliquias")
 local salas = require("salas")
 local savegame = require("savegame")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local estado = {}
 
@@ -91,13 +93,21 @@ function estado.desenhar()
     end
 
     love.graphics.print("O chefe deixa algo para tras. Escolhe uma:", 20, 70)
+    local altura = love.graphics.getFont():getHeight()
     for i, r in ipairs(oferta) do
-        local prefixo = (i == indice) and "> " or "  "
-        love.graphics.print({{1, 1, 1}, prefixo, r.cor, r.nome}, 20, 120 + (i - 1) * 36)
+        local y = 110 + (i - 1) * 40
+        if i == indice then
+            ui.cursorLinha(20, y + (32 - altura) / 2, altura)
+        end
+        ui.imagem(reliquias.caminhoIcone(r), 56, y, 2)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print({r.cor, r.nome}, 96, y + (32 - altura) / 2)
     end
 
-    love.graphics.printf(oferta[indice].descricao, 20, 270, 600)
-    love.graphics.print("A escolher  X pocoes  SELECT mochila", 20, 440)
+    local r = oferta[indice]
+    ui.detalhe(380, 100, 250, 290, reliquias.caminhoIcone(r), r.cor, {r.cor, r.nome}, r.descricao)
+    love.graphics.setColor(1, 1, 1)
+    sprites.ajuda({{"A", "escolher"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
 end
 
 return estado

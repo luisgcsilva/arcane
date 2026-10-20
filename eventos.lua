@@ -19,10 +19,6 @@ local function chancePonte()
     return math.min(0.9, 0.4 + 0.03 * jogador.defesaTotal())
 end
 
-local function precoTreinador()
-    return preco(60, 10)
-end
-
 -- Perde vida sem nunca matar (deixa sempre pelo menos 1). Devolve o dano real.
 local function perder(n)
     local dano = math.max(0, math.min(n, jogador.vida - 1))
@@ -34,6 +30,10 @@ end
 -- preco que cresce com a sala
 local function preco(base, porSala)
     return base + porSala * jogador.sala
+end
+
+local function precoTreinador()
+    return preco(60, 10)
 end
 
 -- quantas moedas o ladrao leva: 15% da bolsa, no minimo 5 (nunca mais do que tens)

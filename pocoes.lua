@@ -9,6 +9,7 @@ pocoes.lista = {{
     cura = 10,
     peso = 60,
     preco = 12,
+    icone = 276,
     cor = {1, 0.45, 0.45}
 }, {
     id = "media",
@@ -16,6 +17,7 @@ pocoes.lista = {{
     cura = 18,
     peso = 28,
     preco = 20,
+    icone = 281,
     cor = {1, 0.3, 0.3}
 }, {
     id = "grande",
@@ -23,6 +25,7 @@ pocoes.lista = {{
     cura = 30,
     peso = 12,
     preco = 34,
+    icone = 272,
     cor = {1, 0.15, 0.15}
 }}
 
@@ -39,6 +42,11 @@ function pocoes.sortear()
         end
         sorte = sorte - p.peso
     end
+end
+
+-- Caminho do icone de uma pocao
+function pocoes.caminhoIcone(p)
+    return p.icone and ("imagens/itens/fa" .. p.icone .. ".png") or nil
 end
 
 return pocoes

@@ -3,6 +3,8 @@ local jogador = require("jogador")
 local cores = require("cores")
 local savegame = require("savegame")
 local registo = require("registo")
+local sprites = require("sprites")
+local ui = require("ui")
 
 local pocoes = {}
 
@@ -54,7 +56,7 @@ function pocoes.acao(a)
     elseif a == "confirmar" then
         local p = lista[indice]
         if jogador.vida >= jogador.vida_max then
-            aviso = "Ja tens a vida cheia."
+            aviso = "Já tens a vida cheia."
         elseif pendente ~= indice then
             pendente = indice -- primeiro A: so pede confirmacao
             aviso = ""
@@ -71,24 +73,35 @@ end
 
 function pocoes.desenhar()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("POCOES", 20, 20)
+    love.graphics.print("POÇÕES", 20, 20)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
 
     if #lista == 0 then
-        love.graphics.print("(nao tens pocoes)", 20, 140)
+        love.graphics.print("(nao tens poções)", 20, 140)
     else
+        local altura = love.graphics.getFont():getHeight()
         for i, p in ipairs(lista) do
-            local prefixo = (i == indice) and "> " or "  "
-            love.graphics.print(cores.nome(p, prefixo,
-                " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
-                    jogador.vida_max .. ")"), 20, 140 + (i - 1) * 32)
-            if pendente and lista[pendente] then
-                love.graphics.print(cores.nome(lista[pendente], "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
-            else
-                love.graphics.print("A - beber   B - fechar", 20, 440)
+            local y = 140 + (i - 1) * 40
+            if i == indice then
+                ui.cursor(20, y + (altura - 18) / 2, 2)
             end
+            if p.icone then
+                ui.imagem("imagens/itens/fa" .. p.icone .. ".png", 56, y + (altura - 32) / 2, 2)
+            end
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.print(cores.nome(p, "",
+                " x" .. jogador.quantas(p.id) .. " (+" .. jogador.curaDe(p) .. " vida -> " .. jogador.vidaApos(p) .. "/" ..
+                    jogador.vida_max .. ")"), 96, y)
         end
     end
+
+    love.graphics.setColor(1, 1, 1)
+    if pendente and lista[pendente] then
+        love.graphics.print(cores.nome(lista[pendente], "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
+    else
+        sprites.ajuda({{"A", "continuar"}, {"B", "fechar"}}, 20, 440)
+    end
+    love.graphics.printf(aviso, 20, 390, 600)
 end
 
 return pocoes

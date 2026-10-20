@@ -1,5 +1,31 @@
 local reliquias = {}
 
+local ICONES = {
+    bolsa = 158,
+    anel = 1845,
+    frasco = 123,
+    espinhos = 1813,
+    pedra = 217,
+    carvalho = 2113,
+    coracao = 595,
+    botas = 1855,
+    cruz = 670,
+    amuleto = 2065,
+    placa = 1932,
+    coracao_troll = 659,
+    regeneracao = 1847,
+    avarento = 1836,
+    espinhos_maior = 2050,
+    elmo = 1906,
+    ancestral = 1735,
+    tita = 322
+}
+
+function reliquias.caminhoIcone(r)
+    local n = ICONES[r.id]
+    return n and ("imagens/itens/fa" .. n .. ".png") or nil
+end
+
 -- Dados: para acrescentar uma reliquia, basta uma entrada nova.
 -- mods: valores que o jogo soma (moedas, ataque, defesa, fuga, espinhos).
 -- aoObter / aoVencer: funcoes opcionais que recebem o jogador.

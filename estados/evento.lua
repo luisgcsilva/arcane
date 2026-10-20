@@ -4,6 +4,7 @@ local eventos = require("eventos")
 local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
+local ui = require("ui")
 
 local evento = {}
 
@@ -97,19 +98,23 @@ function evento.desenhar()
     love.graphics.print(ev.titulo, 20, 20)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
-    love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
+    ui.moedas(420, 20, jogador.moedas)
+    -- love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
 
     love.graphics.printf(ev.texto, 20, 100, 600)
 
     if not feito then
+        local altura = love.graphics.getFont():getHeight()
         for i, op in ipairs(opcoesDe(ev)) do
-            local prefixo = (i == indice) and "> " or "  "
             local y = 200 + (i - 1) * 36
+            if i == indice then
+                ui.cursorLinha(20, y, altura)
+            end
             if op.colorido then
-                love.graphics.print(op.colorido(prefixo), 20, y)
+                love.graphics.print(op.colorido(""), 60, y)
             else
                 local texto = (type(op.texto) == "function") and op.texto() or op.texto
-                love.graphics.print(prefixo .. texto, 20, y)
+                love.graphics.print(texto, 60, y)
             end
         end
     end

@@ -3,6 +3,8 @@ local jogador = require("jogador")
 local recordes = require("recordes")
 local historico = require("historico")
 local savegame = require("savegame")
+local ui = require("ui")
+local sprites = require("sprites")
 
 local final = {}
 
@@ -50,14 +52,20 @@ function final.desenhar()
     love.graphics.print("Dano causado: " .. s.dano_causado .. "   Dano sofrido: " .. s.dano_sofrido, 20, 160)
     love.graphics.print("Pocoes usadas: " .. s.pocoes, 20, 190)
 
+    local altura = love.graphics.getFont():getHeight()
     for i, texto in ipairs(opcoes) do
-        local prefixo = (i == indice) and "> " or "  "
-        love.graphics.print(prefixo .. texto, 20, 250 + (i - 1) * 32)
+        local y = 250 + (i - 1) * 32
+        if i == indice then
+            ui.cursorLinha(20, y, altura)
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(texto, 60, y)
     end
+
     if pendente then
-        love.graphics.print("Terminar apaga esta gravacao. A outra vez confirma.", 20, 340)
+        love.graphics.print("Terminar apaga esta gravação. A outra vez confirma.", 20, 340)
     end
-    love.graphics.print("Cima/baixo  A escolher", 20, 440)
+    sprites.ajuda({{"CIMABAIXO", "Cima/Baixo"}, {"A", "escolher"}}, 20, 440)
 end
 
 return final
