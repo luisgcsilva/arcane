@@ -558,13 +558,13 @@ local function resumir(c, rs)
 
     local linhas = {}
     table.insert(linhas,
-        string.format("%s: sala media %.1f, mediana %d, melhor %d, chegaram ao fim: %d", c.nome, soma / n,
+        string.format("%s: sala média %.1f, mediana %d, melhor %d, chegaram ao fim: %d", c.nome, soma / n,
             salasAt[math.ceil(n / 2)], salasAt[n], vivos))
     table.insert(linhas,
         string.format("  Chegou a sala 10: %.0f%%   20: %.0f%%   30: %.0f%%   40: %.0f%%", alcancou(10), alcancou(20),
             alcancou(30), alcancou(40)))
     table.insert(linhas,
-        string.format("  No fim: nivel %.1f, vida max %.0f, moedas %.0f", nivel / n, vmax / n, moedas / n))
+        string.format("  No fim: nível %.1f, vida máx %.0f, moedas %.0f", nivel / n, vmax / n, moedas / n))
     table.insert(linhas,
         string.format("  Morreu em: combate %.0f%%, elite %.0f%%, chefe %.0f%%", pm(tipos.normal), pm(tipos.elite),
             pm(tipos.boss)))
@@ -612,7 +612,7 @@ end
 -- Corre n partidas por classe. Devolve as linhas de resumo e o texto do CSV.
 function simulacao.correr(n)
     math.randomseed(SEMENTE)
-    local linhas = {string.format("Simulacao: %d partidas por classe, semente %d, ate a sala %d", n, SEMENTE, MAX_SALA),
+    local linhas = {string.format("Simulação: %d partidas por classe, semente %d, até à sala %d", n, SEMENTE, MAX_SALA),
                     ""}
     local csv = {CABECALHO}
 

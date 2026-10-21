@@ -38,7 +38,7 @@ function estado.desenhar()
     love.graphics.setFont(fonte)
 
     if #historico.partidas == 0 then
-        love.graphics.print("(ainda não ha partidas registadas)", 20, 60)
+        love.graphics.print("(ainda não há partidas registadas)", 20, 60)
     end
 
     local altura = fonte:getHeight()

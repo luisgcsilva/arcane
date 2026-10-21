@@ -13,8 +13,8 @@ intencoes.lista = {
                acerto = " desfere o golpe carregado e causa-te " },
 
   carregar = { golpes = {}, carrega = true, cor = { 1, 0.6, 0.2 },
-               texto = "esta a carregar um golpe forte",
-               frase = "levanta a arma bem alto... o proximo golpe vai doer!" },
+               texto = "está a carregar um golpe forte",
+               frase = "levanta a arma bem alto... o próximo golpe vai doer!" },
 
   duplo    = { golpes = { 0.6, 0.6 }, cor = { 1, 0.85, 0.3 },
                texto = "vai atacar duas vezes", acerto = " golpeia e causa-te " },
@@ -24,7 +24,7 @@ intencoes.lista = {
                acerto = " perfura a tua armadura e causa-te " },
 
   curar    = { golpes = {}, cura = 0.15, cor = { 0.5, 1, 0.6 },
-               texto = "vai recuperar forcas", frase = "recupera forcas" },
+               texto = "vai recuperar forças", frase = "recupera forças" },
 }
 
 function intencoes.existe(id)

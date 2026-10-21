@@ -5,6 +5,7 @@ local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
 local ui = require("ui")
+local sprites = require("sprites")
 
 local evento = {}
 
@@ -120,8 +121,11 @@ function evento.desenhar()
     end
 
     love.graphics.printf(aviso, 20, 370, 600)
-    love.graphics.print(feito and "A seguir  X pocoes  SELECT mochila" or "A escolher  X pocoes  SELECT mochila", 20,
-        440)
+    if feito then
+        sprites.ajuda({{"A", "seguir"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
+    else
+        sprites.ajuda({{"A", "escolher"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
+    end
 end
 
 return evento

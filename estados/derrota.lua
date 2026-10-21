@@ -5,6 +5,7 @@ local cores = require("cores")
 local savegame = require("savegame")
 local historico = require("historico")
 local dificuldade = require("dificuldade")
+local sprites = require("sprites")
 
 local derrota = {}
 
@@ -36,7 +37,7 @@ function derrota.desenhar()
     love.graphics.print("Inimigos vencidos: " .. s.inimigos .. "  (chefes: " .. s.chefes .. ")", 20, 106)
     love.graphics.print("Dano causado: " .. s.dano_causado, 20, 142)
     love.graphics.print("Dano sofrido: " .. s.dano_sofrido, 20, 178)
-    love.graphics.print("Pocoes usadas: " .. s.pocoes, 20, 214)
+    love.graphics.print("Poções usadas: " .. s.pocoes, 20, 214)
 
     if novoRecorde then
         love.graphics.setColor(1, 0.85, 0.2)
@@ -47,7 +48,7 @@ function derrota.desenhar()
     end
     love.graphics.print("Partidas jogadas: " .. d.partidas, 20, 316)
 
-    love.graphics.print("A - menu", 20, 440)
+    sprites.ajuda({{"A", "menu"}}, 20, 440)
 end
 
 return derrota

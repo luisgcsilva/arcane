@@ -28,7 +28,7 @@ function fogueira.entrar()
     indice = 1
     aviso = ""
     feito = false
-    registo.add("  [fogueira] cura possivel: " .. curaReal())
+    registo.add("  [fogueira] cura possível: " .. curaReal())
     savegame.gravar()
 end
 
@@ -74,7 +74,7 @@ function fogueira.acao(a)
     elseif a == "confirmar" then
         if indice == 1 then
             if jogador.vida >= jogador.vida_max then
-                aviso = "Ja tens a vida cheia."
+                aviso = "Já tens a vida cheia."
             else
                 local cura = curaReal()
                 jogador.vida = jogador.vida + cura
@@ -82,10 +82,10 @@ function fogueira.acao(a)
             end
         elseif indice == 2 then
             if not jogador.arma then
-                aviso = "Nao tens nenhuma arma equipada."
+                aviso = "Não tens nenhuma arma equipada."
             else
                 jogador.forja.arma = jogador.forja.arma + 1
-                concluir("Afias " .. jogador.arma.nome .. ": agora e " .. jogador.textoBonus(jogador.arma) ..
+                concluir("Afias " .. jogador.arma.nome .. ": agora é " .. jogador.textoBonus(jogador.arma) ..
                              " de ataque.")
             end
         else
@@ -112,7 +112,7 @@ function fogueira.desenhar()
     end
     love.graphics.setColor(1, 1, 1)
 
-    love.graphics.print("Uma fogueira ainda acesa. So podes fazer uma coisa.", 20, 100)
+    love.graphics.print("Uma fogueira ainda acesa. Só podes fazer uma coisa.", 20, 100)
 
     if not feito then
         local opcoes = {"Descansar (+" .. curaReal() .. " vida)", "Afiar a arma (+1 ataque)", "Seguir caminho"}

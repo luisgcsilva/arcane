@@ -9,27 +9,27 @@ local CB = "CIMABAIXO"
 -- Dados: {{teclas}, "o que faz"}. Para ajuda de um ecra novo, basta uma entrada
 -- (a chave e o nome com que o estado foi registado).
 local dados = {
-    menu = {{{"DPAD"}, "escolher"}, {{"A"}, "confirmar"}},
-    classes = {{{CB}, "ver classes"}, {{"A"}, "escolher"}, {{"B"}, "voltar"}},
-    portas = {{{"ESQDIR"}, "escolher a porta"}, {{"A"}, "abrir"}, {{"X"}, "pocoes"}, {{"SELECT"}, "mochila"},
-              {{"B"}, "menu"}},
-    explorar = {{{"A"}, "lutar (ou seguir, na loja)"}, {{"Y"}, "abrir a loja"}, {{"X"}, "pocoes"},
-                {{"SELECT"}, "mochila"}, {{"B"}, "menu"}},
-    combate = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"B"}, "voltar (nas pocoes)"},
-               {{"L1", "R1"}, "ler o registo do combate"}, {{}, "Habilidade: usa uma habilidade (recarga em turnos)"},
-               {{}, "Painel a direita: o que o inimigo vai fazer"}},
+    menu = {{{"DPAD"}, "Escolher"}, {{"A"}, "Confirmar"}},
+    classes = {{{CB}, "Ver Classes"}, {{"A"}, "Escolher"}, {{"B"}, "Voltar"}},
+    portas = {{{"ESQDIR"}, "Escolher a Porta"}, {{"A"}, "Abrir"}, {{"X"}, "Poções"}, {{"SELECT"}, "Mochila"},
+              {{"B"}, "Menu"}},
+    explorar = {{{"A"}, "Lutar (ou seguir, na loja)"}, {{"Y"}, "Abrir a Loja"}, {{"X"}, "Poções"},
+                {{"SELECT"}, "Mochila"}, {{"B"}, "Menu"}},
+    combate = {{{CB}, "Escolher"}, {{"A"}, "Confirmar"}, {{"B"}, "Voltar (nas poções)"},
+               {{"L1", "R1"}, "Ler o Registo do Combate"}, {{}, "Habilidade: usa uma habilidade (recarga em turnos)"},
+               {{}, "Painel à direita: o que o inimigo vai fazer"}},
     habilidade = {{{CB}, "escolher"}, {{"A"}, "aprender"}},
     loja = {{{CB}, "escolher"}, {{"A"}, "comprar (2x para confirmar)"}, {{"SELECT"}, "vender na mochila"},
             {{"B"}, "sair"}},
-    inventario = {{{CB}, "escolher"}, {{"L1", "R1"}, "alternar equipamento/reliquias"}, {{"A"}, "equipar"},
-                  {{"X"}, "vender (2x)"}, {{"Y"}, "pocoes"}, {{"B", "SELECT"}, "fechar"}},
+    inventario = {{{CB}, "escolher"}, {{"L1", "R1"}, "alternar equipamento/relíquias"}, {{"A"}, "equipar"},
+                  {{"X"}, "vender (2x)"}, {{"Y"}, "poções"}, {{"B", "SELECT"}, "fechar"}},
     final = {{{CB}, "escolher"}, {{"A"}, "confirmar (2x para terminar)"}},
     pocoes = {{{CB}, "escolher"}, {{"A"}, "beber"}, {{"B"}, "fechar"}},
-    tesouro = {{{"A"}, "abrir o bau / escolher"}, {{"X"}, "pocoes"}, {{"SELECT"}, "mochila"}},
-    fogueira = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "pocoes"}, {{"SELECT"}, "mochila"}},
-    evento = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "pocoes"}, {{"SELECT"}, "mochila"}},
-    santuario = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "pocoes"}, {{"SELECT"}, "mochila"}},
-    reliquia = {{{CB}, "escolher"}, {{"A"}, "ficar com a reliquia"}},
+    tesouro = {{{"A"}, "abrir o baú / escolher"}, {{"X"}, "poções"}, {{"SELECT"}, "mochila"}},
+    fogueira = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "poções"}, {{"SELECT"}, "mochila"}},
+    evento = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "poções"}, {{"SELECT"}, "mochila"}},
+    santuario = {{{CB}, "escolher"}, {{"A"}, "confirmar"}, {{"X"}, "poções"}, {{"SELECT"}, "mochila"}},
+    reliquia = {{{CB}, "escolher"}, {{"A"}, "ficar com a relíquia"}},
     derrota = {{{"A"}, "voltar ao menu"}},
     historico = {{{CB}, "escolher"}, {{"B"}, "voltar"}}
 }
@@ -43,19 +43,19 @@ local TITULOS = {
     habilidade = "HABILIDADE",
     loja = "LOJA",
     inventario = "MOCHILA",
-    pocoes = "POCOES",
+    pocoes = "POÇÕES",
     tesouro = "TESOURO",
     fogueira = "FOGUEIRA",
     evento = "EVENTO",
-    reliquia = "RELIQUIA",
+    reliquia = "RELÍQUIA",
     derrota = "DERROTA",
-    historico = "HISTORICO",
-    final = "VITORIA",
-    santuario = "SANTUARIO"
+    historico = "HISTÓRICO",
+    final = "VITÓRIA",
+    santuario = "SANTUÁRIO"
 }
 
 local GERAL = {{{"START"}, "registo de salas (cima/baixo, L1/R1)"}, {{"L2"}, "esta ajuda"}, {{"A"}, "confirma"},
-               {{"B"}, "cancela"}, {{"DPAD"}, "move"}}
+               {{"B"}, "cancela"}, {{"DPAD"}, "mover"}}
 
 local COLUNA_TEXTO = 80 -- onde comeca o texto das linhas com teclas (cabem ate 2 icones)
 
@@ -121,7 +121,7 @@ function estado.desenhar()
     end
 
     love.graphics.setFont(normal)
-    sprites.ajuda({{"B", "fechar"}}, 20, 446)
+    sprites.ajuda({{"B", "Sair"}}, 20, 446)
 end
 
 return estado

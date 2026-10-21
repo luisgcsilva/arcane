@@ -83,16 +83,16 @@ end
 
 function estado.desenhar()
     love.graphics.setColor(ROXO)
-    love.graphics.print("RELIQUIA", 20, 20)
+    love.graphics.print("RELÍQUIA", 20, 20)
     love.graphics.setColor(1, 1, 1)
 
     if feito then
         love.graphics.print(aviso, 20, 100)
-        love.graphics.print("A seguir  X pocoes  SELECT mochila", 20, 440)
+        sprites.ajuda({{"A", "seguir"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 400)
         return
     end
 
-    love.graphics.print("O chefe deixa algo para tras. Escolhe uma:", 20, 70)
+    love.graphics.print("O chefe deixa algo para trás. Escolhe uma:", 20, 70)
     local altura = love.graphics.getFont():getHeight()
     for i, r in ipairs(oferta) do
         local y = 110 + (i - 1) * 40

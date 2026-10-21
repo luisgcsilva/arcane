@@ -77,7 +77,7 @@ function pocoes.desenhar()
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
 
     if #lista == 0 then
-        love.graphics.print("(nao tens poções)", 20, 140)
+        love.graphics.print("(não tens poções)", 20, 140)
     else
         local altura = love.graphics.getFont():getHeight()
         for i, p in ipairs(lista) do
@@ -97,7 +97,13 @@ function pocoes.desenhar()
 
     love.graphics.setColor(1, 1, 1)
     if pendente and lista[pendente] then
-        love.graphics.print(cores.nome(lista[pendente], "Beber ", "? A confirma, outra tecla cancela"), 20, 440)
+        local p = lista[pendente]
+        local fonte = love.graphics.getFont()
+        -- texto colorido, centrado na altura dos icones (32 px)
+        love.graphics.print(cores.nome(p, "Beber ", "?"), 20, 440 + (32 - fonte:getHeight()) / 2)
+        -- os icones comecam depois do texto
+        local x = 20 + fonte:getWidth("Beber " .. p.nome .. "?") + 20
+        sprites.ajuda({{"A", "confirmar"}, {"B", "cancelar"}}, x, 440)
     else
         sprites.ajuda({{"A", "continuar"}, {"B", "fechar"}}, 20, 440)
     end

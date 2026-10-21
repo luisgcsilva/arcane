@@ -57,7 +57,7 @@ reliquias.lista = {{
     nome = "Frasco Infinito",
     cor = {0.4, 0.9, 1},
     preco = 90,
-    descricao = "A primeira pocao de cada combate nao se gasta."
+    descricao = "A primeira poção de cada combate não se gasta."
 }, {
     id = "espinhos",
     nome = "Escudo Espinhoso",
@@ -87,10 +87,10 @@ reliquias.lista = {{
     }
 }, {
     id = "coracao",
-    nome = "Coracao de Pedra",
+    nome = "Coração de Pedra",
     cor = {0.75, 0.75, 0.8},
     preco = 100,
-    descricao = "+10 de vida maxima.",
+    descricao = "+10 de vida máxima.",
     aoObter = function(j)
         j.vida_max = j.vida_max + 10
         j.vida = j.vida + 10
@@ -130,17 +130,17 @@ reliquias.lista = {{
     }
 }, {
     id = "coracao_troll",
-    nome = "Coracao de Troll",
+    nome = "Coração de Troll",
     cor = {0.4, 0.7, 0.4},
     preco = 150,
-    descricao = "+20 de vida maxima.",
+    descricao = "+20 de vida máxima.",
     aoObter = function(j)
         j.vida_max = j.vida_max + 20
         j.vida = j.vida + 20
     end
 }, {
     id = "regeneracao",
-    nome = "Anel da Regeneracao",
+    nome = "Anel da Regeneração",
     cor = {1, 0.6, 0.8},
     preco = 140,
     descricao = "Curas 5 de vida depois de cada combate vencido.",
@@ -150,7 +150,7 @@ reliquias.lista = {{
             return nil
         end
         j.vida = j.vida + cura
-        return "Anel da Regeneracao: recuperas " .. cura .. " de vida."
+        return "Anel da Regeneração: recuperas " .. cura .. " de vida."
     end
 }, {
     id = "avarento",

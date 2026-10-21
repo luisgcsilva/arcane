@@ -31,10 +31,10 @@ habilidades.lista = { -- Guerreiro
 }, {
     id = "folego",
     classe = "guerreiro",
-    nome = "Segundo Folego",
+    nome = "Segundo Fôlego",
     cor = {1, 0.7, 0.4},
     cooldown = 5,
-    descricao = "Recuperas 30% da vida maxima.",
+    descricao = "Recuperas 30% da vida máxima.",
     usar = function(c)
         local n = c.curarPct(0.3)
         c.msg("Respiras fundo e recuperas " .. n .. " de vida.")
@@ -45,7 +45,7 @@ habilidades.lista = { -- Guerreiro
     nome = "Muralha",
     cor = {0.8, 0.8, 0.9},
     cooldown = 4,
-    descricao = "O proximo golpe do inimigo causa 75% menos dano.",
+    descricao = "O próximo golpe do inimigo causa 75% menos dano.",
     usar = function(c)
         c.proteger(0.75)
         c.msg("Ergues a guarda como uma muralha.")
@@ -57,13 +57,13 @@ habilidades.lista = { -- Guerreiro
     nome = "Ataque Duplo",
     cor = {0.5, 0.9, 0.6},
     cooldown = 3,
-    descricao = "Dois golpes rapidos, cada um com 1.2x de dano.",
+    descricao = "Dois golpes rápidos, cada um com 1.2x de dano.",
     usar = function(c)
         local total = c.atacar(1.2)
         if c.vivo() then
             total = total + c.atacar(1)
         end
-        c.msg("Dois golpes rapidos! Causas " .. total .. " de dano.")
+        c.msg("Dois golpes rápidos! Causas " .. total .. " de dano.")
     end
 }, {
     id = "sujo",
@@ -96,10 +96,10 @@ habilidades.lista = { -- Guerreiro
     nome = "Esquiva",
     cor = {0.5, 0.8, 0.9},
     cooldown = 5,
-    descricao = "Evitas por completo o proximo golpe do inimigo.",
+    descricao = "Evitas por completo o próximo golpe do inimigo.",
     usar = function(c)
         c.proteger(1)
-        c.msg("Preparas-te para esquivar o proximo golpe.")
+        c.msg("Preparas-te para esquivar o próximo golpe.")
     end
 }, -- Mago
 {
@@ -119,7 +119,7 @@ habilidades.lista = { -- Guerreiro
     nome = "Escudo Arcano",
     cor = {0.6, 0.7, 1},
     cooldown = 5,
-    descricao = "O proximo golpe causa 60% menos dano. Limpa veneno e sangramento.",
+    descricao = "O próximo golpe causa 60% menos dano. Limpa veneno e sangramento.",
     usar = function(c)
         c.proteger(0.6)
         local n = c.limparEfeitos()
@@ -131,7 +131,7 @@ habilidades.lista = { -- Guerreiro
     nome = "Cura Arcana",
     cor = {0.5, 1, 0.8},
     cooldown = 5,
-    descricao = "Recuperas 40% da vida maxima. Limpa veneno e sangramento.",
+    descricao = "Recuperas 40% da vida máxima. Limpa veneno e sangramento.",
     usar = function(c)
         local n = c.curarPct(0.4)
         local e = c.limparEfeitos()

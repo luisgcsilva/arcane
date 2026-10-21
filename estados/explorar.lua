@@ -82,7 +82,7 @@ function explorar.desenhar()
     ---------- painel do jogador (esquerda) ----------
     ui.painel("ouro", 10, 64, 400, 312, 2, ui.FUNDO)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro", {1, 1, 1}, "   Nivel " .. jogador.nivel}, 28, 78)
+    love.graphics.print({c.cor or {1, 1, 1}, c.nome or "Aventureiro", {1, 1, 1}, "   Nível " .. jogador.nivel}, 28, 78)
     love.graphics.print("Ataque: " .. jogador.ataqueTotal() .. "   Defesa: " .. jogador.defesaTotal(), 28, 108)
 
     if not sprites.barra(28, 142, fr, 3) then
@@ -102,7 +102,7 @@ function explorar.desenhar()
     if jogador.bencao then
         local b = bencoes.porId(jogador.bencao.id)
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf({{1, 1, 1}, "Bencao: ", b.cor, b.nome, {1, 1, 1},
+        love.graphics.printf({{1, 1, 1}, "Benção: ", b.cor, b.nome, {1, 1, 1},
                               " (" .. jogador.bencao.restantes .. " salas)"}, 28, 306, 368)
     end
 

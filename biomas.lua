@@ -9,7 +9,7 @@ biomas.lista = {{
     cor = {0.75, 0.6, 0.4}
 }, {
     id = "pantano",
-    nome = "Pantano",
+    nome = "Pântano",
     cor = {0.5, 0.8, 0.4}
 }, {
     id = "catacumbas",
@@ -29,7 +29,7 @@ biomas.lista = {{
     cor = {0.6, 0.85, 1}
 }, {
     id = "vulcao",
-    nome = "Vulcao",
+    nome = "Vulcão",
     cor = {1, 0.5, 0.2}
 }, {
     id = "afundada",

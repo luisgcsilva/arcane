@@ -190,7 +190,7 @@ function inventario.desenhar()
     -- love.graphics.print({OURO, "Moedas: " .. jogador.moedas}, 400, 20)
     ui.moedas(400, 20, jogador.moedas)
     local titulo = "MOCHILA (" .. n .. "/" .. jogador.MAX_ITENS .. ")"
-    local tituloR = "Reliquias (" .. #jogador.reliquias .. "/" .. #reliquias.lista .. ")"
+    local tituloR = "Relíquias (" .. #jogador.reliquias .. "/" .. #reliquias.lista .. ")"
     if aba == "equip" then
         love.graphics.print({OURO, titulo, CINZA, "   |   " .. tituloR}, 20, 20)
     else
@@ -205,7 +205,7 @@ function inventario.desenhar()
         ui.painel("ouro", 10, 60, 620, 270, 2, ui.FUNDO)
         love.graphics.setColor(1, 1, 1)
         if k == 0 then
-            love.graphics.printf("(ainda nao tens nenhuma. Os chefes oferecem uma.)", 36, 80, 568)
+            love.graphics.printf("(ainda não tens nenhuma. Os chefes oferecem uma.)", 36, 80, 568)
         end
         local primeiro = primeiroVisivel(indiceR, k, JANELA)
         for i = primeiro, math.min(k, primeiro + JANELA - 1) do
@@ -296,7 +296,7 @@ function inventario.desenhar()
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf({corAviso, aviso}, 20, 394, 600)
-    sprites.ajuda({{"A", "equipar"}, {"X", "vender"}, {"Y", "pocoes"}, {"B", "fechar"}}, 20, 446)
+    sprites.ajuda({{"A", "equipar"}, {"X", "vender"}, {"Y", "poções"}, {"B", "fechar"}}, 20, 446)
 end
 
 return inventario

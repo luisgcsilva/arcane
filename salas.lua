@@ -44,7 +44,7 @@ salas.lista = {{
     naoRepetir = true
 }, {
     id = "santuario",
-    nome = "Santuario",
+    nome = "Santuário",
     peso = 10,
     minSala = 11,
     naoRepetir = true

@@ -57,17 +57,17 @@ eventos.lista = {{
     id = "fonte",
     titulo = "A fonte misteriosa",
     minSala = 2,
-    texto = "Uma fonte de agua cristalina brilha no meio da sala. Sera segura?",
+    texto = "Uma fonte de água cristalina brilha no meio da sala. Será segura?",
     opcoes = {{
         texto = "Beber da fonte",
         efeito = function()
             if math.random() < 0.5 then
                 local cura = math.min(math.ceil(jogador.vida_max * 0.5), jogador.vida_max - jogador.vida)
                 jogador.vida = jogador.vida + cura
-                return "A agua e revigorante! Recuperas " .. cura .. " de vida."
+                return "A água é revigorante! Recuperas " .. cura .. " de vida."
             end
             local dano = perder(math.max(2, math.floor(jogador.vida_max * 0.2)))
-            return "A agua estava envenenada! Perdes " .. dano .. " de vida."
+            return "A água estava envenenada! Perdes " .. dano .. " de vida."
         end
     }, {
         texto = "Ignorar",
@@ -83,7 +83,7 @@ eventos.lista = {{
         efeito = function()
             local custo = math.floor(jogador.vida_max * 0.25)
             if jogador.vida - custo < 1 then
-                return "Estas demasiado fraco para isto.", true
+                return "Estás demasiado fraco para isto.", true
             end
             jogador.vida = jogador.vida - custo
             jogador.ataque_base = jogador.ataque_base + 1
@@ -91,15 +91,15 @@ eventos.lista = {{
                        jogador.ataque_base .. "."
         end
     }, {
-        texto = "Oferecer 100 moedas (+3 vida maxima)",
+        texto = "Oferecer 100 moedas (+3 vida máxima)",
         efeito = function()
             if jogador.moedas < 100 then
-                return "Nao tens moedas suficientes.", true
+                return "Não tens moedas suficientes.", true
             end
             jogador.moedas = jogador.moedas - 100
             jogador.vida_max = jogador.vida_max + 3
             jogador.vida = jogador.vida + 3
-            return "O altar aceita. Vida maxima +3."
+            return "O altar aceita. Vida máxima +3."
         end
     }, {
         texto = "Ignorar",
@@ -109,12 +109,12 @@ eventos.lista = {{
     id = "viajante",
     titulo = "O viajante dos dados",
     minSala = 2,
-    texto = "Um viajante encapuzado propoe um jogo: apostas 50 moedas e, se ganhares, ele paga o mesmo.",
+    texto = "Um viajante encapuzado propõe um jogo: apostas 50 moedas e, se ganhares, ele paga o mesmo.",
     opcoes = {{
         texto = "Apostar 50 moedas",
         efeito = function()
             if jogador.moedas < 50 then
-                return "Nao tens 50 moedas.", true
+                return "Não tens 50 moedas.", true
             end
             if math.random() < 0.45 then
                 jogador.ganharMoedas(50)
@@ -155,25 +155,25 @@ eventos.lista = {{
     }}
 }, {
     id = "poco",
-    titulo = "O poco dos desejos",
+    titulo = "O poço dos desejos",
     minSala = 2,
-    texto = "Um poco antigo com moedas no fundo. Dizem que quem deita uma moeda tem sorte.",
+    texto = "Um poço antigo com moedas no fundo. Dizem que quem deita uma moeda tem sorte.",
     opcoes = {{
         texto = "Deitar 50 moedas",
         efeito = function()
             if jogador.moedas < 50 then
-                return "Nao tens 10 moedas.", true
+                return "Não tens 10 moedas.", true
             end
             jogador.moedas = jogador.moedas - 50
             local sorte = math.random(100)
             if sorte <= 50 then
-                return "A agua fica em silencio. Nada acontece."
+                return "A água fica em silêncio. Nada acontece."
             elseif sorte <= 80 then
                 jogador.darPocao("pequena")
-                return "Algo borbulha e sobe a superficie: uma Pocao Pequena!"
+                return "Algo borbulha e sobe à superfície: uma Poção Pequena!"
             end
             jogador.ganharMoedas(150)
-            return "O poco devolve-te 150 moedas!"
+            return "O poço devolve-te 150 moedas!"
         end
     }, {
         texto = "Ignorar",
@@ -188,10 +188,10 @@ eventos.lista = {{
         texto = "Melhorar a arma (+1) por 50 moedas",
         efeito = function()
             if not jogador.arma then
-                return "Nao tens nenhuma arma equipada.", true
+                return "Não tens nenhuma arma equipada.", true
             end
             if jogador.moedas < 50 then
-                return "Nao tens 50 moedas.", true
+                return "Não tens 50 moedas.", true
             end
             jogador.moedas = jogador.moedas - 50
             jogador.forja.arma = jogador.forja.arma + 1
@@ -201,14 +201,14 @@ eventos.lista = {{
         texto = "Melhorar a armadura (+1) por 50 moedas",
         efeito = function()
             if not jogador.armadura then
-                return "Nao tens nenhuma armadura equipada.", true
+                return "Não tens nenhuma armadura equipada.", true
             end
             if jogador.moedas < 50 then
-                return "Nao tens 50 moedas.", true
+                return "Não tens 50 moedas.", true
             end
             jogador.moedas = jogador.moedas - 50
             jogador.forja.armadura = jogador.forja.armadura + 1
-            return jogador.armadura.nome .. " agora e " .. jogador.textoBonus(jogador.armadura) .. "."
+            return jogador.armadura.nome .. " agora é " .. jogador.textoBonus(jogador.armadura) .. "."
         end
     }, {
         texto = "Seguir caminho",
@@ -218,7 +218,7 @@ eventos.lista = {{
     id = "prisioneiro",
     titulo = "O prisioneiro",
     minSala = 4,
-    texto = "Um homem acorrentado pede-te que o soltes. Parece honesto... mas e tarde para desconfiar?",
+    texto = "Um homem acorrentado pede-te que o soltes. Parece honesto... mas é tarde para desconfiar?",
     opcoes = {{
         texto = "Libertar o prisioneiro",
         efeito = function()
@@ -226,7 +226,7 @@ eventos.lista = {{
                 local n = math.random(15, 25) + jogador.sala
                 jogador.ganharMoedas(n)
                 jogador.darPocao("pequena")
-                return "Agradecido, ele da-te " .. n .. " moedas e uma Pocao Pequena."
+                return "Agradecido, ele dá-te " .. n .. " moedas e uma Poção Pequena."
             end
             local dano = perder(math.max(3, math.floor(jogador.vida_max * 0.25)))
             return "Era uma armadilha! Emboscam-te e perdes " .. dano .. " de vida."
@@ -250,11 +250,11 @@ eventos.lista = {{
                 return "Sabem a mel! Recuperas " .. cura .. " de vida."
             elseif sorte <= 80 then
                 local dano = perder(math.max(2, math.floor(jogador.vida_max * 0.15)))
-                return "Sentes o estomago às voltas. Perdes " .. dano .. " de vida."
+                return "Sentes o estômago às voltas. Perdes " .. dano .. " de vida."
             end
             jogador.vida_max = jogador.vida_max + 2
             jogador.vida = jogador.vida + 2
-            return "Sentes-te mais forte! Vida maxima +2."
+            return "Sentes-te mais forte! Vida máxima +2."
         end
     }, {
         texto = "Ignorar",
@@ -264,7 +264,7 @@ eventos.lista = {{
     id = "treinador",
     titulo = "O treinador",
     minSala = 4,
-    texto = "Um veterano cansado oferece-se para te ensinar, por um preco justo.",
+    texto = "Um veterano cansado oferece-se para te ensinar, por um preço justo.",
     opcoes = {{
         texto = function()
             return "Treino de combate (+1 ataque) por " .. precoTreinador() .. " moedas"
@@ -276,7 +276,7 @@ eventos.lista = {{
         efeito = function()
             local p = precoTreinador()
             if jogador.moedas < p then
-                return "Nao tens " .. p .. " moedas.", true
+                return "Não tens " .. p .. " moedas.", true
             end
             jogador.moedas = jogador.moedas - p
             jogador.ataque_base = jogador.ataque_base + 1
@@ -284,21 +284,21 @@ eventos.lista = {{
         end
     }, {
         texto = function()
-            return "Treino de resistencia (+5 vida maxima) por " .. precoTreinador() .. " moedas"
+            return "Treino de resistência (+5 vida máxima) por " .. precoTreinador() .. " moedas"
         end,
         colorido = function(prefixo)
-            return colorir(prefixo .. "Treino de resistencia (", COR_VIDA, "+5 vida maxima",
+            return colorir(prefixo .. "Treino de resistência (", COR_VIDA, "+5 vida máxima",
                 ") por " .. precoTreinador() .. " moedas")
         end,
         efeito = function()
             local p = precoTreinador()
             if jogador.moedas < p then
-                return "Nao tens " .. p .. " moedas.", true
+                return "Não tens " .. p .. " moedas.", true
             end
             jogador.moedas = jogador.moedas - p
             jogador.vida_max = jogador.vida_max + 5
             jogador.vida = jogador.vida + 5
-            return colorir("Ficas mais rijo. ", COR_VIDA, "Vida maxima: " .. jogador.vida_max, ".")
+            return colorir("Ficas mais rijo. ", COR_VIDA, "Vida máxima: " .. jogador.vida_max, ".")
         end
     }, {
         texto = "Recusar",
@@ -308,7 +308,7 @@ eventos.lista = {{
     id = "ponte",
     titulo = "A ponte podre",
     minSala = 3,
-    texto = "Uma ponte de corda balanca sobre um abismo. Do outro lado ha um cofre.",
+    texto = "Uma ponte de corda balanca sobre um abismo. Do outro lado há um cofre.",
     opcoes = {{
         texto = function()
             return "Atravessar (" .. math.floor(chancePonte() * 100) .. "% de chance)"
@@ -330,29 +330,29 @@ eventos.lista = {{
     id = "espelho",
     titulo = "O espelho antigo",
     minSala = 5,
-    texto = "Um espelho mostra uma versao diferente de ti. Promete trocar forca por resistencia, ou o contrario.",
+    texto = "Um espelho mostra uma versão diferente de ti. Promete trocar forca por resistência, ou o contrário.",
     opcoes = {{
-        texto = "Trocar 1 de ataque base por 8 de vida maxima",
+        texto = "Trocar 1 de ataque base por 8 de vida máxima",
         efeito = function()
             if jogador.ataque_base < 2 then
-                return "Nao tens ataque que chegue para trocar.", true
+                return "Não tens ataque que chegue para trocar.", true
             end
             jogador.ataque_base = jogador.ataque_base - 1
             jogador.vida_max = jogador.vida_max + 8
             jogador.vida = jogador.vida + 8
-            return "O espelho brilha. Ataque base " .. jogador.ataque_base .. ", vida maxima " .. jogador.vida_max ..
+            return "O espelho brilha. Ataque base " .. jogador.ataque_base .. ", vida máxima " .. jogador.vida_max ..
                        "."
         end
     }, {
-        texto = "Trocar 8 de vida maxima por 1 de ataque base",
+        texto = "Trocar 8 de vida máxima por 1 de ataque base",
         efeito = function()
             if jogador.vida_max < 28 then
-                return "Estas demasiado fragil para isto.", true
+                return "Estás demasiado frágil para isto.", true
             end
             jogador.vida_max = jogador.vida_max - 8
             jogador.vida = math.min(jogador.vida, jogador.vida_max)
             jogador.ataque_base = jogador.ataque_base + 1
-            return "O espelho brilha. Ataque base " .. jogador.ataque_base .. ", vida maxima " .. jogador.vida_max ..
+            return "O espelho brilha. Ataque base " .. jogador.ataque_base .. ", vida máxima " .. jogador.vida_max ..
                        "."
         end
     }, {
@@ -361,7 +361,7 @@ eventos.lista = {{
     }}
 }, {
     id = "sacrificio",
-    titulo = "A pira do sacrificio",
+    titulo = "A pira do sacrifício",
     minSala = 4,
     texto = "Uma pira antiga pede uma oferenda. Em troca, as chamas curam-te por completo.",
     opcoes = function()
@@ -390,7 +390,7 @@ eventos.lista = {{
                 end,
                 efeito = function()
                     if jogador.vida >= jogador.vida_max then
-                        return "Ja tens a vida cheia.", true
+                        return "Já tens a vida cheia.", true
                     end
                     -- procura o item de novo: a mochila pode ter mudado
                     for j, outro in ipairs(jogador.inventario) do
@@ -401,19 +401,19 @@ eventos.lista = {{
                             return "As chamas consomem " .. item.nome .. ". Recuperas " .. cura .. " de vida."
                         end
                     end
-                    return "Esse item ja nao esta na mochila.", true
+                    return "Esse item já não está na mochila.", true
                 end
             })
         end
         table.insert(lista, {
-            texto = (#itens == 0) and "A mochila esta vazia. Afastar-te" or "Afastar-te",
+            texto = (#itens == 0) and "A mochila está vazia. Afastar-te" or "Afastar-te",
             efeito = ignorar
         })
         return lista
     end
 }, {
     id = "ladrao",
-    titulo = "O ladrao",
+    titulo = "O ladrão",
     minSala = 3,
     texto = "Um vulto salta das sombras e agarra a tua bolsa. Talvez o consigas apanhar.",
     opcoes = {{
@@ -421,15 +421,15 @@ eventos.lista = {{
         efeito = function()
             local n = roubo()
             jogador.moedas = jogador.moedas - n
-            return "O ladrao foge com " .. n .. " moedas."
+            return "O ladrão foge com " .. n .. " moedas."
         end
     }, {
-        texto = "Persegui-lo (50%: ficas com a bolsa dele; senao, -25% vida)",
+        texto = "Persegui-lo (50%: ficas com a bolsa dele; senão, -25% vida)",
         efeito = function()
             if math.random() < 0.5 then
                 local n = math.max(10, math.floor(jogador.moedas * 0.15)) + jogador.sala
                 jogador.ganharMoedas(n)
-                return "Apanhas o ladrao! Ficas com " .. n .. " moedas."
+                return "Apanhas o ladrão! Ficas com " .. n .. " moedas."
             end
             local dano = perder(math.max(3, math.floor(jogador.vida_max * 0.25)))
             local n = roubo()
@@ -441,9 +441,9 @@ eventos.lista = {{
     id = "monge",
     titulo = "O monge viajante",
     minSala = 5,
-    texto = "Um monge oferece uma bencao ao acaso, a metade do preco do santuario.",
+    texto = "Um monge oferece uma benção ao acaso, a metade do preço do santuário.",
     opcoes = {{
-        texto = "Aceitar uma bencao ao acaso",
+        texto = "Aceitar uma benção ao acaso",
         efeito = function()
             local b = bencoes.porId(bencoes.sortearOferta(1)[1])
             local ok, mensagem, colorida = bencoes.aplicar(b, jogador, 0.5)
@@ -460,19 +460,19 @@ eventos.lista = {{
     id = "biblioteca",
     titulo = "A biblioteca esquecida",
     minSala = 3,
-    texto = "Estantes cobertas de po guardam livros antigos e alguns frascos.",
+    texto = "Estantes cobertas de pó guardam livros antigos e alguns frascos.",
     opcoes = {{
-        texto = "Estudar os livros (experiencia)",
+        texto = "Estudar os livros (experiência)",
         efeito = function()
             local xp = math.ceil(jogador.xpNecessario() / 2)
             local subiu = jogador.ganharXp(xp)
-            return "Aprendes bastante: +" .. xp .. " de experiencia." .. (subiu > 0 and " Subiste de nivel!" or "")
+            return "Aprendes bastante: +" .. xp .. " de expêriencia." .. (subiu > 0 and " Subiste de nivel!" or "")
         end
     }, {
-        texto = "Levar uma pocao media",
+        texto = "Levar uma poção média",
         efeito = function()
             jogador.darPocao("media")
-            return "Encontras uma Pocao Media numa estante."
+            return "Encontras uma Poção Média numa estante."
         end
     }}
 }}

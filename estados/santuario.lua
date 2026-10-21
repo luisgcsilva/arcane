@@ -5,6 +5,7 @@ local salas = require("salas")
 local savegame = require("savegame")
 local registo = require("registo")
 local ui = require("ui")
+local sprites = require("sprites")
 
 local santuario = {}
 
@@ -97,13 +98,13 @@ end
 
 function santuario.desenhar()
     love.graphics.setColor(CIANO)
-    love.graphics.print("O santuario", 20, 20)
+    love.graphics.print("O Santuário", 20, 20)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("Vida: " .. jogador.vida .. "/" .. jogador.vida_max, 20, 56)
     -- love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     ui.moedas(420, 20, jogador.moedas)
 
-    love.graphics.printf("Uma luz suave enche a sala. Podes pedir uma bencao, mas tudo tem um preco.", 20, 100, 600)
+    love.graphics.printf("Uma luz suave enche a sala. Podes pedir uma benção, mas tudo tem um preço.", 20, 100, 600)
 
     if not feito then
         local altura = love.graphics.getFont():getHeight()
@@ -143,8 +144,11 @@ function santuario.desenhar()
         love.graphics.printf({corAviso, aviso}, 20, 380, 600)
     end
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print(feito and "A seguir  X pocoes  SELECT mochila" or "A escolher  X pocoes  SELECT mochila", 20,
-        440)
+    if feito then
+        sprites.ajuda({{"A", "seguir"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
+    else
+        sprites.ajuda({{"A", "escolher"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
+    end
 end
 
 return santuario

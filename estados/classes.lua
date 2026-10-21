@@ -61,7 +61,7 @@ function estado.desenhar()
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf(c.descricao, 36, 216, 568)
     love.graphics.print("Vida " .. c.vida .. "   Ataque " .. c.ataque .. "   Defesa " .. c.defesa, 36, 296)
-    love.graphics.print("Por nivel: +" .. c.vidaNivel .. " vida, +" .. c.ataqueNivel .. " ataque", 36, 328)
+    love.graphics.print("Por nível: +" .. c.vidaNivel .. " vida, +" .. c.ataqueNivel .. " ataque", 36, 328)
     love.graphics.printf(c.perk, 36, 360, 568)
 
     sprites.ajuda({{"A", "escolher"}, {"B", "voltar"}}, 20, 440)

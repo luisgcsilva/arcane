@@ -88,7 +88,7 @@ function estado.desenhar()
         return
     end
 
-    love.graphics.print("Subiste de nivel. Escolhe uma habilidade:", 20, 70)
+    love.graphics.print("Subiste de nível. Escolhe uma habilidade:", 20, 70)
     local altura = love.graphics.getFont():getHeight()
     for i, h in ipairs(oferta) do
         local y = 120 + (i - 1) * 40

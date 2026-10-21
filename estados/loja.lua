@@ -7,6 +7,7 @@ local savegame = require("savegame")
 local registo = require("registo")
 local ui = require("ui")
 local reliquias = require("reliquias")
+local sprites = require("sprites")
 
 local loja = {}
 
@@ -126,9 +127,9 @@ local function desenharDetalhe(e)
             love.graphics.printf(loot.nomeColorido(item), x, 140, w, "center")
             love.graphics.printf(jogador.textoBonus(item), x, 190, w, "center")
             if nivel >= mercador.MAX_FORJA[e.slot] then
-                love.graphics.printf({CINZA, "No maximo"}, x, 214, w, "center")
+                love.graphics.printf({CINZA, "No máximo"}, x, 214, w, "center")
             else
-                love.graphics.printf("Nivel +" .. nivel .. " -> +" .. (nivel + 1), x, 214, w, "center")
+                love.graphics.printf("Nível +" .. nivel .. " -> +" .. (nivel + 1), x, 214, w, "center")
             end
         end
     elseif e.tipo == "treino" then
@@ -205,7 +206,7 @@ function loja.acao(a)
     elseif a == "confirmar" then
         local e = mercador.stock[indice]
         if e.vendido then
-            aviso = "Esse ja nao esta disponivel."
+            aviso = "Esse já não está disponível."
             corAviso = VERMELHO
         elseif pendente ~= indice then
             -- primeiro A: pede confirmacao
@@ -278,8 +279,11 @@ function loja.desenhar()
 
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf({corAviso, aviso}, 20, 390, 600)
-    love.graphics.print(pendente and "A confirmar  outra tecla cancela" or "A comprar  SELECT inventario  B sair", 20,
-        440)
+    if pendente then
+        sprites.ajuda({{"A", "confirmar"}, "B", "cancela"})
+    else
+        sprites.ajuda({{"A", "comprar"}, {"SELECT", "inventário"}, {"B", "sair"}}, 20, 440)
+    end
 end
 
 return loja

@@ -30,7 +30,7 @@ function recordes.gravar()
     end
     local ok, erro = armazem.escrever(FICHEIRO, table.concat(linhas, "\n") .. "\n")
     if not ok then
-        print("Nao consegui gravar: " .. tostring(erro))
+        print("Não consegui gravar: " .. tostring(erro))
     end
 end
 

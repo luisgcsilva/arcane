@@ -9,7 +9,7 @@ local sprites = require("sprites")
 local final = {}
 
 local DOURADO = {1, 0.85, 0.2}
-local opcoes = {"Continuar a aventura", "Terminar e guardar a vitoria"}
+local opcoes = {"Continuar a aventura", "Terminar e guardar a vitória"}
 
 local destino, arg, indice, pendente
 
@@ -45,12 +45,12 @@ function final.desenhar()
     love.graphics.setColor(DOURADO)
     love.graphics.print("VITORIA!", 20, 20)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("O Trono Eterno caiu. Chegaste a sala " .. jogador.sala .. ".", 20, 60)
-    love.graphics.print("Classe: " .. (jogador.defClasse().nome or "Aventureiro") .. "   Nivel " .. jogador.nivel, 20,
+    love.graphics.print("O Trono Eterno caiu. Chegaste à sala " .. jogador.sala .. ".", 20, 60)
+    love.graphics.print("Classe: " .. (jogador.defClasse().nome or "Aventureiro") .. "   Nível " .. jogador.nivel, 20,
         100)
     love.graphics.print("Inimigos vencidos: " .. s.inimigos .. "  (chefes: " .. s.chefes .. ")", 20, 130)
     love.graphics.print("Dano causado: " .. s.dano_causado .. "   Dano sofrido: " .. s.dano_sofrido, 20, 160)
-    love.graphics.print("Pocoes usadas: " .. s.pocoes, 20, 190)
+    love.graphics.print("Poções usadas: " .. s.pocoes, 20, 190)
 
     local altura = love.graphics.getFont():getHeight()
     for i, texto in ipairs(opcoes) do

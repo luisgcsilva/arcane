@@ -91,7 +91,7 @@ function portas.desenhar()
     love.graphics.setColor(1, 1, 1)
 
     -- titulo numa faixa e moedas
-    local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Proxima Sala " .. jogador.sala + 1)
+    local titulo = (jogador.sala == 0) and "A entrada da masmorra" or ("Entrada da Próxima Sala " .. jogador.sala + 1)
     ui.faixa(20, 10, 360, 3)
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf(titulo, 20, 10 + (36 - normal:getHeight()) / 2, 360, "center")
@@ -115,7 +115,7 @@ function portas.desenhar()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(texto, 28, 104)
 
-    love.graphics.print(#lista == 1 and "Ha uma porta a frente." or "Que porta abres?", 20, 168)
+    love.graphics.print(#lista == 1 and "Há uma porta à frente." or "Que porta abres?", 20, 168)
 
     -- as portas: fechada normalmente, aberta a selecionada
     local n = #lista

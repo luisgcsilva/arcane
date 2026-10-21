@@ -16,7 +16,7 @@ mercador.TREINO = {
         base = 120,
         passo = 40,
         ganho = 5,
-        texto = "vida maxima",
+        texto = "vida máxima",
         icone = 659
     },
     ataque = {
@@ -117,7 +117,7 @@ function mercador.nomeDe(e)
         return e.reliquia.nome
     end
     if e.tipo == "forja" then
-        return (e.slot == "arma") and "Afiar a arma" or "Reforcar a armadura"
+        return (e.slot == "arma") and "Afiar a arma" or "Reforçar a armadura"
     end
     if e.tipo == "treino" then
         return mercador.TREINO[e.atributo].nome
@@ -129,7 +129,7 @@ end
 function mercador.comprar(i)
     local e = mercador.stock[i]
     if e.vendido then
-        return false, "Esse ja nao esta disponivel."
+        return false, "Esse já não está disponível."
     end
 
     if e.tipo == "forja" then
@@ -187,10 +187,10 @@ function mercador.forjar(e)
     mercador.atualizar()
     local item = jogador[e.slot]
     if not item then
-        return false, "Nao tens nada equipado nessa ranhura."
+        return false, "Não tens nada equipado nessa ranhura."
     end
     if jogador.forja[e.slot] >= mercador.MAX_FORJA[e.slot] then
-        return false, "O ferreiro ja nao consegue melhorar mais."
+        return false, "O ferreiro já não consegue melhorar mais."
     end
     if jogador.moedas < e.preco then
         return false, "Moedas insuficientes."

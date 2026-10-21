@@ -104,7 +104,7 @@ local function abrirBau()
     else
         jogador.ganharMoedas(bau.n)
         bauCheio = true
-        table.insert(mensagens, {DOURADO, "O bau esta cheio de moedas: +" .. bau.n .. "."})
+        table.insert(mensagens, {DOURADO, "O baú está cheio de moedas: +" .. bau.n .. "."})
     end
 
     concluir()

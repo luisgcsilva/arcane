@@ -1,6 +1,7 @@
 local jogo = require("jogo")
 local simulacao = require("simulacao")
 local armazem = require("armazem")
+local sprites = require("sprites")
 
 local estado = {}
 
@@ -42,13 +43,13 @@ end
 function estado.desenhar()
     local normal = love.graphics.getFont()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("SIMULACAO", 20, 16)
+    love.graphics.print("SIMULAÇÃO", 20, 16)
     love.graphics.setFont(fonte)
 
     if not linhas then
         love.graphics.print("Partidas por classe: " .. OPCOES[idx] .. "   (cima/baixo muda)", 20, 70)
-        love.graphics.print("Um bot joga sozinho e mede ate onde chega cada classe.", 20, 100)
-        love.graphics.print("Pode demorar alguns segundos. Nao altera o teu jogo gravado.", 20, 120)
+        love.graphics.print("Um bot joga sozinho e mede atá onde chega cada classe.", 20, 100)
+        love.graphics.print("Pode demorar alguns segundos. Não altera o teu jogo gravado.", 20, 120)
         love.graphics.print("O resultado fica em simulacao.txt e simulacao.csv.", 20, 140)
     else
         for i = 1, VISIVEIS do
@@ -61,7 +62,11 @@ function estado.desenhar()
     end
 
     love.graphics.setFont(normal)
-    love.graphics.print(linhas and "Cima/baixo  A repetir  B voltar" or "A correr   B voltar", 20, 440)
+    if linhas then
+        sprites.ajuda({{"CIMABAIXO", "Mover"}, {"A", "repetir"}, {"B", "voltar"}}, 20, 440)
+    else
+        sprites.ajuda({{"A", "correr"}, {"B", "voltar"}}, 20, 440)
+    end
 end
 
 return estado

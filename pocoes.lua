@@ -5,7 +5,7 @@ local cores = require("cores")
 -- porque a ordem importa: e a ordem em que aparecem no menu.
 pocoes.lista = {{
     id = "pequena",
-    nome = "Pocao Pequena",
+    nome = "Poção Pequena",
     cura = 10,
     peso = 60,
     preco = 12,
@@ -13,7 +13,7 @@ pocoes.lista = {{
     cor = {1, 0.45, 0.45}
 }, {
     id = "media",
-    nome = "Pocao Media",
+    nome = "Poção Media",
     cura = 18,
     peso = 28,
     preco = 20,
@@ -21,7 +21,7 @@ pocoes.lista = {{
     cor = {1, 0.3, 0.3}
 }, {
     id = "grande",
-    nome = "Pocao Grande",
+    nome = "Poção Grande",
     cura = 30,
     peso = 12,
     preco = 34,

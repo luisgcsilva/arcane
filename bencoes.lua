@@ -65,7 +65,7 @@ bencoes.lista = {{
     id = "vigor",
     nome = "Vigor",
     cor = {0.4, 1, 0.5},
-    descricao = "Recuperas 40% da vida maxima agora.",
+    descricao = "Recuperas 40% da vida máxima agora.",
     instantanea = true,
     custo = {
         tipo = "moedas",
@@ -111,7 +111,7 @@ end
 function bencoes.aplicar(b, j, fator)
     if not bencoes.podePagar(b, j, fator) then
         local tipo = bencoes.custoDe(b, j, fator)
-        return false, (tipo == "vida") and "Estas demasiado fraco para esta bencao." or "Moedas insuficientes."
+        return false, (tipo == "vida") and "Estás demasiado fraco para esta benção." or "Moedas insuficientes."
     end
     local tipo, valor = bencoes.custoDe(b, j, fator)
     if tipo == "vida" then
@@ -132,8 +132,8 @@ function bencoes.aplicar(b, j, fator)
         id = b.id,
         restantes = bencoes.DURACAO + 1
     }
-    local resto = " abencoa-te durante " .. bencoes.DURACAO .. " salas." ..
-                      (substitui and " (a bencao anterior perde-se)" or "")
+    local resto = " abençoa-te durante " .. bencoes.DURACAO .. " salas." ..
+                      (substitui and " (a benção anterior perde-se)" or "")
     return true, b.nome .. resto, colorida(b, resto)
 end
 
