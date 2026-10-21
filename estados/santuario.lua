@@ -104,12 +104,12 @@ function santuario.desenhar()
     -- love.graphics.print({{1, 0.85, 0.2}, "Moedas: " .. jogador.moedas}, 420, 20)
     ui.moedas(420, 20, jogador.moedas)
 
-    love.graphics.printf("Uma luz suave enche a sala. Podes pedir uma benção, mas tudo tem um preço.", 20, 100, 600)
+    love.graphics.printf("Uma luz suave enche a sala. Podes pedir uma benção, mas tudo tem um preço.", 20, 100, 340)
 
     if not feito then
         local altura = love.graphics.getFont():getHeight()
         for i, b in ipairs(oferta) do
-            local y = 160 + (i - 1) * 40
+            local y = 176 + (i - 1) * 40
             if i == indice then
                 ui.cursorLinha(20, y + (32 - altura) / 2, altura)
             end
@@ -117,7 +117,7 @@ function santuario.desenhar()
             love.graphics.setColor(1, 1, 1)
             love.graphics.print({b.cor, b.nome}, 96, y + (32 - altura) / 2)
         end
-        local ySair = 160 + #oferta * 40
+        local ySair = 176 + #oferta * 40
         if indice > #oferta then
             ui.cursorLinha(20, ySair + (32 - altura) / 2, altura)
         end
@@ -126,14 +126,14 @@ function santuario.desenhar()
 
         local b = oferta[indice]
         if b then
-            ui.detalhe(380, 150, 250, 222, bencoes.caminhoIcone(b), b.cor, {b.cor, b.nome}, b.descricao)
+            ui.detalhe(370, 100, 260, 272, bencoes.caminhoIcone(b), b.cor, {b.cor, b.nome}, b.descricao)
             local tipo, valor = bencoes.custoDe(b, jogador)
             local pode = bencoes.podePagar(b, jogador)
             if tipo == "vida" then
-                love.graphics.printf({pode and {1, 1, 1} or VERMELHO, "Custa " .. valor .. " de vida"}, 390, 330, 230,
+                love.graphics.printf({pode and {1, 1, 1} or VERMELHO, "Custa " .. valor .. " de vida"}, 380, 336, 240,
                     "center")
             else
-                ui.linhaMoedas(505, "Custa ", {1, 1, 1}, valor, 2, 324, not pode)
+                ui.linhaMoedas(505, "Custa ", {1, 1, 1}, valor, 2, 330, not pode)
             end
         end
     end
