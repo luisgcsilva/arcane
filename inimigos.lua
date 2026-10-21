@@ -21,7 +21,7 @@ return {
         vida = 10,
         ataque = 3,
         minSala = 3,
-        biomas = {"cavernas, fortaleza"},
+        biomas = {"cavernas", "fortaleza"},
         cor = {0.2, 0.6, 0.2},
         padrao = {"normal", "normal", "duplo"}
     },

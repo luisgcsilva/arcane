@@ -7,6 +7,8 @@ local historico = require("historico")
 local reliquias = require("reliquias")
 local dificuldade = require("dificuldade")
 local fontes = require("fontes")
+local sprites = require("sprites")
+local inimigos = require("inimigos")
 
 jogo.registar("menu", require("estados.menu"))
 jogo.registar("explorar", require("estados.explorar"))
@@ -36,8 +38,8 @@ local function anotar(texto)
 end
 
 function love.load()
-    fontes.carregar()
     love.graphics.setDefaultFilter("nearest", "nearest") -- pixel art sem desfocar ao ampliar
+    fontes.carregar()
     love.graphics.setFont(fontes.normal)
     recordes.carregar()
     registo.carregar()

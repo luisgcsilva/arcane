@@ -105,7 +105,7 @@ function estado.desenhar()
     end
 
     local r = oferta[indice]
-    ui.detalhe(380, 100, 250, 290, reliquias.caminhoIcone(r), r.cor, {r.cor, r.nome}, r.descricao)
+    ui.detalhe(380, 120, 250, 290, reliquias.caminhoIcone(r), r.cor, {r.cor, r.nome}, r.descricao)
     love.graphics.setColor(1, 1, 1)
     sprites.ajuda({{"A", "escolher"}, {"X", "poções"}, {"SELECT", "mochila"}}, 20, 440)
 end
