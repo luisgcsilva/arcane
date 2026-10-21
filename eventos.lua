@@ -162,7 +162,7 @@ eventos.lista = {{
         texto = "Deitar 50 moedas",
         efeito = function()
             if jogador.moedas < 50 then
-                return "Não tens 10 moedas.", true
+                return "Não tens 50 moedas.", true
             end
             jogador.moedas = jogador.moedas - 50
             local sorte = math.random(100)

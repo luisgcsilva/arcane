@@ -280,7 +280,7 @@ function loja.desenhar()
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf({corAviso, aviso}, 20, 390, 600)
     if pendente then
-        sprites.ajuda({{"A", "confirmar"}, "B", "cancela"})
+        sprites.ajuda({{"A", "confirmar"}, {"B", "cancela"}}, 20, 440)
     else
         sprites.ajuda({{"A", "comprar"}, {"SELECT", "inventário"}, {"B", "sair"}}, 20, 440)
     end

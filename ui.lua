@@ -307,7 +307,8 @@ function ui.detalhe(x, y, w, h, caminho, cor, titulo, texto)
     ui.imagem(caminho, cx - 32, y + 18, 4)
     love.graphics.setColor(1, 1, 1)
     local f = love.graphics.getFont()
-    local yTexto = y + 96 + f:getHeight() + 12
+    local _, linhasTitulo = f:getWrap(titulo, w - 20)
+    local yTexto = y + 96 + #linhasTitulo * f:getHeight() + 14
     love.graphics.printf(titulo, x + 10, y + 96, w - 20, "center")
     love.graphics.printf(texto, x + 10, yTexto, w - 20, "center")
     return yTexto
