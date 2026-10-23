@@ -233,7 +233,7 @@ local function novoTurno()
             cooldowns[id] = v - 1
         end
     end
-    table.insert(mensagens, "--- Turno " .. turno .. " ---")
+    table.insert(mensagens, {{0.6, 0.6, 0.6}, "--- Turno " .. turno .. " ---"})
     escolherIntencao()
 end
 
@@ -521,13 +521,13 @@ function combate.acao(a)
             fase = "vitoria"
         end
     elseif fase == "pocao" then
-        if a ~= "confirmar" then
+        if a ~= "confirmar" then 
             confirmaPocao = nil
         end
         if a == "cima" then
             indicePocao = indicePocao - 1
             if indicePocao < 1 then
-                indicePocao = #disponiveis
+                indicePocao = #disponiveis 
             end
         elseif a == "baixo" then
             indicePocao = indicePocao + 1
@@ -736,6 +736,9 @@ function combate.desenhar()
     for i = inicio, fim do
         if MODO_FALAS and lado[i] == "inimigo" then
             love.graphics.printf(mensagens[i], COL_DIR_X, y, COL_LARG, "right")
+        elseif MODO_FALAS and not lado[i] then
+            -- neutra (turno, loot, vitória): centrada na largura toda
+            love.graphics.printf(mensagens[i], COL_ESQ_X, y, LARGURA_MSG, "center")
         else
             love.graphics.printf(mensagens[i], COL_ESQ_X, y, larguraDe(i))
         end

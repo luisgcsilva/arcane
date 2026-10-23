@@ -181,7 +181,10 @@ local PAPEL = {
     folego = "cura",
     cura = "cura",
     investida = "atordoar",
-    sujo = "atordoar"
+    sujo = "atordoar",
+--[[    bastiao = "defesa",
+    juramento = "cura",
+    carga = "atordoar"]]
 }
 
 local function acharHab(est, papel)
@@ -564,6 +567,9 @@ local function resumir(c, rs)
         string.format("  Chegou a sala 10: %.0f%%   20: %.0f%%   30: %.0f%%   40: %.0f%%", alcancou(10), alcancou(20),
             alcancou(30), alcancou(40)))
     table.insert(linhas,
+        string.format("          50: %.0f%%   60: %.0f%%   70: %.0f%%   80: %.0f%%   90: %.0f%%   100: %.0f%%",
+            alcancou(50), alcancou(60), alcancou(70), alcancou(80), alcancou(90), alcancou(100)))
+    table.insert(linhas,
         string.format("  No fim: nível %.1f, vida máx %.0f, moedas %.0f", nivel / n, vmax / n, moedas / n))
     table.insert(linhas,
         string.format("  Morreu em: combate %.0f%%, elite %.0f%%, chefe %.0f%%", pm(tipos.normal), pm(tipos.elite),
@@ -579,8 +585,11 @@ local function resumir(c, rs)
         table.insert(partes,
             string.format("%s: %.0f%%", f == 0 and "1-9" or (f * 10 .. "-" .. (f * 10 + 9)), pm(faixas[f])))
     end
-    table.insert(linhas, "  Mortes por faixa de salas: " .. table.concat(partes, "  "))
-
+    -- no máximo 5 faixas por linha, para caber no ecrã
+    for i = 1, #partes, 5 do
+        local titulo = (i == 1) and "  Mortes por faixa de salas: " or "      "
+        table.insert(linhas, titulo .. table.concat(partes, "  ", i, math.min(i + 4, #partes)))
+    end
     local lista = {}
     for nome, k in pairs(causas) do
         table.insert(lista, {
@@ -612,8 +621,8 @@ end
 -- Corre n partidas por classe. Devolve as linhas de resumo e o texto do CSV.
 function simulacao.correr(n)
     math.randomseed(SEMENTE)
-    local linhas = {string.format("Simulação: %d partidas por classe, semente %d, até à sala %d", n, SEMENTE, MAX_SALA),
-                    ""}
+    local linhas = {string.format("Simulação: %d partidas por classe, semente %d, até à sala %d", n, SEMENTE,
+        MAX_SALA), ""}
     local csv = {CABECALHO}
 
     for _, c in ipairs(classes.lista) do

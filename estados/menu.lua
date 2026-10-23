@@ -10,7 +10,7 @@ local menu = {}
 
 local opcoes, acoes, indice, aviso
 local confirmarNovo -- true quando espera confirmacao para apagar a gravacao
-local DEV = true -- poe false para esconder a Simulacao
+local DEV = false -- poe true para ver a Simulacao no menu
 local ESCALA = 3 -- cada pixel do desenho vira 3 no ecra
 local LARGURA_BOTAO = 300
 local BOTAO_X = (640 - LARGURA_BOTAO) / 2

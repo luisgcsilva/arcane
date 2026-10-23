@@ -25,18 +25,18 @@ function santuario.entrar()
     jogador.portas = nil
     jogador.inimigo = nil
     -- se vens de "Continuar", a oferta ja esta sorteada e gravada
-    if not jogador.ofertabencoes then
-        jogador.ofertabencoes = bencoes.sortearOferta(bencoes.OFERTA)
+    if not jogador.ofertaBencoes then
+        jogador.ofertaBencoes = bencoes.sortearOferta(bencoes.OFERTA)
     end
     oferta = {}
-    for _, id in ipairs(jogador.ofertabencoes) do
+    for _, id in ipairs(jogador.ofertaBencoes) do
         table.insert(oferta, bencoes.porId(id))
     end
     indice = 1
     aviso = ""
     corAviso = {1, 1, 1}
     feito = false
-    registo.add("  [santuario] " .. table.concat(jogador.ofertabencoes, ", "))
+    registo.add("  [santuario] " .. table.concat(jogador.ofertaBencoes, ", "))
     savegame.gravar()
 end
 
@@ -45,7 +45,7 @@ local function concluir(mensagem)
     aviso = mensagem
     corAviso = VERDE
     jogador.especial = nil
-    jogador.ofertabencoes = nil
+    jogador.ofertaBencoes = nil
     jogador.portas = salas.gerarPortas(jogador.sala + 1, "santuario")
     savegame.gravar()
     feito = true

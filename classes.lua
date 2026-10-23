@@ -6,19 +6,19 @@ classes.lista = {
   { id = "guerreiro", nome = "Guerreiro", cor = { 0.9, 0.5, 0.3 },
     descricao = "Aguenta pancada. Começa com mais vida e uma armadura natural.",
     perk = "Armadura natural: +2 defesa.",
-    vida = 60, ataque = 6, defesa = 2, vidaNivel = 8, ataqueNivel = 1,
+    vida = 65, ataque = 7, defesa = 2, vidaNivel = 8, ataqueNivel = 1,
     fuga = 0.5, moedas = 1, cura = 1 },
 
-  { id = "cavaleiro", nome = "Cavaleiro", cor = { 0.8, 0.8, 0.95 },
+  --[[{ id = "cavaleiro", nome = "Cavaleiro", cor = { 0.8, 0.8, 0.95 },
     descricao = "Pesado e resistente. Quase nada o trava, mas é lento a fugir.",
-    perk = "Armadura pesada: +3 defesa. Fuga de 35%.",
-    vida = 70, ataque = 6, defesa = 3, vidaNivel = 8, ataqueNivel = 1,
-    fuga = 0.35, moedas = 1, cura = 1 },
+    perk = "Armadura pesada: +2 defesa. Fuga de 35%.",
+    vida = 60, ataque = 6, defesa = 2, vidaNivel = 8, ataqueNivel = 1,
+    fuga = 0.35, moedas = 1, cura = 1 },]]
 
   { id = "arqueiro", nome = "Arqueiro", cor = { 0.5, 0.9, 0.6 },
     descricao = "Rápido e oportunista. Foge com facilidade e rouba mais moedas.",
     perk = "Fuga de 75% e +50% de moedas dos inimigos.",
-    vida = 50, ataque = 8, defesa = 1, vidaNivel = 9, ataqueNivel = 2,
+    vida = 55, ataque = 9, defesa = 1, vidaNivel = 9, ataqueNivel = 2,
     fuga = 0.75, moedas = 1.5, cura = 1 },
 
   { id = "mago", nome = "Mago", cor = { 0.6, 0.7, 1 },

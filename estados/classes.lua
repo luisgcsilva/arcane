@@ -42,7 +42,7 @@ function estado.desenhar()
     -- lista: a mao marca a selecionada (se nao houver imagem, volta ao ">")
     local altura = love.graphics.getFont():getHeight()
     for i, c in ipairs(classes.lista) do
-        local y = 80 + (i - 1) * 36
+        local y = 64 + (i - 1) * 32
         love.graphics.print(cores.nome(c, ""), 60, y)
         if i == indice and not ui.cursor(20, y + (altura - 16) / 2, 2) then
             love.graphics.print(">", 30, y)

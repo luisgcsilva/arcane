@@ -13,8 +13,7 @@ return {
         ataque = 5,
         minSala = 1,
         biomas = {"cavernas"},
-        cor = {0.2, 0.8, 0.4},
-        sprite = "brawny_ogre"
+        cor = {0.2, 0.8, 0.4}
     },
     goblin = {
         nome = "Goblin",
@@ -87,12 +86,12 @@ return {
         padrao = {"duplo", "normal"}
     },
     aranha = {
-        nome = "Aranha Gigante",
+        nome = "Escaravelho Gigante",
         vida = 12,
         ataque = 5,
         minSala = 4,
         biomas = {"cavernas", "pantano"},
-        cor = {0.7, 0.3, 0.3},
+        cor = {0.9, 0.75, 0.2},
         efeito = {
             id = "veneno",
             chance = 0.40
@@ -440,13 +439,13 @@ return {
         padrao = {"perfurar", "curar", "carregar", "duplo"}
     },
     aranha_rainha = {
-        nome = "Aranha Rainha",
+        nome = "Escaravelho Rainha",
         vida = 45,
         ataque = 8,
         minSala = 10,
         boss = true,
         biomas = {"cavernas"},
-        cor = {0.7, 0.2, 0.4},
+        cor = {0.9, 0.75, 0.2},
         efeito = {
             id = "veneno",
             chance = 0.50
@@ -572,7 +571,7 @@ return {
         padrao = {"normal", "duplo", "carregar", "curar"}
     },
     kraken = {
-        nome = "Kraken",
+        nome = "Olho do Abismo",
         vida = 480,
         ataque = 30,
         minSala = 80,

@@ -29,7 +29,7 @@ e propor desafios em vez de fazer tudo sozinho.
 
 ## Estado actual
 Jogo completo e jogavel, testado no PC e na R36S.
-- 3 classes (Guerreiro, Ninja, Mago), habilidades, 18 reliquias, loot com
+- 3 classes (Guerreiro, Arqueiro, Mago), habilidades, 18 reliquias, loot com
   raridades (comum a mitica), loja com Ferreiro, fogueiras, tesouros, eventos.
 - 100 salas em 10 biomas (biomas.lua, 10 salas por bioma). Chefe a cada 10
   salas, loja na sala antes do chefe. Chefes declaram os seus biomas.
@@ -53,16 +53,39 @@ Jogo completo e jogavel, testado no PC e na R36S.
 - DEBUG em main.lua deve ficar false; DEV em estados/menu.lua esconde a
   Simulacao quando false.
 
-## Equilibrio (ultima simulacao, 1000 jogos por classe)
-Chegam a sala 100: Mago ~29%, Guerreiro ~22%, Ninja ~19%. Curva de mortes
-regular por bioma. Sobram ~2000-3000 moedas no fim. Considerado fechado ate
-haver mais jogo humano. O bot nao simula eventos nem santuarios.
+- Classes: o Ninja foi substituido pelo Arqueiro (mesmos ids de habilidades:
+  duplo, sujo, roubo, esquiva). O Cavaleiro foi tirado (era quase igual ao
+  Guerreiro): ficou comentado em classes.lua e habilidades.lua, e o sprite em
+  imagens/classes_bak/. Gravacoes antigas com classe inexistente sao rejeitadas.
+- Sprites de classe: Minifolks (linha de idle, 4 frames de 32x32, 128x32 em
+  imagens/classes/). Sprites de inimigos em imagens/inimigos/ (tiras 64x16);
+  alguns recoloridos (lobo gelado, yeti, fenix sombria). Inimigos renomeados:
+  Escaravelho Gigante, Escaravelho Rainha, Olho do Abismo (as chaves aranha,
+  aranha_rainha e kraken mantem-se). sprites.emFalta avisa no arranque.
+- Combate por botoes (sem lista): A atacar, X habilidade, B defender, Y pocao,
+  R2 fugir (PC: Z, C, X, V, B). Barra de comandos em baixo (sprites.ajuda tem
+  folga e espaco opcionais). Log em fonte media com MODO_FALAS: mensagens do
+  jogador a esquerda, do inimigo a direita (tabela paralela `lado`, funcao
+  `dizer`), neutras ao centro. Cada table.insert(mensagens...) novo deve usar
+  dizer("jogador"|"inimigo", texto) ou ficar neutro.
+- UI: mao (ui.cursor/cursorLinha) em vez de ">", icones Raven (imagens/itens/faN.png),
+  ui.detalhe com titulo que quebra linha, moedas com icone (ui.moedas/linhaMoedas).
+
+## Equilibrio (ultima simulacao, 1000 jogos por classe, semente 12345)
+Sala media: Mago 81.9, Guerreiro 81.4, Arqueiro 79.7. Chegam a sala 100: cerca
+de 3 a 5% (Arqueiro 4.6%, Guerreiro 3.8%, Mago 3.2%). Quase ninguem morre
+antes da sala 50; as mortes concentram-se nas salas 60 a 99. Os chefes quase
+nao matam (0 a 1% das mortes). O bot nao foge, nao usa o valor das moedas, nao
+simula eventos nem santuarios. Em simulacao.lua a tabela PAPEL tem de conhecer
+cada habilidade nova (o que nao estiver la conta como "ataque").
 
 ## Proximos passos
 1. Mais eventos (so dados em eventos.lua), 6 a 8 novos.
 2. Cofre trancado (chaves largadas por elites).
 3. Santuario parte 2: reliquia amaldicoada.
 4. Meta-progressao (desbloquear classes/reliquias), sprites e som.
-Antes de empacotar: jogador.moedas = 0 no reiniciar, SALA_FINAL = 100,
-DEBUG = false, DEV = false no menu. Falta testar na R36S as linhas partidas
-(loja, combate, santuario) e os tamanhos de texto.
+Antes de empacotar (verificado em 23/10/2026): jogador.moedas = 0 no reiniciar
+(feito), SALA_FINAL = 100 (feito), DEBUG = false (feito), DEV = false no menu
+(feito; poe true para correr a Simulacao), conf.lua sem consola. Falta testar na
+R36S as linhas partidas (loja, combate, santuario), os tamanhos de texto e dos
+sprites de classes/inimigos, e subir a dificuldade dos chefes.

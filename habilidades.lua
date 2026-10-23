@@ -22,9 +22,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Investida",
     cor = {1, 0.5, 0.3},
     cooldown = 5,
-    descricao = "1,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
+    descricao = "1,75x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
-        local d = c.atacar(1.5)
+        local d = c.atacar(1.75)
         c.msg("Investida! Causas " .. d .. " de dano.")
         c.atordoar()
     end
@@ -57,9 +57,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Tiro Duplo",
     cor = {0.5, 0.9, 0.6},
     cooldown = 3,
-    descricao = "Dois disparos rápidos, cada um com 1.2x de dano.",
+    descricao = "Dois disparos rápidos, cada um com 1.5x de dano e outro com 1x dano.",
     usar = function(c)
-        local total = c.atacar(1.2)
+        local total = c.atacar(1.5)
         if c.vivo() then
             total = total + c.atacar(1)
         end
@@ -71,9 +71,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Tiro na Perna",
     cor = {0.6, 0.8, 0.5},
     cooldown = 4,
-    descricao = "1,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
+    descricao = "2x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
-        local d = c.atacar(1.5)
+        local d = c.atacar(2)
         c.msg("Tiro na perna! Causas " .. d .. " de dano.")
         c.atordoar()
     end
@@ -101,16 +101,16 @@ habilidades.lista = { -- Guerreiro
         c.proteger(1)
         c.msg("Preparas-te para esquivar o próximo golpe.")
     end
-}, -- cavaleiro
+}, --[[ cavaleiro
 {
     id = "carga",
     classe = "cavaleiro",
     nome = "Carga",
     cor = {0.8, 0.8, 0.95},
     cooldown = 5,
-    descricao = "1,8x de dano e atordoa o inimigo (os chefes resistem 50%).",
+    descricao = "1,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
-        local d = c.atacar(1.8)
+        local d = c.atacar(1.5)
         c.msg("Carga! Causas " .. d .. " de dano.")
         c.atordoar()
     end
@@ -120,9 +120,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Estocada",
     cor = {0.9, 0.9, 1},
     cooldown = 3,
-    descricao = "Ataque com 2,2x de dano.",
+    descricao = "Ataque com 2x de dano.",
     usar = function(c)
-        local d = c.atacar(2.2)
+        local d = c.atacar(2)
         c.msg("Estocada! Causas " .. d .. " de dano.")
     end
 }, {
@@ -131,9 +131,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Bastião",
     cor = {0.7, 0.8, 0.9},
     cooldown = 5,
-    descricao = "O próximo golpe do inimigo causa 80% menos dano.",
+    descricao = "O próximo golpe do inimigo causa 70% menos dano.",
     usar = function(c)
-        c.proteger(0.8)
+        c.proteger(0.7)
         c.msg("Firmas-te atrás do escudo.")
     end
 }, {
@@ -148,7 +148,7 @@ habilidades.lista = { -- Guerreiro
         local e = c.limparEfeitos()
         c.msg("Recuperas " .. n .. " de vida." .. (e > 0 and " Os males desaparecem." or ""))
     end
-}, -- Mago
+},]] -- Mago
 {
     id = "bola",
     classe = "mago",
@@ -166,9 +166,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Escudo Arcano",
     cor = {0.6, 0.7, 1},
     cooldown = 5,
-    descricao = "O próximo golpe causa 60% menos dano. Limpa veneno e sangramento.",
+    descricao = "O próximo golpe causa 50% menos dano. Limpa veneno e sangramento.",
     usar = function(c)
-        c.proteger(0.6)
+        c.proteger(0.5)
         local n = c.limparEfeitos()
         c.msg("Um escudo arcano envolve-te." .. (n > 0 and " Os males desaparecem." or ""))
     end
@@ -190,9 +190,9 @@ habilidades.lista = { -- Guerreiro
     nome = "Drenar Vida",
     cor = {0.8, 0.4, 0.9},
     cooldown = 3,
-    descricao = "1,2x de dano, e recuperas metade do dano causado.",
+    descricao = "1,25x de dano, e recuperas metade do dano causado.",
     usar = function(c)
-        local d = c.atacar(1.2)
+        local d = c.atacar(1.25)
         local n = c.curar(math.floor(d / 2))
         c.msg("Drenas " .. d .. " de vida ao inimigo e recuperas " .. n .. ".")
     end
@@ -222,11 +222,11 @@ local ICONES = {
     bola = 993,
     escudo = 856,
     cura = 709,
-    drenar = 676,
+    drenar = 676,--[[
     carga = 885,
     lanca = 728,
     bastiao = 853,
-    juramento = 709
+    juramento = 709]]
 }
 
 function habilidades.caminhoIcone(h)
