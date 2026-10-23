@@ -54,7 +54,7 @@ function estado.desenhar()
     -- sombra e sprite da classe selecionada
     love.graphics.setColor(0, 0, 0, 0.35)
     love.graphics.ellipse("fill", 500, 182, 50, 9)
-    sprites.desenhar(sprites.caminhoClasse(c.id), 500, 132, 5)
+    sprites.desenhar(sprites.caminhoClasse(c.id), 500, 112, 6)
 
     -- painel com a descricao e os numeros
     ui.painel("ouro", 10, 196, 620, 212, 2, ui.FUNDO)

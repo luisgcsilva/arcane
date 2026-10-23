@@ -155,21 +155,23 @@ end
 
 -- Linha de ajuda: itens = {{"A", "comprar"}, {"SELECT", "inventario"}, {"B", "sair"}}
 -- Se uma tecla nao tiver icone, sai como texto cinzento.
-function sprites.ajuda(itens, x, y, escala)
+function sprites.ajuda(itens, x, y, escala, folga, espaco)
     escala = escala or 2
+    folga = folga or 22 -- espaço entre um comando e o seguinte
+    espaco = espaco or 6 -- espaço entre o ícone e o texto
     local fonte = love.graphics.getFont()
     local ty = y + (LADO * escala - fonte:getHeight()) / 2 -- texto alinhado ao centro do icone
     for _, item in ipairs(itens) do
         local tecla, texto = item[1], item[2]
         if sprites.botao(tecla, x, y, escala) then
-            x = x + LADO * escala + 6
+            x = x + LADO * escala + espaco
         else
             love.graphics.print({{0.7, 0.7, 0.7}, tecla}, x, ty)
-            x = x + fonte:getWidth(tecla) + 6
+            x = x + fonte:getWidth(tecla) + espaco
         end
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(texto, x, ty)
-        x = x + fonte:getWidth(texto) + 22
+        x = x + fonte:getWidth(texto) + folga
     end
     return x
 end

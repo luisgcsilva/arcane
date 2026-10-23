@@ -20,7 +20,8 @@ local teclas = {
     space = "pausa",
     q = "ombro_esq",
     e = "ombro_dir",
-    h = "gatilho_esq"
+    h = "gatilho_esq",
+    b = "gatilho_dir"
 }
 
 -- Número de botão da R36S -> acção

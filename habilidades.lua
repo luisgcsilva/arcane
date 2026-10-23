@@ -50,37 +50,37 @@ habilidades.lista = { -- Guerreiro
         c.proteger(0.75)
         c.msg("Ergues a guarda como uma muralha.")
     end
-}, -- ninja
+}, -- arqueiro
 {
     id = "duplo",
-    classe = "ninja",
-    nome = "Ataque Duplo",
+    classe = "arqueiro",
+    nome = "Tiro Duplo",
     cor = {0.5, 0.9, 0.6},
     cooldown = 3,
-    descricao = "Dois golpes rápidos, cada um com 1.2x de dano.",
+    descricao = "Dois disparos rápidos, cada um com 1.2x de dano.",
     usar = function(c)
         local total = c.atacar(1.2)
         if c.vivo() then
             total = total + c.atacar(1)
         end
-        c.msg("Dois golpes rápidos! Causas " .. total .. " de dano.")
+        c.msg("Dois disparos rápidos! Causas " .. total .. " de dano.")
     end
 }, {
     id = "sujo",
-    classe = "ninja",
-    nome = "Golpe Sujo",
+    classe = "arqueiro",
+    nome = "Tiro na Perna",
     cor = {0.6, 0.8, 0.5},
     cooldown = 4,
     descricao = "1,5x de dano e atordoa o inimigo (os chefes resistem 50%).",
     usar = function(c)
         local d = c.atacar(1.5)
-        c.msg("Golpe sujo! Causas " .. d .. " de dano.")
+        c.msg("Tiro na perna! Causas " .. d .. " de dano.")
         c.atordoar()
     end
 }, {
     id = "roubo",
-    classe = "ninja",
-    nome = "Roubo",
+    classe = "arqueiro",
+    nome = "Saque",
     cor = {1, 0.85, 0.2},
     cooldown = 4,
     descricao = "Dano 1.25x e roubas moedas ao inimigo.",
@@ -92,7 +92,7 @@ habilidades.lista = { -- Guerreiro
     end
 }, {
     id = "esquiva",
-    classe = "ninja",
+    classe = "arqueiro",
     nome = "Esquiva",
     cor = {0.5, 0.8, 0.9},
     cooldown = 5,
@@ -100,6 +100,53 @@ habilidades.lista = { -- Guerreiro
     usar = function(c)
         c.proteger(1)
         c.msg("Preparas-te para esquivar o próximo golpe.")
+    end
+}, -- cavaleiro
+{
+    id = "carga",
+    classe = "cavaleiro",
+    nome = "Carga",
+    cor = {0.8, 0.8, 0.95},
+    cooldown = 5,
+    descricao = "1,8x de dano e atordoa o inimigo (os chefes resistem 50%).",
+    usar = function(c)
+        local d = c.atacar(1.8)
+        c.msg("Carga! Causas " .. d .. " de dano.")
+        c.atordoar()
+    end
+}, {
+    id = "lanca",
+    classe = "cavaleiro",
+    nome = "Estocada",
+    cor = {0.9, 0.9, 1},
+    cooldown = 3,
+    descricao = "Ataque com 2,2x de dano.",
+    usar = function(c)
+        local d = c.atacar(2.2)
+        c.msg("Estocada! Causas " .. d .. " de dano.")
+    end
+}, {
+    id = "bastiao",
+    classe = "cavaleiro",
+    nome = "Bastião",
+    cor = {0.7, 0.8, 0.9},
+    cooldown = 5,
+    descricao = "O próximo golpe do inimigo causa 80% menos dano.",
+    usar = function(c)
+        c.proteger(0.8)
+        c.msg("Firmas-te atrás do escudo.")
+    end
+}, {
+    id = "juramento",
+    classe = "cavaleiro",
+    nome = "Juramento",
+    cor = {1, 0.9, 0.5},
+    cooldown = 5,
+    descricao = "Recuperas 35% da vida máxima. Limpa veneno e sangramento.",
+    usar = function(c)
+        local n = c.curarPct(0.35)
+        local e = c.limparEfeitos()
+        c.msg("Recuperas " .. n .. " de vida." .. (e > 0 and " Os males desaparecem." or ""))
     end
 }, -- Mago
 {
@@ -175,7 +222,11 @@ local ICONES = {
     bola = 993,
     escudo = 856,
     cura = 709,
-    drenar = 676
+    drenar = 676,
+    carga = 885,
+    lanca = 728,
+    bastiao = 853,
+    juramento = 709
 }
 
 function habilidades.caminhoIcone(h)

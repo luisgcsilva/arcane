@@ -46,8 +46,16 @@ local disponiveis -- poções que tens (quantidade > 0), pela ordem do menu
 local indicePocao
 local mostradaInimigo -- fraccao de vida que a barra mostra (0 a 1)
 local mostradaJogador
-local opcoes = {"Atacar", "Habilidade", "Defender", "Poção", "Fugir"}
-local acoesMenu = {"atacar", "habilidade", "defender", "pocao", "fugir"}
+-- botao premido -> acao. Um botao que nao esteja aqui devolve nil e nao faz nada.
+local TECLA_ACAO = {
+    confirmar = "atacar",
+    menu = "habilidade",
+    cancelar = "defender",
+    extra = "pocao",
+    gatilho_dir = "fugir"
+}
+local INTENCAO_Y = 376 -- onde começa a frase do que o inimigo prepara
+local INTENCAO_LARG = 600
 local defendendo
 local pocaoGratis -- o Frasco Infinito ainda nao foi usado neste combate
 local cooldowns -- id da habilidade -> turnos que faltam
@@ -329,8 +337,8 @@ local function vencer()
     if subiu > 0 then
         local c = jogador.defClasse()
         table.insert(mensagens, {{1, 0.85, 0.2},
-                                 "Subiste para o nível " .. jogador.nivel .. "! Vida máxima +" .. (c.vidaNivel * subiu) ..
-            ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
+                                 "Subiste para o nível " .. jogador.nivel .. "! Vida máxima +" ..
+            (c.vidaNivel * subiu) .. ", ataque +" .. (c.ataqueNivel * subiu) .. "."})
     end
     for _, id in ipairs(jogador.reliquias) do
         local r = reliquias.porId(id)
@@ -428,51 +436,37 @@ function combate.acao(a)
     deslocamento = 0
 
     if fase == "escolha" then
-        if a == "cima" then
-            indice = indice - 1
-            if indice < 1 then
-                indice = #opcoes
-            end
-        elseif a == "baixo" then
-            indice = indice + 1
-            if indice > #opcoes then
-                indice = 1
-            end
-        elseif a == "confirmar" then
-            local escolha = acoesMenu[indice]
-            if escolha == "atacar" then
-                -- atacar
-                local d = dano(jogador.ataqueTotal())
-                inimigo.vida = inimigo.vida - d
-                table.insert(mensagens, "Atacas e causas " .. d .. " de dano.")
-                jogador.stats.dano_causado = jogador.stats.dano_causado + d
-                if inimigo.vida <= 0 then
-                    vencer()
-                else
-                    fase = "pausa"
-                end
-            elseif escolha == "defender" then
-                defendendo = true
-                local cura = math.min(2, jogador.vida_max - jogador.vida)
-                jogador.vida = jogador.vida + cura
-                table.insert(mensagens,
-                    "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
-                fase = "pausa"
-            elseif escolha == "pocao" then
-                -- pocao
-                abrirPocoes()
-            elseif escolha == "habilidade" then
-                abrirHabilidades()
+        local escolha = TECLA_ACAO[a]
+        if escolha == "atacar" then
+            local d = dano(jogador.ataqueTotal())
+            inimigo.vida = inimigo.vida - d
+            table.insert(mensagens, "Atacas e causas " .. d .. " de dano.")
+            jogador.stats.dano_causado = jogador.stats.dano_causado + d
+            if inimigo.vida <= 0 then
+                vencer()
             else
-                if inimigo.boss then
-                    table.insert(mensagens, "Não consegues fugir do chefe!")
-                elseif math.random() < math.min(0.95, jogador.defClasse().fuga + jogador.bonus("fuga")) *
-                    (inimigo.elite and 0.5 or 1) then
-                    jogo.mudar("portas")
-                else
-                    table.insert(mensagens, "Não consegues fugir do combate.")
-                    fase = "pausa"
-                end
+                fase = "pausa"
+            end
+        elseif escolha == "defender" then
+            defendendo = true
+            local cura = math.min(2, jogador.vida_max - jogador.vida)
+            jogador.vida = jogador.vida + cura
+            table.insert(mensagens,
+                "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
+            fase = "pausa"
+        elseif escolha == "pocao" then
+            abrirPocoes()
+        elseif escolha == "habilidade" then
+            abrirHabilidades()
+        elseif escolha == "fugir" then
+            if inimigo.boss then
+                table.insert(mensagens, "Não consegues fugir do chefe!")
+            elseif math.random() < math.min(0.95, jogador.defClasse().fuga + jogador.bonus("fuga")) *
+                (inimigo.elite and 0.5 or 1) then
+                jogo.mudar("portas")
+            else
+                table.insert(mensagens, "Não consegues fugir do combate.")
+                fase = "pausa"
             end
         end
     elseif fase == "loot" then
@@ -641,6 +635,8 @@ end
 
 function combate.desenhar()
     fontePequena = fontes.pequena
+    local fonteLog = fontes.media -- 18 px (antes eram 15)
+    local logFim = (fase == "loot" or fase == "pocao" or fase == "habilidade") and LOG_FIM or 372
     local normal = love.graphics.getFont()
     local fim = #mensagens - deslocamento
 
@@ -651,14 +647,14 @@ function combate.desenhar()
     end
     -- altura de uma mensagem do log (fonte pequena), com 2 px de folga
     local function alturaDe(m)
-        return linhasDe(m, LARGURA_MSG, fontePequena) * fontePequena:getHeight() + 2
+        return linhasDe(m, LARGURA_MSG, fonteLog) * fonteLog:getHeight() + 2
     end
 
     -- de tras para a frente, enquanto couber na zona do log
     local inicio, usada = fim + 1, 0
     while inicio > 1 do
         local h = alturaDe(mensagens[inicio - 1])
-        if usada + h > LOG_FIM - LOG_Y then
+        if usada + h > logFim - LOG_Y then
             break
         end
         usada = usada + h
@@ -711,16 +707,18 @@ function combate.desenhar()
     love.graphics.setColor(1, 1, 1)
 
     -- personagens: o centro fica acima do chao, a distancia de meia imagem ampliada
-    sprites.desenhar(sprites.caminhoClasse(jogador.classe), JOGADOR_X, CENA_Y - 40, 4)
+    sprites.desenhar(sprites.caminhoClasse(jogador.classe), JOGADOR_X, CENA_Y - 12 * 5, 5)
     local escalaI = inimigo.boss and 8 or 6
     sprites.desenhar(sprites.caminhoInimigo(inimigo), INIMIGO_X, CENA_Y - 8 * escalaI, escalaI, 6, inimigo.espelhar)
 
     -- log
+    love.graphics.setFont(fonteLog)
     local y = LOG_Y
     for i = inicio, fim do
         love.graphics.printf(mensagens[i], 20, y, LARGURA_MSG)
         y = y + alturaDe(mensagens[i])
     end
+    love.graphics.setFont(fontePequena)
     if inicio > 1 then
         love.graphics.print("v mais antigo: L1", 20, LOG_Y - 17)
     end
@@ -731,14 +729,10 @@ function combate.desenhar()
     love.graphics.setFont(normal) -- daqui para baixo volta a fonte normal
 
     if fase == "escolha" then
-        for i, texto in ipairs(opcoes) do
-            local y = PAINEL_X + (i - 1) * 28
-            if i == indice then
-                ui.cursorLinha(20, y, normal:getHeight())
-            end
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.print(texto, 60, y)
-        end
+        love.graphics.setFont(fontes.media) -- com a fonte normal não cabem os 5 (705 px)
+        sprites.ajuda({{"A", "Atacar"}, {"X", "Habilidade"}, {"B", "Defender"}, {"Y", "Poção"}, {"R2", "Fugir"}}, 20,
+            PAINEL_MAX_Y, 2, 10)
+        love.graphics.setFont(normal)
     end
 
     if fase == "escolha" and intencao then
@@ -764,7 +758,7 @@ function combate.desenhar()
         end
 
         local function cabe(t)
-            return PAINEL_X + linhasDe(t, PAINEL_LARG) * normal:getHeight() <= PAINEL_MAX_Y
+            return INTENCAO_Y + linhasDe(t, INTENCAO_LARG) * normal:getHeight() <= PAINEL_MAX_Y - 4
         end
 
         -- do mais completo para o mais curto: para ao primeiro que couber
@@ -776,7 +770,7 @@ function combate.desenhar()
                 break
             end
         end
-        love.graphics.printf(t, PAINEL_Y, PAINEL_X, PAINEL_LARG)
+        love.graphics.printf(t, 20, INTENCAO_Y, INTENCAO_LARG)
         love.graphics.setColor(1, 1, 1)
     elseif fase == "loot" then
         for i, texto in ipairs(opcoesAtuais) do
@@ -817,7 +811,7 @@ function combate.desenhar()
         end
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(disponiveisHab[indiceHab].descricao, 20, PAINEL_MAX_Y)
-    else
+    elseif fase ~= "escolha" then
         sprites.ajuda({{"A", "continuar"}}, 20, PAINEL_MAX_Y)
     end
 end

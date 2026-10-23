@@ -4,7 +4,7 @@ local BRANCO = {1, 1, 1}
 local AMARELO = {1, 0.85, 0.2}
 local VERMELHO = {1, 0.3, 0.3}
 local FUNDO = {0.25, 0.25, 0.25}
-cores.LARANJA = {1, 0.6, 0.3}
+local LARANJA = {1, 0.6, 0.3}
 
 -- Texto colorido: so o nome leva a cor da coisa (inimigo, pocao...).
 -- prefixo e sufixo sao opcionais.
