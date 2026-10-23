@@ -67,6 +67,24 @@ local intencao -- id da intencao do inimigo neste turno
 local padraoIdx -- posicao no padrao do inimigo
 local confirmaPocao
 
+local MODO_FALAS = true -- true: cada um fala do seu lado; false: log seguido como antes
+local lado -- lado[i] = "jogador" ou "inimigo"; sem valor = mensagem neutra (largura toda)
+local COL_ESQ_X = 20
+local COL_DIR_X = 330
+local COL_LARG = 290
+
+-- como table.insert, mas guarda de quem é a mensagem
+local function dizer(quem, texto)
+    table.insert(mensagens, texto)
+    lado[#mensagens] = quem
+end
+
+-- como table.insert, mas a mensagem fica do lado do inimigo
+local function doInimigo(texto)
+    table.insert(mensagens, texto)
+    ladoInimigo[#mensagens] = true
+end
+
 local function dano(ataque)
     return math.max(1, ataque + math.random(-1, 1))
 end
@@ -74,7 +92,7 @@ end
 -- Devolve true se morreste, false se a Cruz Sagrada te salvou
 local function morrer()
     if jogador.salvarComCruz() then
-        table.insert(mensagens, {{1, 1, 0.75}, "A Cruz Sagrada brilha! Sobrevives com 1 de vida."})
+        dizer("jogador", {{1, 1, 0.75}, "A Cruz Sagrada brilha! Sobrevives com 1 de vida."})
         return false
     end
     jogador.vida = 0
@@ -88,7 +106,7 @@ end
 local function aplicarEfeito(id)
     local def = efeitos.lista[id]
     jogador.efeitos[id] = math.max(jogador.efeitos[id] or 0, def.turnos)
-    table.insert(mensagens, {def.cor, def.frase})
+    dizer("jogador", {def.cor, def.frase})
 end
 
 -- Dano dos efeitos ativos. Devolve true se morreste.
@@ -100,7 +118,7 @@ local function processarEfeitos()
             local d = efeitos.dano(id, jogador.sala)
             jogador.vida = jogador.vida - d
             jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
-            table.insert(mensagens, {def.cor, def.nome .. ": perdes " .. d .. " de vida."})
+            dizer("jogador", {def.cor, def.nome .. ": perdes " .. d .. " de vida."})
             turnos = turnos - 1
             jogador.efeitos[id] = (turnos > 0) and turnos or nil
             if jogador.vida <= 0 then
@@ -120,7 +138,7 @@ local function inimigoAtaca()
 
     if def.carrega then
         inimigo.carregado = true
-        table.insert(mensagens, cores.nome(inimigo, "O ", " " .. def.frase))
+        dizer("inimigo", cores.nome(inimigo, "O ", " " .. def.frase))
     end
     if def.descarrega then
         inimigo.carregado = false
@@ -128,7 +146,7 @@ local function inimigoAtaca()
     if def.cura then
         local n = math.min(math.ceil(inimigo.vida_max * def.cura), inimigo.vida_max - inimigo.vida)
         inimigo.vida = inimigo.vida + n
-        table.insert(mensagens, cores.nome(inimigo, "O ", " " .. def.frase .. " (+" .. n .. " vida)."))
+        dizer("inimigo", cores.nome(inimigo, "O ", " " .. def.frase .. " (+" .. n .. " vida)."))
     end
 
     -- golpes (a lista pode ser vazia)
@@ -149,9 +167,9 @@ local function inimigoAtaca()
         jogador.stats.dano_sofrido = jogador.stats.dano_sofrido + d
 
         if d == 0 then
-            table.insert(mensagens, cores.nome(inimigo, "O ", " falha o ataque!"))
+            dizer("inimigo", cores.nome(inimigo, "O ", " falha o ataque!"))
         else
-            table.insert(mensagens, cores.nome(inimigo, "O ", def.acerto .. d .. " de dano" ..
+            dizer("inimigo", cores.nome(inimigo, "O ", def.acerto .. d .. " de dano" ..
                 (defendeu and " (defendeste parte do golpe)." or ".")))
         end
         if jogador.vida <= 0 then
@@ -167,7 +185,7 @@ local function inimigoAtaca()
         if causado > 0 then
             inimigo.vida = inimigo.vida - causado
             jogador.stats.dano_causado = jogador.stats.dano_causado + causado
-            table.insert(mensagens, cores.nome(inimigo, "Os espinhos ferem o ", " (-" .. causado .. ")."))
+            dizer("jogador", cores.nome(inimigo, "Os espinhos ferem o ", " (-" .. causado .. ")."))
         end
     end
 
@@ -314,6 +332,7 @@ function combate.entrar(arg)
     mostradaInimigo = inimigo.vida / inimigo.vida_max
     mostradaJogador = jogador.vida / jogador.vida_max
     mensagens = {cores.nome(inimigo, "Um ", " bloqueia o caminho!"), "--- Turno 1 ---"}
+    lado = {}
 
     -- por ultimo: a intencao precisa do inimigo ja atribuido
     inimigo.carregado = false
@@ -369,7 +388,7 @@ local function criarCtx()
     }
 
     function c.msg(t)
-        table.insert(mensagens, t)
+        dizer("jogador", t)
     end
     function c.vivo()
         return inimigo.vida > 0
@@ -417,7 +436,7 @@ end
 local function abrirHabilidades()
     disponiveisHab = jogador.habilidadesConhecidas()
     if #disponiveisHab == 0 then
-        table.insert(mensagens, "Ainda não aprendeste nenhuma habilidade (nível 2).")
+        dizer("jogador", "Ainda não aprendeste nenhuma habilidade (nível 2).")
         return
     end
     indiceHab = 1
@@ -440,7 +459,7 @@ function combate.acao(a)
         if escolha == "atacar" then
             local d = dano(jogador.ataqueTotal())
             inimigo.vida = inimigo.vida - d
-            table.insert(mensagens, "Atacas e causas " .. d .. " de dano.")
+            dizer("jogador", "Atacas e causas " .. d .. " de dano.")
             jogador.stats.dano_causado = jogador.stats.dano_causado + d
             if inimigo.vida <= 0 then
                 vencer()
@@ -451,8 +470,7 @@ function combate.acao(a)
             defendendo = true
             local cura = math.min(2, jogador.vida_max - jogador.vida)
             jogador.vida = jogador.vida + cura
-            table.insert(mensagens,
-                "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
+            dize("jogador", "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
             fase = "pausa"
         elseif escolha == "pocao" then
             abrirPocoes()
@@ -460,12 +478,12 @@ function combate.acao(a)
             abrirHabilidades()
         elseif escolha == "fugir" then
             if inimigo.boss then
-                table.insert(mensagens, "Não consegues fugir do chefe!")
+                dizer("jogador", "Não consegues fugir do chefe!")
             elseif math.random() < math.min(0.95, jogador.defClasse().fuga + jogador.bonus("fuga")) *
                 (inimigo.elite and 0.5 or 1) then
                 jogo.mudar("portas")
             else
-                table.insert(mensagens, "Não consegues fugir do combate.")
+                dizer("jogador", "Não consegues fugir do combate.")
                 fase = "pausa"
             end
         end
@@ -521,23 +539,22 @@ function combate.acao(a)
         elseif a == "confirmar" then
             local p = disponiveis[indicePocao]
             if jogador.vida >= jogador.vida_max then
-                table.insert(mensagens, "Já tens a vida cheia.")
+                dizer("jogador", "Já tens a vida cheia.")
                 fase = "escolha"
             elseif confirmaPocao ~= indicePocao then
                 confirmaPocao = indicePocao
             else
                 confirmaPocao = nil
                 local curado = jogador.usarPocao(p.id)
-                table.insert(mensagens, cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
+                dizer("jogador", cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
                 if efeitos.curar(jogador.efeitos) > 0 then
-                    table.insert(mensagens, "A poção cura o veneno e as hemorragias.")
+                    dizer("jogador", "A poção cura o veneno e as hemorragias.")
                 end
                 if pocaoGratis then
                     pocaoGratis = false
                     jogador.darPocao(p.id)
                     jogador.stats.pocoes = jogador.stats.pocoes - 1
-                    table.insert(mensagens,
-                        {{0.4, 0.9, 1}, "O Frasco Infinito volta a encher-se: a poção não se gastou."})
+                    dizer("jogador", {{0.4, 0.9, 1}, "O Frasco Infinito volta a encher-se: a poção não se gastou."})
                 end
                 fase = "pausa"
             end
@@ -558,7 +575,7 @@ function combate.acao(a)
         elseif a == "confirmar" then
             local h = disponiveisHab[indiceHab]
             if (cooldowns[h.id] or 0) > 0 then
-                table.insert(mensagens, h.nome .. " ainda não está pronta.")
+                dizer("jogador", h.nome .. " ainda não está pronta.")
             else
                 h.usar(criarCtx())
                 cooldowns[h.id] = h.cooldown
@@ -575,10 +592,9 @@ function combate.acao(a)
                 inimigoAtordoado = false
                 if inimigo.carregado then
                     inimigo.carregado = false
-                    table.insert(mensagens,
-                        cores.nome(inimigo, "O ", " está atordoado: o golpe carregado é interrompido!"))
+                    dizer("inimigo", cores.nome(inimigo, "O ", " está atordoado: o golpe carregado é interrompido!"))
                 else
-                    table.insert(mensagens, cores.nome(inimigo, "O ", " está atordoado e perde o turno."))
+                    dizer("inimigo", cores.nome(inimigo, "O ", " está atordoado e perde o turno."))
                 end
                 if processarEfeitos() and morrer() then
                     fase = "derrota"
@@ -597,7 +613,7 @@ function combate.acao(a)
             fase = "escolha"
             if jogador.efeitos.atordoamento then
                 jogador.efeitos.atordoamento = nil
-                table.insert(mensagens, {efeitos.lista.atordoamento.cor, "Estás atordoado! Perdes este turno."})
+                dizer("jogador", {efeitos.lista.atordoamento.cor, "Estás atordoado! Perdes este turno."})
                 fase = "pausa" -- o inimigo ataca logo a seguir
             end
 
@@ -645,15 +661,18 @@ function combate.desenhar()
         local _, partidas = (f or normal):getWrap(m, largura or LARGURA_MSG)
         return #partidas
     end
-    -- altura de uma mensagem do log (fonte pequena), com 2 px de folga
-    local function alturaDe(m)
-        return linhasDe(m, LARGURA_MSG, fonteLog) * fonteLog:getHeight() + 2
+    -- largura da mensagem i: coluna estreita se for de um dos lados
+    local function larguraDe(i)
+        return (MODO_FALAS and lado[i]) and COL_LARG or LARGURA_MSG
+    end
+    local function alturaDe(i)
+        return linhasDe(mensagens[i], larguraDe(i), fonteLog) * fonteLog:getHeight() + 2
     end
 
     -- de tras para a frente, enquanto couber na zona do log
     local inicio, usada = fim + 1, 0
     while inicio > 1 do
-        local h = alturaDe(mensagens[inicio - 1])
+        local h = alturaDe(inicio - 1)
         if usada + h > logFim - LOG_Y then
             break
         end
@@ -715,8 +734,12 @@ function combate.desenhar()
     love.graphics.setFont(fonteLog)
     local y = LOG_Y
     for i = inicio, fim do
-        love.graphics.printf(mensagens[i], 20, y, LARGURA_MSG)
-        y = y + alturaDe(mensagens[i])
+        if MODO_FALAS and lado[i] == "inimigo" then
+            love.graphics.printf(mensagens[i], COL_DIR_X, y, COL_LARG, "right")
+        else
+            love.graphics.printf(mensagens[i], COL_ESQ_X, y, larguraDe(i))
+        end
+        y = y + alturaDe(i)
     end
     love.graphics.setFont(fontePequena)
     if inicio > 1 then
@@ -853,6 +876,7 @@ function combate.retomar()
     mostradaInimigo = 0
     mostradaJogador = jogador.vida / jogador.vida_max
     mensagens = {"Retomas depois da vitória."}
+    lado = {}
     padraoIdx = inimigo.padrao and math.random(#inimigo.padrao) or 1
     fase = "vitoria"
 
