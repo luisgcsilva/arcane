@@ -63,10 +63,13 @@ function pocoes.acao(a)
         else
             pendente = nil
             local curado = jogador.usarPocao(p.id)
+            if not curado then
+                aviso = "Já não tens essa poção."
+                lista = jogador.pocoesDisponiveis()
+                indice = math.max(1, math.min(indice, #lista))
+                return
+            end
             aviso = "Bebes " .. p.nome .. " e recuperas " .. curado .. " de vida."
-            -- a quantidade mudou: refazer a lista e manter o cursor valido
-            lista = jogador.pocoesDisponiveis()
-            indice = math.max(1, math.min(indice, #lista))
         end
     end
 end

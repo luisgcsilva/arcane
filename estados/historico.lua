@@ -79,7 +79,7 @@ function estado.desenhar()
 
     love.graphics.setFont(normal)
     love.graphics.setColor(1, 1, 1)
-    sprites.ajuda({"CIMABAIXO", "Cima/Baixo", "B", "voltar"}, 20, 440)
+    sprites.ajuda({{"CIMABAIXO", "Cima/Baixo"}, {"B", "voltar"}}, 20, 440)
 end
 
 return estado

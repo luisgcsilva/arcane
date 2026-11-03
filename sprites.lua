@@ -16,7 +16,7 @@ end
 
 -- "Rato Gigante" -> "imagens/inimigos/rato_gigante.png"
 function sprites.caminhoInimigo(inimigo)
-    local nome = inimigo.sprite or (inimigo.nome:lower():gsub("%s+", "_"))
+    local nome = inimigo.sprite or ((inimigo.base or inimigo.nome):lower():gsub("%s+", "_"))
     return "imagens/inimigos/" .. nome .. ".png"
 end
 
@@ -28,8 +28,8 @@ end
 local quadros = {}
 
 -- Desenha centrado em (x, y). Devolve true se desenhou, false se nao ha imagem.
--- espelhar = true vira a imagem para a esquerda
-function sprites.desenhar(caminho, x, y, escala, fps, espelhar)
+-- espelhar = true vira a imagem para a esquerda; cor = {r, g, b} opcional para tingir
+function sprites.desenhar(caminho, x, y, escala, fps, espelhar, cor)
     local img = sprites.carregar(caminho)
     if not img then
         return false
@@ -47,8 +47,9 @@ function sprites.desenhar(caminho, x, y, escala, fps, espelhar)
 
     local frame = math.floor(love.timer.getTime() * (fps or 6)) % n + 1
     local escalaX = espelhar and -escala or escala -- escala negativa = espelho
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(cor or {1, 1, 1}) -- cor opcional: tinge o sprite (ex.: elites)
     love.graphics.draw(img, quadros[caminho][frame], x, y, 0, escalaX, escala, lado / 2, lado / 2)
+    love.graphics.setColor(1, 1, 1) -- volta ao normal para nao tingir o resto
     return true
 end
 

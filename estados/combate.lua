@@ -470,7 +470,7 @@ function combate.acao(a)
             defendendo = true
             local cura = math.min(2, jogador.vida_max - jogador.vida)
             jogador.vida = jogador.vida + cura
-            dize("jogador", "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
+            dizer("jogador", "Levantas a guarda" .. (cura > 0 and (" e recuperas " .. cura .. " de vida.") or "."))
             fase = "pausa"
         elseif escolha == "pocao" then
             abrirPocoes()
@@ -521,13 +521,13 @@ function combate.acao(a)
             fase = "vitoria"
         end
     elseif fase == "pocao" then
-        if a ~= "confirmar" then 
+        if a ~= "confirmar" then
             confirmaPocao = nil
         end
         if a == "cima" then
             indicePocao = indicePocao - 1
             if indicePocao < 1 then
-                indicePocao = #disponiveis 
+                indicePocao = #disponiveis
             end
         elseif a == "baixo" then
             indicePocao = indicePocao + 1
@@ -546,10 +546,12 @@ function combate.acao(a)
             else
                 confirmaPocao = nil
                 local curado = jogador.usarPocao(p.id)
-                dizer("jogador", cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
-                if efeitos.curar(jogador.efeitos) > 0 then
-                    dizer("jogador", "A poção cura o veneno e as hemorragias.")
+                if not curado then
+                    dizer("jogador", "Já não tens essa poção.")
+                    fase = "escolha"
+                    return
                 end
+                dizer("jogador", cores.nome(p, "Bebes ", " e recuperas " .. curado .. " de vida."))
                 if pocaoGratis then
                     pocaoGratis = false
                     jogador.darPocao(p.id)
@@ -728,7 +730,8 @@ function combate.desenhar()
     -- personagens: o centro fica acima do chao, a distancia de meia imagem ampliada
     sprites.desenhar(sprites.caminhoClasse(jogador.classe), JOGADOR_X, CENA_Y - 12 * 5, 5)
     local escalaI = inimigo.boss and 8 or 6
-    sprites.desenhar(sprites.caminhoInimigo(inimigo), INIMIGO_X, CENA_Y - 8 * escalaI, escalaI, 6, inimigo.espelhar)
+    sprites.desenhar(sprites.caminhoInimigo(inimigo), INIMIGO_X, CENA_Y - 8 * escalaI, escalaI, 6, inimigo.espelhar,
+        inimigo.elite and {1, 0.65, 0.65} or nil)
 
     -- log
     love.graphics.setFont(fonteLog)
