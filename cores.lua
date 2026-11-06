@@ -37,4 +37,11 @@ function cores.barra(x, y, largura, altura, fracao)
     love.graphics.rectangle("line", x, y, largura, altura)
 end
 
+-- as cores ficam também na tabela, para os outros ficheiros as usarem
+cores.BRANCO = BRANCO
+cores.AMARELO = AMARELO
+cores.VERMELHO = VERMELHO
+cores.FUNDO = FUNDO
+cores.LARANJA = LARANJA
+
 return cores
